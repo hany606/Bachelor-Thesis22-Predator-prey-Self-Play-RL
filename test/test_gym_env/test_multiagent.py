@@ -1,3 +1,5 @@
+# Source: https://github.com/utiasDSL/gym-pybullet-drones/blob/master/experiments/learning/test_multiagent.py
+
 """Test script for multiagent problems.
 
 This scripts runs the best model found by one of the executions of `multiagent.py`

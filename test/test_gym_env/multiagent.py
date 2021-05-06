@@ -1,3 +1,4 @@
+# Source: https://github.com/utiasDSL/gym-pybullet-drones/blob/master/experiments/learning/multiagent.py
 """Learning script for multi-agent problems.
 
 Agents are based on `ray[rllib]`'s implementation of PPO and use a custom centralized critic.

@@ -1,3 +1,6 @@
 [submodule "gym-pybullet-drones"]
 	path = gym-pybullet-drones
 	url = git@github.com:hany606/gym-pybullet-drones.git
+[submodule "gym-peg-drones"]
+	path = gym-peg-drones
+	url = git@github.com:hany606/gym-peg-drones.git

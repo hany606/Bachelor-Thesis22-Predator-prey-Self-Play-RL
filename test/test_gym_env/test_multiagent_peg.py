@@ -131,6 +131,7 @@ if __name__ == "__main__":
     #### Parameters to recreate the environment ################
     NUM_EVADER_DRONES = int(ARGS.exp.split("-")[2].split("v")[1])
     NUM_PURSUER_DRONES = int(ARGS.exp.split("-")[2].split("v")[0])
+    NUM_DRONES = NUM_EVADER_DRONES+NUM_PURSUER_DRONES
     OBS = ObservationType.KIN if ARGS.exp.split("-")[4] == 'kin' else ObservationType.RGB
     if ARGS.exp.split("-")[5] == 'rpm':
         ACT = ActionType.RPM
@@ -175,6 +176,7 @@ if __name__ == "__main__":
 
     #### Register the environment ##############################
     temp_env_name = "this-aviary-v0"
+    
     if ARGS.exp.split("-")[1] == 'peg':
         register_env(temp_env_name, lambda _: PEGDrones(num_pursuer_drones=NUM_PURSUER_DRONES,
                                                         num_evader_drones=NUM_EVADER_DRONES,
@@ -251,30 +253,15 @@ if __name__ == "__main__":
     print("value model 1", policy1.model.value_model)
 
     #### Create test environment ###############################
-    if ARGS.exp.split("-")[1] == 'flock':
-        test_env = FlockAviary(num_drones=NUM_DRONES,
-                               aggregate_phy_steps=shared_constants.AGGR_PHY_STEPS,
-                               obs=OBS,
-                               act=ACT,
-                               gui=True,
-                               record=False
-                               )
-    elif ARGS.exp.split("-")[1] == 'leaderfollower':
-        test_env = LeaderFollowerAviary(num_drones=NUM_DRONES,
-                                        aggregate_phy_steps=shared_constants.AGGR_PHY_STEPS,
-                                        obs=OBS,
-                                        act=ACT,
-                                        gui=True,
-                                        record=False
-                                        )
-    elif ARGS.exp.split("-")[1] == 'meetup':
-        test_env = MeetupAviary(num_drones=NUM_DRONES,
-                                aggregate_phy_steps=shared_constants.AGGR_PHY_STEPS,
-                                obs=OBS,
-                                act=ACT,
-                                gui=True,
-                                record=False
-                                )
+    if ARGS.exp.split("-")[1] == 'peg':
+        test_env = PEGDrones(num_pursuer_drones=NUM_PURSUER_DRONES,
+                             num_evader_drones=NUM_EVADER_DRONES,
+                             aggregate_phy_steps=shared_constants.AGGR_PHY_STEPS,
+                             obs=OBS,
+                             act=ACT,
+                             gui=True,
+                             record=True
+                             )
     else:
         print("[ERROR] environment not yet implemented")
         exit()

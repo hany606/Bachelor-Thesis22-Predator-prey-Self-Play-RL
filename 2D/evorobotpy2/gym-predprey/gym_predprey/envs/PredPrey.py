@@ -3,6 +3,7 @@ import numpy as np
 import gym
 
 import renderWorld
+from copy import deepcopy
 
 # TODO:
 # [] Make action space
@@ -14,7 +15,6 @@ class PredPrey(gym.Env):
     def __init__(self):
         ErProblem = __import__("ErPredprey")
         self.env = ErProblem.PyErProblem()
-
         self.ninputs = self.env.ninputs               # only works for problems with continuous observation space
         self.noutputs = self.env.noutputs             # only works for problems with continuous observation space
         self.nrobots = 2
@@ -37,14 +37,15 @@ class PredPrey(gym.Env):
         self.nact = np.arange((self.ninputs + (self.nhiddens * self.nlayers) + self.noutputs) * self.nrobots, dtype=np.float64)
 
 
-        # low = np.array([-1*self.delta_length for i in range(self.nrobots)])
-        # high = np.array([self.delta_length for i in range(self.nrobots)])
-        # self.observation_space = gym.spaces.Box(low=low, high=high, dtype=np.float32)
+        # x,y for each robot
+        low = np.array([[0, 0] for i in range(self.nrobots)]).reshape(self.nrobots*2)
+        high = np.array([[self.env.worldx, self.env.worldy] for i in range(self.nrobots)]).reshape(self.nrobots*2)
+        self.observation_space = gym.spaces.Box(low=low, high=high, dtype=np.float32)
 
-
-        # low = np.array([-1*self.delta_length for i in range(self.nrobots)])
-        # high = np.array([self.delta_length for i in range(self.nrobots)])
-        # self.action_space = gym.spaces.Box(low=low, high=high, dtype=np.float32)
+        # two motors for each robot
+        low = np.array([self.env.low for _ in range(2*self.nrobots)])
+        high = np.array([self.env.high for _ in range(2*self.nrobots)])
+        self.action_space = gym.spaces.Box(low=low, high=high, dtype=np.float32)
 
     def reset(self):
         self.env.reset()
@@ -66,9 +67,17 @@ class PredPrey(gym.Env):
         return 0
     
     def _get_observation(self):
-        # self.env.copyObs(self.ob)
-        return self.ob
-
+        # it should work but it make some weird behavior:
+        # observation = np.array([[self.ob[i*3+1], self.ob[i*3+2]] for i in range(self.nrobots)]).reshape(self.nrobots*2)
+        #ob = deepcopy(self.ob)[:4]
+        # return deepcopy(self.ob)
+        # Regrdless this weird way for putting the values in another variable to return it, but this is the one that worked somehow, others made some weird behavior for the system
+        ob = deepcopy(self.ob)
+        observation = np.empty((self.nrobots*2))
+        for i in range(self.nrobots):
+            observation[i*2] = ob[i*3+1]
+            observation[i*2+1] = ob[i*3+2]
+        return observation
     def render(self):
         self.env.render()
         info = f'Step: {self.num_steps}'
@@ -78,12 +87,16 @@ class PredPrey(gym.Env):
 if __name__ == '__main__':
     import gym_predprey
     import gym
+    import time
     env = gym.make('gym_predprey:predprey-v0')
     # print(f"Action space: {env.action_space.shape}\nObservation space: {env.observation_space.shape}")
     obs = env.reset()
-    for i in range(10):
-        action = np.zeros(env.noutputs * env.nrobots, dtype=np.float32)#Policy(obs)
+    for i in range(100):
+        time.sleep(0.1)
+        action = np.zeros(env.noutputs * env.nrobots, dtype=np.float32)#Policy(obs) #4
+        action[0] = 0.5
+        action[1] = -1
         obs, reward, done, _ = env.step(action)
         print(obs)
-        
+        print(type(obs))
         env.render()

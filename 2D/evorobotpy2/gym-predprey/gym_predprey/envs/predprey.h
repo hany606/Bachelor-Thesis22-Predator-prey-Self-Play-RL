@@ -47,6 +47,9 @@ public:
     int ninputs;
     // number of outputs
     int noutputs;
+	double worldx;						// world x dimension
+	double worldy;						// world y dimension
+
 
 private:
 	// create the environment

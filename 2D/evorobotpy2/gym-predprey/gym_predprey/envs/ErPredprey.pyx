@@ -70,6 +70,21 @@ cdef class PyErProblem:
     def noutputs(self, noutputs):
         self.cproblem.noutputs = noutputs
 
+    @property
+    def worldx(self):
+        return self.cproblem.worldx
+    @worldx.setter
+    def worldx(self, worldx):
+        self.cproblem.worldx = worldx
+
+    @property
+    def worldy(self):
+        return self.cproblem.worldy
+    @worldy.setter
+    def worldy(self, worldy):
+        self.cproblem.worldy = worldy
+
+
     # Maximum value for action
     @property
     def high(self):

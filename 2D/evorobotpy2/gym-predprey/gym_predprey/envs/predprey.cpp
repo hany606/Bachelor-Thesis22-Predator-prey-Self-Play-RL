@@ -64,39 +64,41 @@ Problem::Problem()
 	for (r=0, ro=rob; r < nrobots; r++, ro++)
     {
 		
-	   initRobot(ro, r, MarXBot);             // initilize robot variable (e.g. the size of the robots' radius, ext).
+        initRobot(ro, r, MarXBot);             // initilize robot variable (e.g. the size of the robots' radius, ext).
         // set predators and prey properties
         if (r == 0)
-         {
+            {
             ro->color = 1;  // predators and red
             ro->maxSpeed = 500.0 * 0.80;  // predator is 20% slower
-         }
+            }
         else
         {
             ro->color = 3;  // prey are green
             ro->maxSpeed = 500.0;
         }
-	// Changed
-	//    ninputs = 0;
-    //    ninputs += initInfraredSensor(ro);     // infrared sensor (8 units)
-    //    ninputs += initCameraPPSensor(ro);
-    //    ninputs += initGroundGradSensor(ro);
-    //    ninputs += initTimeSensor(ro);
-    //    ninputs += initBiasSensor(ro);
-    
-       ninputs = 2;
-    // Changed
-	//    ro->sensorinfraredid = 0; 			  // the id of the first infrared sensors (used for graphic purpose only to visually siaplay infrared activity)
+        ninputs = 0;
+        loadEnv(ro);    
 
-	   initRobotSensors(ro, ninputs);        // allocate and initialize the robot->sensor vector that contain net->ninputs values and is passed to the function that update the state of the robots' network
-    // Changed
-    //    ro->motorwheels = 2;                   // define the motors used and set the number of motor neurons
-    //    ro->motorleds = 0;                     // motorleds can be set to 1,2, or 3
-	//    ro->motorwheelstype = 0;               // direct controls of the wheels
-       noutputs = ro->motorwheels + ro->motorleds;
-		
-       ro->motorwheelsid = ninputs + 10; // +net->nhiddens;
-       ro->motorledsid = 0;
+        // Changed
+        // ninputs += initCameraPPSensor(ro);
+        //    ninputs += initGroundGradSensor(ro);
+        ninputs += initTimeSensor(ro);
+        // ninputs += initBiasSensor(ro);
+        ninputs += initXYSensor(ro);
+        // Changed
+        // ro->sensorinfraredid = 0; 			  // the id of the first infrared sensors (used for graphic purpose only to visually siaplay infrared activity)
+
+        ro->sensorxyid = 0; 			      // the id of the first xy pos sensors (used for graphic purpose only to visually siaplay xy activity)
+
+        initRobotSensors(ro, ninputs);        // allocate and initialize the robot->sensor vector that contain net->ninputs values and is passed to the function that update the state of the robots' network
+        // Changed
+        ro->motorwheels = 2;                   // define the motors used and set the number of motor neurons
+        ro->motorleds = 0;                     // motorleds can be set to 1,2, or 3
+        ro->motorwheelstype = 0;               // direct controls of the wheels
+        noutputs = ro->motorwheels + ro->motorleds;
+            
+        ro->motorwheelsid = ninputs + 10; // +net->nhiddens;
+        ro->motorledsid = 0;
 	}
 	
 	rng = new RandomGenerator(time(NULL));
@@ -191,14 +193,15 @@ void Problem::getObs()
         // ro->y;
 
         // Changed
-        // ro->csensors = ro->sensors;
+        ro->csensors = ro->sensors;
         // updateInfraredSensor(ro);
         // updateCameraPPSensor(ro);
         // updateGroundGradSensor(ro);
-        // updateTimeSensor(ro, cstep, steps);
+        updateTimeSensor(ro, cstep, steps);
         // updateBiasSensor(ro);
-        // for(s=0, ro->csensors = ro->sensors; s < ninputs; s++, u++, ro->csensors++)
-        //     cobservation[u] = *ro->csensors;
+        updateXYSensor(ro);
+        for(s=0, ro->csensors = ro->sensors; s < ninputs; s++, u++, ro->csensors++)
+            cobservation[u] = *ro->csensors;
     }
     
 }

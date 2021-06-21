@@ -37,6 +37,7 @@ struct robot
 	double rgbcolor[3];					// the intensity of the RGB color of the LED ring
     bool alive;                         // whether the robot is alive
     double energy;                      // the energy level of the robot
+	int sensorxyid;						// id of the first xy pos sensor neuron
 	int sensorinfraredid;				// id of the first infrared sensor neuron
 	int sensorcameraid;				    // id of the first camera sensory neuron
 	int sensorcameran;                  // n of infrared sensory neurons
@@ -113,7 +114,10 @@ void initEnvObjects(int nobjects);								 // allocate and initialize the enviro
 void initRobot(struct robot *cro, int n, int robottype);         // intialize a robot
 void initRobotSensors(struct robot *cro, int nsensors);          // intialize the sensor input vector
 int updateRobot(struct robot *cro, float *actions);             // update the robot on the basis of the state of the robot motor
+void loadEnv(struct robot *rob);
 // each sensor has an initialization and update function
+int initXYSensor(struct robot *cro);							  // XY Pos sensor
+void updateXYSensor(struct robot *cro);
 int initInfraredSensor(struct robot *rob); 						  // infrared sensor
 void updateInfraredSensor(struct robot *rob);
 int initEnergySensor(struct robot *ro);                           // energy sensor

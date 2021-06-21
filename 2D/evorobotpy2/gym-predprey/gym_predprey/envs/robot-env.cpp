@@ -117,7 +117,8 @@ void initRobot(struct robot *cro, int n, int robottype)
     cro->energy = 0.0;                   // the energy level of the robot
     
     // sensors
-    cro->sensorinfraredid = -1;          // id of the first infrared sensor neuron
+    cro->sensorxyid = -1;
+    cro->sensorinfraredid = 0;          // id of the first infrared sensor neuron
     cro->sensorcameraid = 0;             // id of the first camera sensory neuron
     cro->sensorcameran = 0;              // n of infrared sensory neurons
     cro->camnsectors = 0;                // the number of camera setctors
@@ -438,15 +439,12 @@ load_obstacle(char *filename, int  *objectcf)
    return object;
 }
 
-
 /*
- * INFRARED SENSORS INITIALIZATION (8 sensors)
- * and load associated sample data from .sample files
+ * Load associated sample data from .sample files
  */
-int initInfraredSensor(struct robot *cro)
-{
-   if (cro->idn == 0) printf("Sensor[%d]: sampled infrared sensors (robot %d)\n", 8, cro->type);
 
+void loadEnv(struct robot *cro)
+{
    // init the environment and load environmental samples
    switch (cro->type)
     {
@@ -475,9 +473,36 @@ int initInfraredSensor(struct robot *cro)
         cylinder = load_obstacle("marxbot-cylinder.sample", cylindercf);
 	  break;
    }
+}
 
+/*
+ * XY Position SENSORS INITIALIZATION (XY (2) sensors)
+ */
+int initXYSensor(struct robot *cro)
+{
+   if (cro->idn == 0) printf("Sensor[%d]: sampled XY sensors (robot %d)\n", 2, cro->type);
+   return(2);
+}
+/*
+ * XY Position SENSOR UPDATE
+ */
+void updateXYSensor(struct robot *cro)
+{
+    *cro->csensors = cro->x;//cro->x;
+    cro->csensors++;
+    *cro->csensors = cro->y;//cro->y;
+    cro->csensors++;
+}
+
+/*
+ * INFRARED SENSORS INITIALIZATION (8 sensors)
+ */
+int initInfraredSensor(struct robot *cro)
+{
+   if (cro->idn == 0) printf("Sensor[%d]: sampled infrared sensors (robot %d)\n", 8, cro->type);
    return(8);
 }
+
 
 /*
  * INFRARED SENSOR UPDATE

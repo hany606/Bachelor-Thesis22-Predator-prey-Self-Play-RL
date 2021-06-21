@@ -1749,6 +1749,10 @@ static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_7ninputs___get__(struct __p
 static int __pyx_pf_10ErPredprey_11PyErProblem_7ninputs_2__set__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self, PyObject *__pyx_v_ninputs); /* proto */
 static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_8noutputs___get__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self); /* proto */
 static int __pyx_pf_10ErPredprey_11PyErProblem_8noutputs_2__set__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self, PyObject *__pyx_v_noutputs); /* proto */
+static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_6worldx___get__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self); /* proto */
+static int __pyx_pf_10ErPredprey_11PyErProblem_6worldx_2__set__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self, PyObject *__pyx_v_worldx); /* proto */
+static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_6worldy___get__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self); /* proto */
+static int __pyx_pf_10ErPredprey_11PyErProblem_6worldy_2__set__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self, PyObject *__pyx_v_worldy); /* proto */
 static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_4high___get__(CYTHON_UNUSED struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_3low___get__(CYTHON_UNUSED struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_22__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self); /* proto */
@@ -2780,7 +2784,7 @@ static int __pyx_pf_10ErPredprey_11PyErProblem_8noutputs_2__set__(struct __pyx_o
  *     def noutputs(self, noutputs):
  *         self.cproblem.noutputs = noutputs             # <<<<<<<<<<<<<<
  * 
- *     # Maximum value for action
+ *     @property
  */
   __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_noutputs); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 71, __pyx_L1_error)
   __pyx_v_self->cproblem.noutputs = __pyx_t_1;
@@ -2804,7 +2808,251 @@ static int __pyx_pf_10ErPredprey_11PyErProblem_8noutputs_2__set__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "ErPredprey.pyx":75
+/* "ErPredprey.pyx":74
+ * 
+ *     @property
+ *     def worldx(self):             # <<<<<<<<<<<<<<
+ *         return self.cproblem.worldx
+ *     @worldx.setter
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_10ErPredprey_11PyErProblem_6worldx_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_10ErPredprey_11PyErProblem_6worldx_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_10ErPredprey_11PyErProblem_6worldx___get__(((struct __pyx_obj_10ErPredprey_PyErProblem *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_6worldx___get__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+
+  /* "ErPredprey.pyx":75
+ *     @property
+ *     def worldx(self):
+ *         return self.cproblem.worldx             # <<<<<<<<<<<<<<
+ *     @worldx.setter
+ *     def worldx(self, worldx):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->cproblem.worldx); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 75, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "ErPredprey.pyx":74
+ * 
+ *     @property
+ *     def worldx(self):             # <<<<<<<<<<<<<<
+ *         return self.cproblem.worldx
+ *     @worldx.setter
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("ErPredprey.PyErProblem.worldx.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "ErPredprey.pyx":77
+ *         return self.cproblem.worldx
+ *     @worldx.setter
+ *     def worldx(self, worldx):             # <<<<<<<<<<<<<<
+ *         self.cproblem.worldx = worldx
+ * 
+ */
+
+/* Python wrapper */
+static int __pyx_pw_10ErPredprey_11PyErProblem_6worldx_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_worldx); /*proto*/
+static int __pyx_pw_10ErPredprey_11PyErProblem_6worldx_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_worldx) {
+  int __pyx_r;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_10ErPredprey_11PyErProblem_6worldx_2__set__(((struct __pyx_obj_10ErPredprey_PyErProblem *)__pyx_v_self), ((PyObject *)__pyx_v_worldx));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static int __pyx_pf_10ErPredprey_11PyErProblem_6worldx_2__set__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self, PyObject *__pyx_v_worldx) {
+  int __pyx_r;
+  __Pyx_RefNannyDeclarations
+  double __pyx_t_1;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__set__", 0);
+
+  /* "ErPredprey.pyx":78
+ *     @worldx.setter
+ *     def worldx(self, worldx):
+ *         self.cproblem.worldx = worldx             # <<<<<<<<<<<<<<
+ * 
+ *     @property
+ */
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_worldx); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 78, __pyx_L1_error)
+  __pyx_v_self->cproblem.worldx = __pyx_t_1;
+
+  /* "ErPredprey.pyx":77
+ *         return self.cproblem.worldx
+ *     @worldx.setter
+ *     def worldx(self, worldx):             # <<<<<<<<<<<<<<
+ *         self.cproblem.worldx = worldx
+ * 
+ */
+
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("ErPredprey.PyErProblem.worldx.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "ErPredprey.pyx":81
+ * 
+ *     @property
+ *     def worldy(self):             # <<<<<<<<<<<<<<
+ *         return self.cproblem.worldy
+ *     @worldy.setter
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_10ErPredprey_11PyErProblem_6worldy_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_10ErPredprey_11PyErProblem_6worldy_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_10ErPredprey_11PyErProblem_6worldy___get__(((struct __pyx_obj_10ErPredprey_PyErProblem *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_6worldy___get__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+
+  /* "ErPredprey.pyx":82
+ *     @property
+ *     def worldy(self):
+ *         return self.cproblem.worldy             # <<<<<<<<<<<<<<
+ *     @worldy.setter
+ *     def worldy(self, worldy):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->cproblem.worldy); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 82, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "ErPredprey.pyx":81
+ * 
+ *     @property
+ *     def worldy(self):             # <<<<<<<<<<<<<<
+ *         return self.cproblem.worldy
+ *     @worldy.setter
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("ErPredprey.PyErProblem.worldy.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "ErPredprey.pyx":84
+ *         return self.cproblem.worldy
+ *     @worldy.setter
+ *     def worldy(self, worldy):             # <<<<<<<<<<<<<<
+ *         self.cproblem.worldy = worldy
+ * 
+ */
+
+/* Python wrapper */
+static int __pyx_pw_10ErPredprey_11PyErProblem_6worldy_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_worldy); /*proto*/
+static int __pyx_pw_10ErPredprey_11PyErProblem_6worldy_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_worldy) {
+  int __pyx_r;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_10ErPredprey_11PyErProblem_6worldy_2__set__(((struct __pyx_obj_10ErPredprey_PyErProblem *)__pyx_v_self), ((PyObject *)__pyx_v_worldy));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static int __pyx_pf_10ErPredprey_11PyErProblem_6worldy_2__set__(struct __pyx_obj_10ErPredprey_PyErProblem *__pyx_v_self, PyObject *__pyx_v_worldy) {
+  int __pyx_r;
+  __Pyx_RefNannyDeclarations
+  double __pyx_t_1;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__set__", 0);
+
+  /* "ErPredprey.pyx":85
+ *     @worldy.setter
+ *     def worldy(self, worldy):
+ *         self.cproblem.worldy = worldy             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_worldy); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 85, __pyx_L1_error)
+  __pyx_v_self->cproblem.worldy = __pyx_t_1;
+
+  /* "ErPredprey.pyx":84
+ *         return self.cproblem.worldy
+ *     @worldy.setter
+ *     def worldy(self, worldy):             # <<<<<<<<<<<<<<
+ *         self.cproblem.worldy = worldy
+ * 
+ */
+
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("ErPredprey.PyErProblem.worldy.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "ErPredprey.pyx":90
  *     # Maximum value for action
  *     @property
  *     def high(self):             # <<<<<<<<<<<<<<
@@ -2830,7 +3078,7 @@ static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_4high___get__(CYTHON_UNUSED
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "ErPredprey.pyx":76
+  /* "ErPredprey.pyx":91
  *     @property
  *     def high(self):
  *         return 1.0             # <<<<<<<<<<<<<<
@@ -2842,7 +3090,7 @@ static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_4high___get__(CYTHON_UNUSED
   __pyx_r = __pyx_float_1_0;
   goto __pyx_L0;
 
-  /* "ErPredprey.pyx":75
+  /* "ErPredprey.pyx":90
  *     # Maximum value for action
  *     @property
  *     def high(self):             # <<<<<<<<<<<<<<
@@ -2857,7 +3105,7 @@ static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_4high___get__(CYTHON_UNUSED
   return __pyx_r;
 }
 
-/* "ErPredprey.pyx":80
+/* "ErPredprey.pyx":95
  *     # Minimum value for action
  *     @property
  *     def low(self):             # <<<<<<<<<<<<<<
@@ -2882,7 +3130,7 @@ static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_3low___get__(CYTHON_UNUSED 
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "ErPredprey.pyx":81
+  /* "ErPredprey.pyx":96
  *     @property
  *     def low(self):
  *         return -1.0             # <<<<<<<<<<<<<<
@@ -2892,7 +3140,7 @@ static PyObject *__pyx_pf_10ErPredprey_11PyErProblem_3low___get__(CYTHON_UNUSED 
   __pyx_r = __pyx_float_neg_1_0;
   goto __pyx_L0;
 
-  /* "ErPredprey.pyx":80
+  /* "ErPredprey.pyx":95
  *     # Minimum value for action
  *     @property
  *     def low(self):             # <<<<<<<<<<<<<<
@@ -3919,6 +4167,34 @@ static int __pyx_setprop_10ErPredprey_11PyErProblem_noutputs(PyObject *o, PyObje
   }
 }
 
+static PyObject *__pyx_getprop_10ErPredprey_11PyErProblem_worldx(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_10ErPredprey_11PyErProblem_6worldx_1__get__(o);
+}
+
+static int __pyx_setprop_10ErPredprey_11PyErProblem_worldx(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+  if (v) {
+    return __pyx_pw_10ErPredprey_11PyErProblem_6worldx_3__set__(o, v);
+  }
+  else {
+    PyErr_SetString(PyExc_NotImplementedError, "__del__");
+    return -1;
+  }
+}
+
+static PyObject *__pyx_getprop_10ErPredprey_11PyErProblem_worldy(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_10ErPredprey_11PyErProblem_6worldy_1__get__(o);
+}
+
+static int __pyx_setprop_10ErPredprey_11PyErProblem_worldy(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+  if (v) {
+    return __pyx_pw_10ErPredprey_11PyErProblem_6worldy_3__set__(o, v);
+  }
+  else {
+    PyErr_SetString(PyExc_NotImplementedError, "__del__");
+    return -1;
+  }
+}
+
 static PyObject *__pyx_getprop_10ErPredprey_11PyErProblem_high(PyObject *o, CYTHON_UNUSED void *x) {
   return __pyx_pw_10ErPredprey_11PyErProblem_4high_1__get__(o);
 }
@@ -3946,6 +4222,8 @@ static PyMethodDef __pyx_methods_10ErPredprey_PyErProblem[] = {
 static struct PyGetSetDef __pyx_getsets_10ErPredprey_PyErProblem[] = {
   {(char *)"ninputs", __pyx_getprop_10ErPredprey_11PyErProblem_ninputs, __pyx_setprop_10ErPredprey_11PyErProblem_ninputs, (char *)0, 0},
   {(char *)"noutputs", __pyx_getprop_10ErPredprey_11PyErProblem_noutputs, __pyx_setprop_10ErPredprey_11PyErProblem_noutputs, (char *)0, 0},
+  {(char *)"worldx", __pyx_getprop_10ErPredprey_11PyErProblem_worldx, __pyx_setprop_10ErPredprey_11PyErProblem_worldx, (char *)0, 0},
+  {(char *)"worldy", __pyx_getprop_10ErPredprey_11PyErProblem_worldy, __pyx_setprop_10ErPredprey_11PyErProblem_worldy, (char *)0, 0},
   {(char *)"high", __pyx_getprop_10ErPredprey_11PyErProblem_high, 0, (char *)0, 0},
   {(char *)"low", __pyx_getprop_10ErPredprey_11PyErProblem_low, 0, (char *)0, 0},
   {0, 0, 0, 0, 0}

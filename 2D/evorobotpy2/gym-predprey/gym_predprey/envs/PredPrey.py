@@ -2,17 +2,23 @@
 import numpy as np
 import gym
 
-import renderWorld
+from gym_predprey.envs import renderWorld
 from copy import deepcopy
 
 # TODO:
-# [] Make action space
-# [] Make observation space
-# [] Modify the observations from cpp file
-# [] Modify the action space from cpp file
-
+# [X] Make action space
+# [X] Make observation space
+# [X] Modify the observations from cpp file
+# [X] Modify the action space from cpp file
+# [ ] Parameterize the number of robots
+# [ ] Reward function for 1v1 behavior of predetor and prey robots (Make it similar to OpenAI)
+# [X] Done criteria function for maximum number of steps
+# [ ] (Make it work for scripts out of this directory) Make the directory as it is made in tensegrity gym to solve problems in importing the files
+# [ ] Answer this question: what is dt for the system?
+# [ ] Parameterize the initial positions for the robots
 class PredPrey(gym.Env):
-    def __init__(self):
+    def __init__(self, max_num_steps=1000):
+        # ErProblem = __import__("/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/2D/evorobotpy2/gym-predprey/gym_predprey/envs/ErPredprey")
         ErProblem = __import__("ErPredprey")
         self.env = ErProblem.PyErProblem()
         self.ninputs = self.env.ninputs               # only works for problems with continuous observation space
@@ -47,23 +53,37 @@ class PredPrey(gym.Env):
         high = np.array([self.env.high for _ in range(2*self.nrobots)])
         self.action_space = gym.spaces.Box(low=low, high=high, dtype=np.float32)
 
+        self.max_num_steps = max_num_steps
+        self.caught = False
+
     def reset(self):
         self.env.reset()
+        return self._get_observation()
 
     def step(self, action):
         self.num_steps += 1
-        self.ac = action # copy the actions
+        self.ac = deepcopy(action) # copy the actions
         self.env.step()
         obs = self._get_observation()
         reward = self._compute_reward(obs)
         done  = self._compute_done(obs)
-        info = None
+        info = {}
         return obs, reward, done, info
 
     def _compute_reward(self, obs):
+        # if the predetor(pursuer) caught the prey(evader) then the predetor takes good reward and done
+        # if the predetor couldn't catch the prey then it will take negative reward
+        dist = np.linalg.norm(obs[:2] - obs[2:])
+        eps = 200
+        print(f"distance: {dist}")
+        if (dist < eps):
+            self.caught = True
+            return 100
         return -1
 
     def _compute_done(self, obs):
+        if(self.caught or self.num_steps >= self.max_num_steps):
+            return 1
         return 0
     
     def _get_observation(self):
@@ -78,6 +98,7 @@ class PredPrey(gym.Env):
             observation[i*2] = ob[i*3+1]
             observation[i*2+1] = ob[i*3+2]
         return observation
+
     def render(self):
         self.env.render()
         info = f'Step: {self.num_steps}'
@@ -91,12 +112,18 @@ if __name__ == '__main__':
     env = gym.make('gym_predprey:predprey-v0')
     # print(f"Action space: {env.action_space.shape}\nObservation space: {env.observation_space.shape}")
     obs = env.reset()
-    for i in range(100):
+    done = False
+    # for i in range(100):
+    while not done:
         time.sleep(0.1)
-        action = np.zeros(env.noutputs * env.nrobots, dtype=np.float32)#Policy(obs) #4
+        action = np.zeros(env.noutputs * env.nrobots, dtype=np.float32)#Policy(obs) #4 np.random.randn(4)#
         action[0] = 0.5
         action[1] = -1
+        action[2] = np.random.rand()
+        action[3] = np.random.rand()
+        print(action)
+        # print(action.shape, np.zeros(env.noutputs * env.nrobots, dtype=np.float32).shape)
         obs, reward, done, _ = env.step(action)
-        print(obs)
-        print(type(obs))
+        # print(obs)
+        # print(type(obs))
         env.render()

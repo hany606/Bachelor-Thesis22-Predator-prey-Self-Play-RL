@@ -1,0 +1,33 @@
+{
+  "batch_mode": "complete_episodes",
+  "callbacks": "<class '__main__.FillInActions'>",
+  "env": "predprey",
+  "framework": "torch",
+  "model": {
+    "custom_model": "cc_model"
+  },
+  "multiagent": {
+    "observation_fn": "<function central_critic_observer at 0x7f9ffb5ba950>",
+    "policies": {
+      "pol0": [
+        null,
+        "Dict(opponent_action:Box(-1.0, 1.0, (2,), float32), opponent_obs:Box(0.0, 3000.0, (2,), float32), own_obs:Box(0.0, 3000.0, (2,), float32))",
+        "Box(-1.0, 1.0, (2,), float32)",
+        {
+          "agent_id": 0
+        }
+      ],
+      "pol1": [
+        null,
+        "Dict(opponent_action:Box(-1.0, 1.0, (2,), float32), opponent_obs:Box(0.0, 3000.0, (2,), float32), own_obs:Box(0.0, 3000.0, (2,), float32))",
+        "Box(-1.0, 1.0, (2,), float32)",
+        {
+          "agent_id": 1
+        }
+      ]
+    },
+    "policy_mapping_fn": "<function <lambda> at 0x7f9ee03450d0>"
+  },
+  "num_gpus": 1,
+  "num_workers": 1
+}

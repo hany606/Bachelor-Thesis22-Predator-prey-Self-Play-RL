@@ -1,0 +1,30 @@
+{
+  "env": "predprey",
+  "log_level": "WARN",
+  "lr": 0.005,
+  "model": {
+    "fcnet_hiddens": [
+      8,
+      8
+    ]
+  },
+  "multiagent": {
+    "policies": {
+      "agent-0": [
+        null,
+        "Box(0.0, 3000.0, (2,), float32)",
+        "Box(-1.0, 1.0, (2,), float32)",
+        {}
+      ],
+      "agent-1": [
+        null,
+        "Box(0.0, 3000.0, (2,), float32)",
+        "Box(-1.0, 1.0, (2,), float32)",
+        {}
+      ]
+    },
+    "policy_mapping_fn": "<function policy_mapping_fn at 0x7fcef7837bf8>"
+  },
+  "num_gpus": 1,
+  "num_workers": 6
+}

@@ -84,7 +84,7 @@ class PredPrey(gym.Env, MultiAgentEnv):
     
     def _preprocess_action(self, action):
         ac = deepcopy(action) # copy the actions
-        ac[1] = np.array([0,0], dtype=np.float32) # fixed - no motion
+        # ac[1] = np.array([0,0], dtype=np.float32) # fixed - no motion
         # ac[1] = np.array([np.cos(self.num_steps/20), np.cos(self.num_steps/20)], dtype=np.float32) # periodic motion
         return np.array([ac[0], ac[1]]).reshape((self.nrobots*2,))
 
@@ -120,15 +120,15 @@ class PredPrey(gym.Env, MultiAgentEnv):
         dist = np.linalg.norm(obs[0] - obs[1])
         eps = 200
         # print(f"distance: {dist}")
-        prey_reward = +dist
-        predetor_reward = -dist
+        # prey_reward = +dist
+        # predetor_reward = -dist
         if (dist < eps):
             self.caught = True
-        #     prey_reward = -1000
-        #     predetor_reward = 1000
-        # if(self.num_steps > self.max_num_steps):
-        #     prey_reward = 1000
-        #     predetor_reward = -1000
+            prey_reward = -1000
+            predetor_reward = 1000
+        if(self.num_steps > self.max_num_steps):
+            prey_reward = 1000
+            predetor_reward = -1000
         # "predetor": 0 -> red, "prey": 1 -> green
         return {0:predetor_reward, 1:prey_reward}
 
@@ -317,35 +317,35 @@ if __name__ == '__main__':
     import gym
     import time
     import os
-    # env = gym.make('gym_predprey:predprey-v0')
-    # # print(f"Action space: {env.action_space.shape}\nObservation space: {env.observation_space.shape}")
-    # obs = env.reset()
-    # print(obs)
-    # done = {"__all__": False}
-    # reward = 0
-    # # for i in range(100):
-    # while not (True in done.values()):
-    #     time.sleep(0.1)
-    #     action_prey = np.zeros(env.noutputs , dtype=np.float32)#Policy(obs) #4 np.random.randn(4)#
-    #     action_pred = env.action_space.sample()
-    #     action = {0: action_pred, 1: action_prey}
-    #     # print(action)
-    #     # action[0] = np.zeros((2,),dtype=np.float32)
-    #     # action[1] = np.zeros((2,),dtype=np.float32)
+    env = gym.make('gym_predprey:predprey-v0')
+    # print(f"Action space: {env.action_space.shape}\nObservation space: {env.observation_space.shape}")
+    obs = env.reset()
+    print(obs)
+    done = {"__all__": False}
+    reward = 0
+    # for i in range(100):
+    while not (True in done.values()):
+        time.sleep(0.1)
+        action_prey = env.action_space.sample()#np.zeros(env.noutputs , dtype=np.float32)#Policy(obs) #4 np.random.randn(4)#
+        action_pred = env.action_space.sample()
+        action = {0: action_pred, 1: action_prey}
+        # print(action)
+        # action[0] = np.zeros((2,),dtype=np.float32)
+        # action[1] = np.zeros((2,),dtype=np.float32)
 
-    #     # action[0] = 0.5#np.random.rand()*2 - 1
-    #     # action[1] = np.random.rand()*2 - 1
-    #     # action[2] = np.random.rand()*2 - 1
-    #     # action[3] = 0.5#np.random.rand()*2 - 1
-    #     # print(action)
-    #     # print(action.shape, np.zeros(env.noutputs * env.nrobots, dtype=np.float32).shape)
-    #     obs, r, done, _ = env.step(action)
-    #     reward += r[0]
-    #     # print(done)
-    #     # print(f"Reward: {reward}")
-    #     # print(obs[0]) # why just printing destroys everything
-    #     # print(type(obs))
-    #     env.render()
+        # action[0] = 0.5#np.random.rand()*2 - 1
+        # action[1] = np.random.rand()*2 - 1
+        # action[2] = np.random.rand()*2 - 1
+        # action[3] = 0.5#np.random.rand()*2 - 1
+        # print(action)
+        # print(action.shape, np.zeros(env.noutputs * env.nrobots, dtype=np.float32).shape)
+        obs, r, done, _ = env.step(action)
+        reward += r[0]
+        # print(done)
+        # print(f"Reward: {reward}")
+        # print(obs[0]) # why just printing destroys everything
+        # print(type(obs))
+        env.render()
     # obs = env.reset()
     # for i in range(100):
     # # while not (True in done.values()):
@@ -372,36 +372,36 @@ if __name__ == '__main__':
     #     # print(type(obs))
     #     env.render()
     # ------------------------------------------------------
-    env = gym.make('gym_predprey:predpreysingle-v0')
-    obs = env.reset()
-    # print(obs)
-    # done = {"__all__": False}
-    done = False
-    reward = 0
-    # for i in range(100):
-    # while not (True in done.values()):
-    while not done:
-        time.sleep(0.1)
-        action_prey = np.zeros(env.noutputs , dtype=np.float32)#Policy(obs) #4 np.random.randn(4)#
-        action_pred = env.action_space.sample()
-        # action = {0: action_pred, 1: action_prey}
-        action = action_pred
-        # print(action)
-        # action[0] = np.zeros((2,),dtype=np.float32)
-        # action[1] = np.zeros((2,),dtype=np.float32)
+    # env = gym.make('gym_predprey:predpreysingle-v0')
+    # obs = env.reset()
+    # # print(obs)
+    # # done = {"__all__": False}
+    # done = False
+    # reward = 0
+    # # for i in range(100):
+    # # while not (True in done.values()):
+    # while not done:
+    #     time.sleep(0.1)
+    #     action_prey = np.zeros(env.noutputs , dtype=np.float32)#Policy(obs) #4 np.random.randn(4)#
+    #     action_pred = env.action_space.sample()
+    #     # action = {0: action_pred, 1: action_prey}
+    #     action = action_pred
+    #     # print(action)
+    #     # action[0] = np.zeros((2,),dtype=np.float32)
+    #     # action[1] = np.zeros((2,),dtype=np.float32)
 
-        # action[0] = 0.5#np.random.rand()*2 - 1
-        # action[1] = np.random.rand()*2 - 1
-        # action[2] = np.random.rand()*2 - 1
-        # action[3] = 0.5#np.random.rand()*2 - 1
-        # print(action)
-        # print(action.shape, np.zeros(env.noutputs * env.nrobots, dtype=np.float32).shape)
-        obs, r, done, _ = env.step(action)
-        # reward += r[0]
-        print(obs)
-        # print(done)
-        # print(f"Reward: {reward}")
-        # print(obs[0]) # why just printing destroys everything
-        # print(type(obs))
-        env.render()
+    #     # action[0] = 0.5#np.random.rand()*2 - 1
+    #     # action[1] = np.random.rand()*2 - 1
+    #     # action[2] = np.random.rand()*2 - 1
+    #     # action[3] = 0.5#np.random.rand()*2 - 1
+    #     # print(action)
+    #     # print(action.shape, np.zeros(env.noutputs * env.nrobots, dtype=np.float32).shape)
+    #     obs, r, done, _ = env.step(action)
+    #     # reward += r[0]
+    #     print(obs)
+    #     # print(done)
+    #     # print(f"Reward: {reward}")
+    #     # print(obs[0]) # why just printing destroys everything
+    #     # print(type(obs))
+    #     env.render()
     

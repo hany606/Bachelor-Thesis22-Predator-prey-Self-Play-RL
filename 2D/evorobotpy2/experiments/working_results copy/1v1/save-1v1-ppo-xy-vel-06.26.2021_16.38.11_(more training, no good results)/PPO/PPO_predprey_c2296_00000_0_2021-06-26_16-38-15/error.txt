@@ -1,0 +1,71 @@
+Failure # 1 (occurred at 2021-06-26_19-57-15)
+Traceback (most recent call last):
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 718, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 688, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 62, in wrapper
+    return func(*args, **kwargs)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/worker.py", line 1494, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(RuntimeError): [36mray::PPO.train_buffered()[39m (pid=19814, ip=10.91.73.206)
+  File "python/ray/_raylet.pyx", line 501, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 451, in ray._raylet.execute_task.function_executor
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/_private/function_manager.py", line 563, in actor_method_executor
+    return method(__ray_actor, *args, **kwargs)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/trainable.py", line 173, in train_buffered
+    result = self.train()
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer.py", line 608, in train
+    raise e
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer.py", line 594, in train
+    result = Trainable.train(self)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/trainable.py", line 232, in train
+    result = self.step()
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer_template.py", line 173, in step
+    res = next(self.train_exec_impl)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/util/iter.py", line 756, in __next__
+    return next(self.built_iterator)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/util/iter.py", line 783, in apply_foreach
+    for item in it:
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/util/iter.py", line 783, in apply_foreach
+    for item in it:
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/util/iter.py", line 843, in apply_filter
+    for item in it:
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/util/iter.py", line 843, in apply_filter
+    for item in it:
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/util/iter.py", line 783, in apply_foreach
+    for item in it:
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/util/iter.py", line 783, in apply_foreach
+    for item in it:
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/util/iter.py", line 791, in apply_foreach
+    result = fn(item)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/execution/train_ops.py", line 66, in __call__
+    self.sgd_minibatch_size, [])
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/utils/sgd.py", line 119, in do_minibatch_sgd
+    }, minibatch.count)))[policy_id]
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/evaluation/rollout_worker.py", line 921, in learn_on_batch
+    info_out[pid] = policy.learn_on_batch(batch)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/utils/threading.py", line 21, in wrapper
+    return func(self, *a, **k)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/policy/torch_policy.py", line 458, in learn_on_batch
+    grads, fetches = self.compute_gradients(postprocessed_batch)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/policy/policy_template.py", line 335, in compute_gradients
+    return parent_cls.compute_gradients(self, batch)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/utils/threading.py", line 21, in wrapper
+    return func(self, *a, **k)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/policy/torch_policy.py", line 538, in compute_gradients
+    grad_info.update(self.extra_grad_info(postprocessed_batch))
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/policy/policy_template.py", line 376, in extra_grad_info
+    return self._convert_to_non_torch_type(stats_dict)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/policy/policy_template.py", line 385, in _convert_to_non_torch_type
+    return convert_to_non_torch_type(data)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/utils/torch_ops.py", line 68, in convert_to_non_torch_type
+    return tree.map_structure(mapping, stats)
+  File "/home/hany606/.local/lib/python3.6/site-packages/tree/__init__.py", line 516, in map_structure
+    [func(*args) for args in zip(*map(flatten, structures))])
+  File "/home/hany606/.local/lib/python3.6/site-packages/tree/__init__.py", line 516, in <listcomp>
+    [func(*args) for args in zip(*map(flatten, structures))])
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/utils/torch_ops.py", line 63, in mapping
+    return item.cpu().item() if len(item.size()) == 0 else \
+RuntimeError: CUDA error: unspecified launch failure
+

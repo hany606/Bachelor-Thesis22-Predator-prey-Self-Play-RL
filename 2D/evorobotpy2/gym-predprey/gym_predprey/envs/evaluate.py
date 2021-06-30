@@ -240,7 +240,7 @@ if __name__ == "__main__":
     start = time.time()
     # for i in range(test_env.max_num_steps): # Up to 6''
     while not (True in done.values()):
-        time.sleep(0.01)
+        # time.sleep(0.01)
         #### Deploy the policies ###################################
         temp = {}
         temp[0] = policy0.compute_single_action(np.hstack([action[1], obs[1], obs[0]])) # Counterintuitive order, check params.json

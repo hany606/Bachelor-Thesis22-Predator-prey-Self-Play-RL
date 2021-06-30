@@ -135,15 +135,15 @@ void Problem::reset()
     {
         if (r == 0)
         {
-            ro->x = worldx / 3.0;
-            ro->y = worldy / 2.0;
+            ro->x = 100;//worldx / 3.0;
+            ro->y = 100;//worldy / 2.0;
             ro->dir = 0.0;
         }
         else
         {
-            ro->x = worldx / 3.0 * 2.0;
+            ro->x = worldx/2.0; //+ 500;//worldx / 3.0 * 2.0;
             ro->y = worldy / 2.0;
-            ro->dir = M_PI;
+            ro->dir = -M_PI/6.0;//M_PI;
         }
     }
 

@@ -1,1 +1,0 @@
-# This scripts are from [evorobotpy2](https://github.com/snolfi/evorobotpy2)

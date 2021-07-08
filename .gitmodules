@@ -6,9 +6,9 @@
 	path = gym-peg-drones
 	url = git@github.com:hany606/gym-peg-drones.git
 	branch = main
-[submodule "2D/moving-dot/gym-moving-dot"]
-	path = 2D/moving-dot/gym-moving-dot
-	url = git@github.com:mrahtz/gym-moving-dot.git
-[submodule "2D/evorobotpy2/evorobotpy2"]
-	path = 2D/evorobotpy2/evorobotpy2
+[submodule "2D/gym-predprey"]
+	path = 2D/gym-predprey
+	url = git@github.com:hany606/gym-predprey.git
+[submodule "2D/evorobotpy2"]
+	path = 2D/evorobotpy2
 	url = git@github.com:snolfi/evorobotpy2.git

@@ -1,7 +1,0 @@
-{
-  "batch_mode": "complete_episodes",
-  "env": "dot-v0",
-  "framework": "torch",
-  "num_gpus": 0,
-  "num_workers": 5
-}

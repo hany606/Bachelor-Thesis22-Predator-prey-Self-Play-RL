@@ -1,0 +1,63 @@
+[ERROR 2021-07-18 01:21:14,052] function_runner.py: 254  Runner Thread raised error.
+Traceback (most recent call last):
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/function_runner.py", line 248, in run
+    self._entrypoint()
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/function_runner.py", line 316, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/function_runner.py", line 580, in _trainable_func
+    output = fn()
+  File "train_selfplay.py", line 87, in selfplay_train_func
+    pred_agent = PPOTrainer(env="Pred-orig", config=ppo.DEFAULT_CONFIG.copy()) # Trainer is not sampling from the environment, the trainer is only used to compute actions
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer_template.py", line 123, in __init__
+    Trainer.__init__(self, config, env, logger_creator)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer.py", line 548, in __init__
+    super().__init__(config, logger_creator)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/trainable.py", line 98, in __init__
+    self.setup(copy.deepcopy(self.config))
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer.py", line 709, in setup
+    self._init(self.config, self.env_creator)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer_template.py", line 155, in _init
+    num_workers=self.config["num_workers"])
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer.py", line 797, in _make_workers
+    logdir=self.logdir)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/evaluation/worker_set.py", line 100, in __init__
+    spaces=spaces,
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/evaluation/worker_set.py", line 407, in _make_worker
+    spaces=spaces,
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/evaluation/rollout_worker.py", line 563, in __init__
+    policy_config["framework"]))
+RuntimeError: GPUs were assigned to this worker by Ray, but your DL framework (tf) reports GPU acceleration is disabled. This could be due to a bad CUDA- or tf installation.
+Exception in thread Thread-2:
+Traceback (most recent call last):
+  File "/usr/lib/python3.6/threading.py", line 916, in _bootstrap_inner
+    self.run()
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/function_runner.py", line 267, in run
+    raise e
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/function_runner.py", line 248, in run
+    self._entrypoint()
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/function_runner.py", line 316, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/function_runner.py", line 580, in _trainable_func
+    output = fn()
+  File "train_selfplay.py", line 87, in selfplay_train_func
+    pred_agent = PPOTrainer(env="Pred-orig", config=ppo.DEFAULT_CONFIG.copy()) # Trainer is not sampling from the environment, the trainer is only used to compute actions
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer_template.py", line 123, in __init__
+    Trainer.__init__(self, config, env, logger_creator)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer.py", line 548, in __init__
+    super().__init__(config, logger_creator)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/trainable.py", line 98, in __init__
+    self.setup(copy.deepcopy(self.config))
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer.py", line 709, in setup
+    self._init(self.config, self.env_creator)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer_template.py", line 155, in _init
+    num_workers=self.config["num_workers"])
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/agents/trainer.py", line 797, in _make_workers
+    logdir=self.logdir)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/evaluation/worker_set.py", line 100, in __init__
+    spaces=spaces,
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/evaluation/worker_set.py", line 407, in _make_worker
+    spaces=spaces,
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/rllib/evaluation/rollout_worker.py", line 563, in __init__
+    policy_config["framework"]))
+RuntimeError: GPUs were assigned to this worker by Ray, but your DL framework (tf) reports GPU acceleration is disabled. This could be due to a bad CUDA- or tf installation.
+

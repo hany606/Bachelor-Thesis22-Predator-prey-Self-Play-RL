@@ -1,0 +1,24 @@
+[INFO 2021-07-18 01:49:41,545] trainable.py: 104  Trainable.setup took 13.417 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+[ERROR 2021-07-18 01:50:05,103] worker.py: 409  SystemExit was raised from the worker
+Traceback (most recent call last):
+  File "python/ray/_raylet.pyx", line 595, in ray._raylet.task_execution_handler
+  File "python/ray/_raylet.pyx", line 453, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 490, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 497, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 501, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 451, in ray._raylet.execute_task.function_executor
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/_private/function_manager.py", line 563, in actor_method_executor
+    return method(__ray_actor, *args, **kwargs)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/trainable.py", line 173, in train_buffered
+    result = self.train()
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/trainable.py", line 232, in train
+    result = self.step()
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/tune/function_runner.py", line 349, in step
+    block=True, timeout=RESULT_FETCH_TIMEOUT)
+  File "/usr/lib/python3.6/queue.py", line 173, in get
+    self.not_empty.wait(remaining)
+  File "/usr/lib/python3.6/threading.py", line 299, in wait
+    gotit = waiter.acquire(True, timeout)
+  File "/home/hany606/.local/lib/python3.6/site-packages/ray/worker.py", line 406, in sigterm_handler
+    sys.exit(1)
+SystemExit: 1

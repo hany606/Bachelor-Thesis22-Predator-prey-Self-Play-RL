@@ -1,0 +1,7 @@
+{
+  "batch_mode": "complete_episodes",
+  "framework": "torch",
+  "num_gpus": 1,
+  "num_workers": 6,
+  "seed": 3
+}

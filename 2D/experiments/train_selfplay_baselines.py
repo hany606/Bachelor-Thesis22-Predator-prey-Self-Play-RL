@@ -16,7 +16,8 @@ from shutil import copyfile # keep track of generations
 
 from gym_predprey.envs.PredPrey1v1 import PredPrey1v1Pred
 from gym_predprey.envs.PredPrey1v1 import PredPrey1v1Prey
- 
+from stable_baselines3.common.callbacks import CheckpointCallback
+
 
 OBS = "full"
 ACT = "vel"
@@ -29,11 +30,11 @@ EVAL_EPISODES = 5
 # PREY_TRAINING_EPOCHS = 5
 LOG_DIR = None
 # TRAINING_ITERATION = 1000
-NUM_TIMESTEPS = int(8e3)#int(1e9)
+NUM_TIMESTEPS = int(25e3)#int(1e9)
 EVAL_FREQ = int(1e3)
 RENDER_MODE = False
 BEST_THRESHOLD = 0.5 # must achieve a mean score above this to replace prev best self
-NUM_ROUNDS = 100
+NUM_ROUNDS = 50
 # selfplay_policies = None
 
 # TODO: Initialize Wandbai
@@ -52,14 +53,6 @@ def make_deterministic(seed):
     # This is only for Convolution no problem
     torch.backends.cudnn.deterministic = True
 
-
-# Just a wrapper for the gym environment to have the same interface of compute_action
-class InitAgent:
-    def __init__(self, env):
-        self.env = env
-
-    def compute_action(self, _):
-        return self.env.action_space.sample()
 
 class SelfPlayPredEnv(PredPrey1v1Pred):
     # wrapper over the normal single player env, but loads the best self play model
@@ -80,7 +73,7 @@ class SelfPlayPredEnv(PredPrey1v1Pred):
     # Change to search only for the prey
     def reset(self):
         # load model if it's there
-        modellist = [f for f in os.listdir(LOG_DIR) if f.startswith("history")]
+        modellist = [f for f in os.listdir(os.path.join(LOG_DIR, "prey")) if f.startswith("history")]
         modellist.sort()
         if len(modellist) > 0:
             filename = os.path.join(LOG_DIR, "prey", modellist[-1]) # the latest best model
@@ -111,7 +104,7 @@ class SelfPlayPreyEnv(PredPrey1v1Prey):
     # Change to search only for the prey
     def reset(self):
         # load model if it's there
-        modellist = [f for f in os.listdir(LOG_DIR) if f.startswith("history")]
+        modellist = [f for f in os.listdir(os.path.join(LOG_DIR, "pred")) if f.startswith("history")]
         modellist.sort()
         if len(modellist) > 0:
             filename = os.path.join(LOG_DIR, "pred", modellist[-1]) # the latest best model
@@ -131,6 +124,10 @@ class SelfPlayCallback(EvalCallback):
         self.best_mean_reward = BEST_THRESHOLD
         self.generation = 0
         self.agent_name = None
+
+
+    # def _on_training_end(self) -> None:
+    #     super(SelfPlayCallback, self)._on_training_end()
 
     # def _on_step(self) -> bool:
     #     result = super(SelfPlayCallback, self)._on_step()
@@ -166,86 +163,6 @@ def rollout(env, policy):
 
     return total_reward
 
-# Class to store, initialize, sample policeis for SelfPlay algorithm
-class SelfPlayPolicies:
-    # initialize the policy
-    # def __init__(self, num_policies=2, initialization_policy=RandomPolicy, keys=None):
-    def __init__(self, initialization_policy, num_policies=2, keys=None):
-        self.num_policies = num_policies
-        if(keys is None):
-            self.keys = [i for i in range(num_policies)]
-        else:
-            if(num_policies != len(keys)):
-                print("Number of policies is not equal to number of keys provideed to map the policy to the dictionary")
-                raise ValueError
-            self.keys = keys
-
-        self.policies = {self.keys[i]: [{"policy":initialization_policy[self.keys[i]], "path":None}] for i in range(num_policies)}
-
-    # Random sampling for the agents
-    def sample(self, num_sampled_policies=1):
-        policies = {}
-        for i in range(self.num_policies):
-            key = self.keys[i]
-            policies[key] = np.random.choice(self.policies[key], num_sampled_policies)
-        return policies
-    
-    def store(self, policies, path):
-        for i in range(self.num_policies):
-            key = self.keys[i]
-            self.policies[key].append({"policy": policies[key], "path": path[key]})
-
-    def get_num_policies(self):
-        return len(self.policies[self.keys[0]])
-
-
-def selfplay_train_func_test(config, reporter):
-    # Initialize policies [DONE]
-    # Sample predator and prey
-    sampled_policies = selfplay_policies.sample()
-    sampled_pred = sampled_policies["pred"][0]["policy"]
-    sampled_prey = sampled_policies["prey"][0]["policy"]
-    print("-------------- Train Predator --------------------")
-    # Train the predator against the sampled prey
-    config["env_config"] = {"prey_policy": sampled_prey}
-    print(pretty_print(config))
-    register_env("Pred", lambda _: PredPrey1v1Pred(prey_policy=sampled_prey))
-    pred_agent = PPOTrainer(env="Pred", config=config)   # https://github.com/ray-project/ray/blob/master/rllib/agents/trainer.py
-    if(selfplay_policies.get_num_policies() > 1): # restore the policy
-        pred_agent.restore(sampled_policies["pred"][0]["path"])
-    
-    # Train for multiple epochs
-    for pred_epoch in range(PRED_TRAINING_EPOCHS):
-        result = pred_agent.train()
-        result["phase"] = "Predator"
-        reporter(**result)
-        pred_time = result["timesteps_total"]
-    state = pred_agent.save()
-    pred_save_checkpoint = pred_agent.save_checkpoint(checkpoint_dir+"-pred")
-    pred_agent.stop()
-
-    # Train the prey against the sampled predator (optimize)
-    print("-------------- Train Prey --------------------")
-    config["env_config"] = {"pred_policy": sampled_pred}
-    register_env("Prey", lambda _: PredPrey1v1Prey(pred_policy=sampled_pred))
-    prey_agent = PPOTrainer(PPOTrainer="Prey", config=config)
-    # TODO: Remove the restore and just pick the last one
-    if(selfplay_policies.get_num_policies() > 1): # restore the policy
-        prey_agent.restore(sampled_policies["prey"][0]["path"])
-    for prey_epoch in range(PREY_TRAINING_EPOCHS):
-        result = prey_agent.train()
-        result["phase"] = "Prey"
-        result["timesteps_total"] += pred_time
-        reporter(**result)
-    state = prey_agent.save()
-    prey_save_checkpoint = prey_agent.save_checkpoint(checkpoint_dir+"-prey")
-    prey_agent.stop()
-    # Save the predator and save the prey to the policies
-    # selfplay_policies.store({"pred":pred_agent.get_policy(), "prey":prey_agent.get_policy}, path = {"pred": pred_save_checkpoint, "prey": prey_save_checkpoint})
-    selfplay_policies.store({"pred":pred_agent, "prey":prey_agent}, path = {"pred": pred_save_checkpoint, "prey": prey_save_checkpoint})
-    print("------------------------------------------------------")
-    # Repeate
-
 
 # TODO: make it more easy to train and switch the agent that is trainin
 def train(log_dir):
@@ -278,16 +195,19 @@ def train(log_dir):
                                         n_eval_episodes=EVAL_EPISODES,
                                         deterministic=True)
 
+    pred_checkpoint_callback = CheckpointCallback(save_freq=5000, save_path=os.path.join(LOG_DIR, "pred"),
+                                                    name_prefix='history')
 
+    prey_checkpoint_callback = CheckpointCallback(save_freq=5000, save_path=os.path.join(LOG_DIR, "prey"),
+                                                    name_prefix='history')
     # Here alternate training
     for round_num in range(NUM_ROUNDS):
-        print(f"------------------- Pred {round_num}--------------------")
-        pred_model.learn(total_timesteps=NUM_TIMESTEPS, callback=pred_eval_callback)
-        print(f"------------------- Prey {round_num}--------------------")
-        prey_model.learn(total_timesteps=NUM_TIMESTEPS, callback=pred_eval_callback)
-    
-    pred_model.save(os.path.join(LOG_DIR, "pred", "final_model")) # probably never get to this point.
-    prey_model.save(os.path.join(LOG_DIR, "pred", "final_model")) # probably never get to this point.
+        print(f"------------------- Pred {round_num+1}--------------------")
+        pred_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[pred_checkpoint_callback,pred_eval_callback])
+        print(f"------------------- Prey {round_num+1}--------------------")
+        prey_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[prey_checkpoint_callback, prey_eval_callback])
+        pred_model.save(os.path.join(LOG_DIR, "pred", "final_model")) # probably never get to this point.
+        prey_model.save(os.path.join(LOG_DIR, "prey", "final_model")) # probably never get to this point.
     pred_env.close()
     prey_env.close()
 

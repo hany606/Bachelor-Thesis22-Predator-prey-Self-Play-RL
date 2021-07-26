@@ -1,43 +1,118 @@
 # Training script for self-play using Stable baselines3
 # Based on: https://github.com/hardmaru/slimevolleygym/blob/master/training_scripts/train_ppo_selfplay.py
+
+# This script is used to:
+# - Self-play training between agents
+# - The agents are initialized with a policy
+# - The policy of the opponent is being selected to be the latest model if exists if not then a random policy (Sampling from the action space)
+# - The training is starting to train the first agent for several epochs then the second agent
+# - The model is being saved in the local directory
+
+################################################################
+# Hirarichey of that script in the whole project in point of view of wandb:
+# Behavioral-Learning-Thesis:Self-Play:2D:evorobotpy2:predprey:1v1
+
+################################################################
+# In self-play:
+# We have several major aspects:
+# 1. How to sample the agents?  (1st player)    -> Here: latest
+# 2. How to sample the opponents?   (2nd player)    -> Here: latest
+# 3. How to train both of them? (Schema of the training)    -> Here: alternating
+# 4. How to rank/evaluate the agents? How this agent is valuable for the training?  (e.g. points)   -> Here: None
+################################################################
+
 import os
 from datetime import datetime
 import numpy as np
 
 import torch
+import gym_predprey
 
 import gym
 
+from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.vec_env import DummyVecEnv, VecVideoRecorder
 from stable_baselines3 import PPO
 from stable_baselines3.common import logger
 from stable_baselines3.common.callbacks import EvalCallback
 from shutil import copyfile # keep track of generations
 
 
-from gym_predprey.envs.PredPrey1v1 import PredPrey1v1Pred
-from gym_predprey.envs.PredPrey1v1 import PredPrey1v1Prey
+
 from stable_baselines3.common.callbacks import CheckpointCallback
+
+from wandb.integration.sb3 import WandbCallback
+import wandb
+
+from gym.envs.registration import register
+
+from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPredEnv
+from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPreyEnv
 
 
 OBS = "full"
 ACT = "vel"
-ENV = "PredPrey-Pred-v0"
+ENV = "SelfPlay1v1-Pred_Prey-v0"
 WORKERS = 1#3
 ALGO = "PPO"
+PRED_ALGO = "PPO"
+PREY_ALGO = "PPO"
+
 SEED_VALUE = 3
-EVAL_EPISODES = 5
-# PRED_TRAINING_EPOCHS = 5
-# PREY_TRAINING_EPOCHS = 5
+NUM_EVAL_EPISODES = 5
 LOG_DIR = None
-# TRAINING_ITERATION = 1000
+# PRED_TRAINING_EPOCHS = 25  # in iterations
+# PREY_TRAINING_EPOCHS = 25  # in iterations
 NUM_TIMESTEPS = int(25e3)#int(1e9)
 EVAL_FREQ = int(1e3)
-RENDER_MODE = False
-BEST_THRESHOLD = 0.5 # must achieve a mean score above this to replace prev best self
 NUM_ROUNDS = 50
-# selfplay_policies = None
+SAVE_FREQ = 5000 # in steps
 
-# TODO: Initialize Wandbai
+
+env_config = {"Obs": OBS, "Act": ACT, "Env": ENV, "Group":"2D:evorobotpy2:predprey:1v1"}
+
+training_config = { "pred_algorithm": PRED_ALGO,
+                    "prey_algorithm": PREY_ALGO,
+                    "num_rounds": NUM_ROUNDS,
+                    "save_freq": SAVE_FREQ,
+                    "num_timesteps": NUM_TIMESTEPS,
+                    # "pred_training_epochs":PRED_TRAINING_EPOCHS,
+                    "num_eval_episodes": NUM_EVAL_EPISODES,
+                    "num_workers": WORKERS,
+                    "seed": SEED_VALUE,
+                    "eval_freq": EVAL_FREQ,
+                    "framework": "stable_baselines3",
+                    "agent_selection": "latest",
+                    "opponent_selection": "latest",
+                    "training_schema": "alternating",
+                    "ranking": "none",
+                    }
+
+
+pred_algorithm_config = {   "policy": "MlpPolicy",
+                            "clip_range": 0.2,
+                            "ent_coef": 0.0,
+                            "lr": 3e-4,
+                            "batch_size":64,
+                            "gamma":0.99
+                        }
+
+
+prey_algorithm_config = {   "policy": "MlpPolicy",
+                            "clip_range": 0.2,
+                            "ent_coef": 0.0,
+                            "lr": 3e-4,
+                            "batch_size":64,
+                            "gamma":0.99
+                        }
+
+
+wandb_experiment_config = dict(env_config, **training_config)
+
+wandb_experiment_config["pred_algorithm_config"] = pred_algorithm_config
+
+wandb_experiment_config["prey_algorithm_config"] = prey_algorithm_config
+
 
 # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
 def make_deterministic(seed):
@@ -54,160 +129,83 @@ def make_deterministic(seed):
     torch.backends.cudnn.deterministic = True
 
 
-class SelfPlayPredEnv(PredPrey1v1Pred):
-    # wrapper over the normal single player env, but loads the best self play model
-    def __init__(self):
-        super(SelfPlayPredEnv, self).__init__()
-        self.prey_policy = self # It replaces the policy for the other agent with the best policy that found during reset (This class have it)
-        self.best_model = None
-        self.best_model_filename = None
-
-    # TODO: This works fine for identical agents but different agents will not work as they won't have the same action spaec
-    def compute_action(self, obs): # the policy
-        if self.best_model is None:
-            return self.action_space.sample() # return a random action
+class make_env:
+    def __init__(self, env_id, config=None):
+        self.env_id = env_id
+        self.config = config
+    def make(self):
+        env = None
+        if(self.config is not None):
+            env = gym.make(self.env_id, **self.config)
         else:
-            action, _ = self.best_model.predict(obs) # it is predict because this is PPO from stable-baselines not rllib
-            return action
+            env = gym.make(self.env_id)
+        env = Monitor(env)  # record stats such as returns
+        return env
 
-    # Change to search only for the prey
-    def reset(self):
-        # load model if it's there
-        modellist = [f for f in os.listdir(os.path.join(LOG_DIR, "prey")) if f.startswith("history")]
-        modellist.sort()
-        if len(modellist) > 0:
-            filename = os.path.join(LOG_DIR, "prey", modellist[-1]) # the latest best model
-            if filename != self.best_model_filename:
-                print("loading model: ", filename)
-                self.best_model_filename = filename
-                if self.best_model is not None:
-                    del self.best_model
-                self.best_model = PPO.load(filename, env=self)
-        return super(SelfPlayPredEnv, self).reset()
+def create_env(env_id, dir, config=None):
+    env = make_env(env_id, config)
+    # env = DummyVecEnv([env.make])
+    # env = VecVideoRecorder(env, dir,
+    #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
+    return env
 
-class SelfPlayPreyEnv(PredPrey1v1Prey):
-    # wrapper over the normal single player env, but loads the best self play model
-    def __init__(self):
-        super(SelfPlayPreyEnv, self).__init__()
-        self.pred_policy = self # It replaces the policy for the other agent with the best policy that found during reset (This class have it)
-        self.best_model = None
-        self.best_model_filename = None
-
-    # TODO: This works fine for identical agents but different agents will not work as they won't have the same action spaec
-    def compute_action(self, obs): # the policy
-        if self.best_model is None:
-            return self.action_space.sample() # return a random action
-        else:
-            action, _ = self.best_model.predict(obs) # it is predict because this is PPO from stable-baselines not rllib
-            return action
-
-    # Change to search only for the prey
-    def reset(self):
-        # load model if it's there
-        modellist = [f for f in os.listdir(os.path.join(LOG_DIR, "pred")) if f.startswith("history")]
-        modellist.sort()
-        if len(modellist) > 0:
-            filename = os.path.join(LOG_DIR, "pred", modellist[-1]) # the latest best model
-            if filename != self.best_model_filename:
-                print("loading model: ", filename)
-                self.best_model_filename = filename
-                if self.best_model is not None:
-                    del self.best_model
-                self.best_model = PPO.load(filename, env=self)
-        return super(SelfPlayPreyEnv, self).reset()
-
-class SelfPlayCallback(EvalCallback):
-  # hacked it to only save new version of best model if beats prev self by BEST_THRESHOLD score
-  # after saving model, resets the best score to be BEST_THRESHOLD
-    def __init__(self, *args, **kwargs):
-        super(SelfPlayCallback, self).__init__(*args, **kwargs)
-        self.best_mean_reward = BEST_THRESHOLD
-        self.generation = 0
-        self.agent_name = None
-
-
-    # def _on_training_end(self) -> None:
-    #     super(SelfPlayCallback, self)._on_training_end()
-
-    # def _on_step(self) -> bool:
-    #     result = super(SelfPlayCallback, self)._on_step()
-    #     if result: #and self.best_mean_reward > BEST_THRESHOLD:
-    #         self.generation += 1
-    #         print("SELFPLAY: mean_reward achieved:", self.best_mean_reward)
-    #         print("SELFPLAY: new best model, bumping up generation to", self.generation)
-    #         source_file = os.path.join(LOG_DIR, self.agent_name, "best_model.zip")
-    #         backup_file = os.path.join(LOG_DIR, self.agent_name, "history_"+str(self.generation).zfill(8)+".zip")
-    #         copyfile(source_file, backup_file)
-    #         self.best_mean_reward = BEST_THRESHOLD
-    #     return result
-
-    # def set_agent_save_name(self, name):
-    #     self.agent_name = name
-
-def rollout(env, policy):
-    """ play one agent vs the other in modified gym-style loop. """
-    obs = env.reset()
-
-    done = False
-    total_reward = 0
-
-    while not done:
-
-        action, _states = policy.predict(obs)
-        obs, reward, done, _ = env.step(action)
-
-        total_reward += reward
-
-        if RENDER_MODE:
-            env.render()
-
-    return total_reward
-
-
-# TODO: make it more easy to train and switch the agent that is trainin
 def train(log_dir):
     # train selfplay agent
     logger.configure(folder=log_dir)
-    pred_env = SelfPlayPredEnv()
-    pred_env.seed(SEED_VALUE)
     make_deterministic(SEED_VALUE)
-    pred_model = PPO("MlpPolicy", pred_env, 
-                     clip_range=0.2, ent_coef=0.0,
-                     learning_rate=3e-4, batch_size=64, gamma=0.99, verbose=2)
+    
+    # --------------------------------------- Pred -------------------------------------------------------
+    
 
-    pred_eval_callback = SelfPlayCallback(pred_env,
-                                        best_model_save_path=os.path.join(LOG_DIR, "pred"),
-                                        log_path=os.path.join(LOG_DIR, "pred"),
-                                        eval_freq=EVAL_FREQ,
-                                        n_eval_episodes=EVAL_EPISODES,
-                                        deterministic=True)
+    # pred_env = create_env("SelfPlay1v1-Pred-v0", os.path.join(log_dir, "pred", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPredEnv()
+    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO) #SelfPlayPredEnv()
+    # pred_env.seed(SEED_VALUE)
+    pred_model = PPO(pred_algorithm_config["policy"], pred_env, 
+                     clip_range=pred_algorithm_config["clip_range"], ent_coef=pred_algorithm_config["ent_coef"],
+                     learning_rate=pred_algorithm_config["lr"], batch_size=pred_algorithm_config["batch_size"],
+                     gamma=pred_algorithm_config["gamma"], verbose=2,
+                    tensorboard_log=log_dir)
+    pred_eval_callback = EvalCallback(pred_env,
+                                     log_path=os.path.join(log_dir, "pred"),
+                                     eval_freq=EVAL_FREQ,
+                                     n_eval_episodes=NUM_EVAL_EPISODES,
+                                     deterministic=True)
 
-    prey_env = SelfPlayPreyEnv()
-    prey_env.seed(SEED_VALUE)
-    prey_model = PPO("MlpPolicy", prey_env, 
-                     clip_range=0.2, ent_coef=0.0,
-                     learning_rate=3e-4, batch_size=64, gamma=0.99, verbose=2)
 
-    prey_eval_callback = SelfPlayCallback(prey_env,
-                                        best_model_save_path=os.path.join(LOG_DIR, "prey"),
-                                        log_path=os.path.join(LOG_DIR, "prey"),
-                                        eval_freq=EVAL_FREQ,
-                                        n_eval_episodes=EVAL_EPISODES,
-                                        deterministic=True)
+    # --------------------------------------- Prey -------------------------------------------------------
+    # prey_env = create_env("SelfPlay1v1-Prey-v0", os.path.join(log_dir, "prey", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPreyEnv()
+    prey_env = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO) #SelfPlayPreyEnv()
+    # prey_env.seed(SEED_VALUE)
+    prey_model = PPO(prey_algorithm_config["policy"], prey_env, 
+                     clip_range=prey_algorithm_config["clip_range"], ent_coef=prey_algorithm_config["ent_coef"],
+                     learning_rate=prey_algorithm_config["lr"], batch_size=prey_algorithm_config["batch_size"],
+                     gamma=prey_algorithm_config["gamma"], verbose=2,
+                     tensorboard_log=log_dir)                     
+    prey_eval_callback = EvalCallback(prey_env,
+                                      log_path=os.path.join(log_dir, "prey"),
+                                      eval_freq=EVAL_FREQ,
+                                      n_eval_episodes=NUM_EVAL_EPISODES,
+                                      deterministic=True)
 
-    pred_checkpoint_callback = CheckpointCallback(save_freq=5000, save_path=os.path.join(LOG_DIR, "pred"),
-                                                    name_prefix='history')
+    # ----------------------------------------------------------------------------------------------------
 
-    prey_checkpoint_callback = CheckpointCallback(save_freq=5000, save_path=os.path.join(LOG_DIR, "prey"),
-                                                    name_prefix='history')
+    # TODO: There is a problem here in reporting the results, results from the pred and the prey will be together
+    # --------------------------------------------- Training ---------------------------------------------
     # Here alternate training
     for round_num in range(NUM_ROUNDS):
+        pred_checkpoint_callback = CheckpointCallback(save_freq=5000, save_path=os.path.join(LOG_DIR, "pred"),
+                                                    name_prefix=f"history_{round_num}")
+
+        prey_checkpoint_callback = CheckpointCallback(save_freq=5000, save_path=os.path.join(LOG_DIR, "prey"),
+                                                    name_prefix=f"history_{round_num}")
+
         print(f"------------------- Pred {round_num+1}--------------------")
-        pred_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[pred_checkpoint_callback,pred_eval_callback])
+        # pred_model.learn(n_epochs=PRED_TRAINING_EPOCHS, callback=[pred_eval_callback, pred_checkpoint_callback, WandbCallback()])
+        pred_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[pred_eval_callback, pred_checkpoint_callback, WandbCallback()])
         print(f"------------------- Prey {round_num+1}--------------------")
-        prey_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[prey_checkpoint_callback, prey_eval_callback])
-        pred_model.save(os.path.join(LOG_DIR, "pred", "final_model")) # probably never get to this point.
-        prey_model.save(os.path.join(LOG_DIR, "prey", "final_model")) # probably never get to this point.
+        # prey_model.learn(n_epochs=PREY_TRAINING_EPOCHS, callback=[prey_eval_callback, prey_checkpoint_callback, WandbCallback()])
+        prey_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[prey_eval_callback, prey_checkpoint_callback, WandbCallback()])
+    
     pred_env.close()
     prey_env.close()
 
@@ -220,7 +218,21 @@ if __name__=="__main__":
         print(f"Device name: {torch.cuda.get_device_name(torch.cuda.current_device())}")
     else:
         print("## CUDA not available")
-    LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/selfplay-results/save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
+    
+    experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
+    LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/selfplay-results/save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
+    
+    wandb.init(project="Behavioral-Learning-Thesis",
+               group="self-play",
+               config=wandb_experiment_config,
+               sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
+               monitor_gym=True,  # auto-upload the videos of agents playing the game
+               save_code=True,  # optional
+    )
+
+    wandb.run.name = wandb.run.name + f"-test" #f"-{experiment_id}"
+    wandb.run.save()
+
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR + '/')
     if not os.path.exists(os.path.join(LOG_DIR, "pred")):

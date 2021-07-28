@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # ----------------------------
-#*.sample
-#!/predpreylib/*.sample
-#ErPredprey.ini
-#!/predpreylib/ErPredprey.ini
+*.sample
+!/predpreylib/*.sample
+ErPredprey.ini
+!/predpreylib/ErPredprey.ini

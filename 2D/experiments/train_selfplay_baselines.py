@@ -67,6 +67,7 @@ NUM_TIMESTEPS = int(25e3)#int(1e9)
 EVAL_FREQ = int(1e3)
 NUM_ROUNDS = 50
 SAVE_FREQ = 5000 # in steps
+FINAL_SAVE_FREQ = 3 # in rounds
 
 
 env_config = {"Obs": OBS, "Act": ACT, "Env": ENV, "Group":"2D:evorobotpy2:predprey:1v1"}
@@ -86,6 +87,7 @@ training_config = { "pred_algorithm": PRED_ALGO,
                     "opponent_selection": "latest",
                     "training_schema": "alternating",
                     "ranking": "none",
+                    "final_save_freq": FINAL_SAVE_FREQ,
                     }
 
 
@@ -190,22 +192,30 @@ def train(log_dir):
     # ----------------------------------------------------------------------------------------------------
 
     # TODO: There is a problem here in reporting the results, results from the pred and the prey will be together
+    pred_wandb_callback = WandbCallback()
+    prey_wandb_callback = WandbCallback()
     # --------------------------------------------- Training ---------------------------------------------
     # Here alternate training
     for round_num in range(NUM_ROUNDS):
-        pred_checkpoint_callback = CheckpointCallback(save_freq=5000, save_path=os.path.join(LOG_DIR, "pred"),
+        pred_checkpoint_callback = CheckpointCallback(save_freq=SAVE_FREQ, save_path=os.path.join(LOG_DIR, "pred"),
                                                     name_prefix=f"history_{round_num}")
 
-        prey_checkpoint_callback = CheckpointCallback(save_freq=5000, save_path=os.path.join(LOG_DIR, "prey"),
+        prey_checkpoint_callback = CheckpointCallback(save_freq=SAVE_FREQ, save_path=os.path.join(LOG_DIR, "prey"),
                                                     name_prefix=f"history_{round_num}")
 
         print(f"------------------- Pred {round_num+1}--------------------")
         # pred_model.learn(n_epochs=PRED_TRAINING_EPOCHS, callback=[pred_eval_callback, pred_checkpoint_callback, WandbCallback()])
-        pred_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[pred_eval_callback, pred_checkpoint_callback, WandbCallback()])
+        pred_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[pred_eval_callback, pred_checkpoint_callback, pred_wandb_callback])
         print(f"------------------- Prey {round_num+1}--------------------")
         # prey_model.learn(n_epochs=PREY_TRAINING_EPOCHS, callback=[prey_eval_callback, prey_checkpoint_callback, WandbCallback()])
-        prey_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[prey_eval_callback, prey_checkpoint_callback, WandbCallback()])
+        prey_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[prey_eval_callback, prey_checkpoint_callback, prey_wandb_callback])
     
+        if(round_num%FINAL_SAVE_FREQ == 0):
+            # TODO: Change it to save the latest model for now, not the latest
+            pred_model.save(os.path.join(LOG_DIR, "pred", "final_model")) # probably never get to this point.
+            prey_model.save(os.path.join(LOG_DIR, "prey", "final_model")) # probably never get to this point.
+
+
     pred_env.close()
     prey_env.close()
 

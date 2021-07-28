@@ -9,6 +9,7 @@
 [submodule "2D/gym-predprey"]
 	path = 2D/gym-predprey
 	url = git@github.com:hany606/gym-predprey.git
+	branch = main
 [submodule "2D/evorobotpy2"]
 	path = 2D/evorobotpy2
 	url = git@github.com:snolfi/evorobotpy2.git

@@ -37,8 +37,6 @@ from stable_baselines3.common import logger
 from stable_baselines3.common.callbacks import EvalCallback
 from shutil import copyfile # keep track of generations
 
-
-
 from stable_baselines3.common.callbacks import CheckpointCallback
 
 from wandb.integration.sb3 import WandbCallback
@@ -70,7 +68,7 @@ SAVE_FREQ = 5000 # in steps
 FINAL_SAVE_FREQ = 3 # in rounds
 
 
-env_config = {"Obs": OBS, "Act": ACT, "Env": ENV, "Group":"2D:evorobotpy2:predprey:1v1"}
+env_config = {"Obs": OBS, "Act": ACT, "Env": ENV, "Hierarchy":"2D:evorobotpy2:predprey:1v1"}
 
 training_config = { "pred_algorithm": PRED_ALGO,
                     "prey_algorithm": PREY_ALGO,
@@ -166,7 +164,7 @@ def train(log_dir):
                      clip_range=pred_algorithm_config["clip_range"], ent_coef=pred_algorithm_config["ent_coef"],
                      learning_rate=pred_algorithm_config["lr"], batch_size=pred_algorithm_config["batch_size"],
                      gamma=pred_algorithm_config["gamma"], verbose=2,
-                    tensorboard_log=log_dir)
+                    tensorboard_log=os.path.join(log_dir,"pred"))
     pred_eval_callback = EvalCallback(pred_env,
                                      log_path=os.path.join(log_dir, "pred"),
                                      eval_freq=EVAL_FREQ,
@@ -182,7 +180,7 @@ def train(log_dir):
                      clip_range=prey_algorithm_config["clip_range"], ent_coef=prey_algorithm_config["ent_coef"],
                      learning_rate=prey_algorithm_config["lr"], batch_size=prey_algorithm_config["batch_size"],
                      gamma=prey_algorithm_config["gamma"], verbose=2,
-                     tensorboard_log=log_dir)                     
+                     tensorboard_log=os.path.join(log_dir,"prey"))                 
     prey_eval_callback = EvalCallback(prey_env,
                                       log_path=os.path.join(log_dir, "prey"),
                                       eval_freq=EVAL_FREQ,
@@ -205,10 +203,10 @@ def train(log_dir):
 
         print(f"------------------- Pred {round_num+1}--------------------")
         # pred_model.learn(n_epochs=PRED_TRAINING_EPOCHS, callback=[pred_eval_callback, pred_checkpoint_callback, WandbCallback()])
-        pred_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[pred_eval_callback, pred_checkpoint_callback, pred_wandb_callback])
+        pred_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[pred_eval_callback, pred_checkpoint_callback, pred_wandb_callback], reset_num_timesteps=False)
         print(f"------------------- Prey {round_num+1}--------------------")
         # prey_model.learn(n_epochs=PREY_TRAINING_EPOCHS, callback=[prey_eval_callback, prey_checkpoint_callback, WandbCallback()])
-        prey_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[prey_eval_callback, prey_checkpoint_callback, prey_wandb_callback])
+        prey_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[prey_eval_callback, prey_checkpoint_callback, prey_wandb_callback], reset_num_timesteps=False)
     
         if(round_num%FINAL_SAVE_FREQ == 0):
             # TODO: Change it to save the latest model for now, not the latest
@@ -231,7 +229,7 @@ if __name__=="__main__":
     
     experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
     LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/selfplay-results/save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
-    
+    wandb.tensorboard.patch(root_logdir=LOG_DIR)
     wandb.init(project="Behavioral-Learning-Thesis",
                group="self-play",
                config=wandb_experiment_config,

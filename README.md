@@ -5,3 +5,10 @@ This repository is created for my thesis during the bachelor degree at Innopolis
 ## TODO:
 
 - [ ] Create setup script to setup everything
+
+
+```git clone --recursive https://github.com/hany606/Drones-PEG-Bachelor-Thesis-2022/tree/main/2D```
+
+
+To update the submodules to be the same as the remote (master/main)
+```git submodule update --remote --recursive```

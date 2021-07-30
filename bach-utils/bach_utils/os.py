@@ -22,7 +22,7 @@ def sort_nicely(l):
     """
     l.sort(key=alphanum_key)
 # -------------------------------------------------------------------------------------------
-
+    
 def get_all(log_dir):
     return os.listdir(log_dir)
 
@@ -30,27 +30,41 @@ def get_startswith(log_dir, startswith):
     file_list = [f for f in os.listdir(log_dir) if f.startswith(startswith)]
     return file_list
 
-def get_sorted(log_dir, startswith):
+def get_sorted(log_dir, startswith, return_count=False):
     file_list = get_startswith(log_dir, startswith)
     # file_list.sort()
     sort_nicely(file_list)
+    if(return_count):
+        return file_list, len(file_list)
     return file_list
 
-def get_latest(log_dir, startswith):
-    file_list = get_sorted(log_dir, startswith)
+def get_latest(log_dir, startswith, return_count=False):
+
+    if(return_count):
+        file_list = get_sorted(log_dir, startswith, return_count)
+        return [file_list[-1]], len(file_list)
+
+    file_list = get_sorted(log_dir, startswith, return_count)
     return file_list[-1]
 
-def get_first(log_dir, startswith):
-    file_list = get_sorted(log_dir, startswith)
+def get_first(log_dir, startswith, return_count=False):
+    if(return_count):
+        file_list = get_sorted(log_dir, startswith, return_count)
+        return [file_list[0]], len(file_list)
+
+    file_list = get_sorted(log_dir, startswith, return_count)
     return file_list[0]
 
-def get_random(log_dir, startswith, seed=1):
+def get_random(log_dir, startswith, seed=1, return_count=False):
     random.seed(seed)
     file_list = get_startswith(log_dir, startswith)
-    return file_list[random.randint(0, len(file_list)-1)]
+    if(return_count):
+        return [file_list[random.randint(0, len(file_list)-1)]], len(file_list)
+
+    return [file_list[random.randint(0, len(file_list)-1)]]
 
 def get_idx(log_dir, startswith, idx):
     file_list = get_sorted(log_dir, startswith)
     if(idx >= len(file_list)):
         raise ValueError("Index for the file is greater than the length of the available files")
-    return file_list[idx]
+    return [file_list[idx]]

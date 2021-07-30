@@ -50,7 +50,7 @@ def rollout(env, policy):
     while not done:
         action, _states = policy.predict(obs)
         # action = env.action_space.sample()
-        obs, reward, done, _ = env.step(action)
+        obs, reward, done, info = env.step(action)
 
         total_reward += reward
 
@@ -59,18 +59,16 @@ def rollout(env, policy):
             sleep(0.005)
 
 
-    return total_reward
+    return total_reward, info["win"]
 
 
-# Interface to match the same one as in RayRLlib
-class PPORLlibInterface(PPO):
+# This is a modified PPO to tackle problem related of loading from different version of pickle than it was saved with
+class PPOMod(PPO):
     def __init__(self, *args, **kwargs):
-        super(PPORLlibInterface, self).__init__(*args, **kwargs)
-
-    def compute_action(self, obs):
-        return super(PPORLlibInterface, self).predict(obs)[0]
+        super(PPOMod, self).__init__(*args, **kwargs)
 
     # To fix issue while loading when loading from different versions of pickle and python from the server and the local machine
+    # https://stackoverflow.com/questions/63329657/python-3-7-error-unsupported-pickle-protocol-5
     def load(model_path, env):
         custom_objects = {
             "lr_schedule": lambda x: .003,
@@ -82,7 +80,7 @@ def test(log_dir):
     # train selfplay agent
     logger.configure(folder=log_dir)
     # prey model is being loaded inside the environment while reset
-    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPORLlibInterface)
+    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPOMod)
     # pred_env.set_render_flag(True)
     pred_env.seed(SEED_VALUE)
     # make_deterministic(SEED_VALUE)
@@ -92,7 +90,7 @@ def test(log_dir):
     # prey_env.seed(SEED_VALUE)
     # prey_model = PPORLlibInterface("MlpPolicy", prey_env)
 
-    pred_model = PPORLlibInterface.load(os.path.join(log_dir, "pred", "final_model"), pred_env)
+    pred_model = PPOMod.load(os.path.join(log_dir, "pred", "final_model"), pred_env)
     
     # prey_model.load(os.path.join(log_dir, "prey", "final_model"))
 
@@ -100,8 +98,15 @@ def test(log_dir):
     # pred_env.prey_behavior = Behavior().fixed_prey
     # print(pred_env.prey_policy)
     rewards = []
+    winner = []
     for i in range(NUM_TESTING_EPISODES):
-        rewards.append(rollout(pred_env, pred_model))
+        r, w = rollout(pred_env, pred_model)
+        w = "pred" if w > 0 else "prey"
+        rewards.append(r)
+        winner.append(w)
+        print(f"Winner: {w} -> reward: {r}")
+
+    print(list(zip(winner,rewards)))
     
     # pred_env.close()
     # prey_env.close()

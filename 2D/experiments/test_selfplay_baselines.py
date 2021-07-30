@@ -70,6 +70,14 @@ class PPORLlibInterface(PPO):
     def compute_action(self, obs):
         return super(PPORLlibInterface, self).predict(obs)[0]
 
+    # To fix issue while loading when loading from different versions of pickle and python from the server and the local machine
+    def load(model_path, env):
+        custom_objects = {
+            "lr_schedule": lambda x: .003,
+            "clip_range": lambda x: .02
+        }
+        return PPO.load(model_path, env, custom_objects=custom_objects)
+
 def test(log_dir):
     # train selfplay agent
     logger.configure(folder=log_dir)
@@ -85,6 +93,7 @@ def test(log_dir):
     # prey_model = PPORLlibInterface("MlpPolicy", prey_env)
 
     pred_model = PPORLlibInterface.load(os.path.join(log_dir, "pred", "final_model"), pred_env)
+    
     # prey_model.load(os.path.join(log_dir, "prey", "final_model"))
 
     # pred_env.prey_policy = prey_model

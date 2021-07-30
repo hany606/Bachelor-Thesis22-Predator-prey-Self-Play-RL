@@ -238,7 +238,7 @@ if __name__=="__main__":
                save_code=True,  # optional
     )
 
-    wandb.run.name = wandb.run.name + f"-test" #f"-{experiment_id}"
+    wandb.run.name = wandb.run.name + f"-run-{experiment_id}" #f"-test"
     wandb.run.save()
 
     if not os.path.exists(LOG_DIR):

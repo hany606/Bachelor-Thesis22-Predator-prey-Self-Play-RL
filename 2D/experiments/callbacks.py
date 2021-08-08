@@ -364,7 +364,7 @@ class EvalSaveCallback(EvalCallback):
                 target = files_list[-1]
                 sampled_opponents_filenames = [target for _ in range(num_sampled_opponents)]
 
-            elif(self.eval_opponent_selection == "Least"):
+            elif(self.eval_opponent_selection == "Lowest"):
                 sort_metric(files_list)
                 target = files_list[0]
                 sampled_opponents_filenames = [target for _ in range(num_sampled_opponents)]

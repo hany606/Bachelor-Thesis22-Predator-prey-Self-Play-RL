@@ -73,11 +73,10 @@ def get_first(log_dir, startswith, return_count=False):
     return [file_list[0]]
 
 def get_random_from(full_list, seed=1):
-    random.seed(seed)
-    return [full_list[random.randint(0, len(full_list)-1)]]
+    random_idx = random.randint(0, len(full_list)-1)
+    return [full_list[random_idx]]
 
 def get_random(log_dir, startswith, seed=1, return_count=False):
-    random.seed(seed)
     file_list = get_startswith(log_dir, startswith)
     return_files = get_random_from(file_list, seed=seed)
     if(return_count):

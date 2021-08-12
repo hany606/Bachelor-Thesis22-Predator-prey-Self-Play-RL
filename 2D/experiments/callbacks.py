@@ -12,6 +12,8 @@ from stable_baselines3.common import base_class
 from stable_baselines3.common.vec_env import VecEnv, DummyVecEnv, sync_envs_normalization, VecMonitor, is_vecenv_wrapped
 from stable_baselines3.common.vec_env.base_vec_env import VecEnvStepReturn, VecEnvIndices
 from copy import deepcopy
+import wandb
+
 
 # Based on https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/evaluation.py
 # It is changed to load different opponents or the same opponents for the same agent
@@ -136,7 +138,7 @@ def evaluate_policy_old(
 
 
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/dummy_vec_env.py
-# This is modified in order to:
+# This is modified in order to change the opponent before the env
 class DummyVecEnvSelfPlay(DummyVecEnv):
     def __init__(self, *args, **kwargs):
         super(DummyVecEnvSelfPlay, self).__init__(*args, **kwargs)
@@ -156,6 +158,7 @@ class DummyVecEnvSelfPlay(DummyVecEnv):
 
 
     def step_wait(self) -> VecEnvStepReturn:
+        # print("Modified")
         for env_idx in range(self.num_envs):
             obs, self.buf_rews[env_idx], self.buf_dones[env_idx], self.buf_infos[env_idx] = self.envs[env_idx].step(
                 self.actions[env_idx]
@@ -182,7 +185,8 @@ class DummyVecEnvSelfPlay(DummyVecEnv):
 
 
 
-# Not working good now with resets for now
+# This is the newer version based on https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/evaluation.py
+# With support to vectorized environment
 def evaluate_policy(
     model: "base_class.BaseAlgorithm",
     env: Union[gym.Env, VecEnv],
@@ -232,8 +236,12 @@ def evaluate_policy(
     # Avoid circular import
     from stable_baselines3.common.monitor import Monitor
 
-    if not isinstance(env, VecEnv):
-        env = DummyVecEnv([lambda: env])
+    # Not working, TODO: make it work instead the line in __init__ EvalSaveCallback
+    # if not isinstance(env, DummyVecEnvSelfPlay):
+    #     env = DummyVecEnvSelfPlay([lambda: env])
+
+    # if not isinstance(env, VecEnv):
+    #     env = DummyVecEnv([lambda: env])
 
     is_monitor_wrapped = is_vecenv_wrapped(env, VecMonitor) or env.env_is_wrapped(Monitor)[0]
 
@@ -339,7 +347,8 @@ class EvalSaveCallback(EvalCallback):
         del kwargs["save_freq"]
         super(EvalSaveCallback, self).__init__(*args, **kwargs)
         
-        self.eval_env.__class__ = DummyVecEnvSelfPlay
+        if not isinstance(self.eval_env, DummyVecEnvSelfPlay):
+            self.eval_env.__class__ = DummyVecEnvSelfPlay   # This works fine, the other solution is commented
 
         # if isinstance(self.eval_env, DummyVecEnv):
         #     eval_env = DummyVecEnvMod([lambda: eval_env])
@@ -352,7 +361,7 @@ class EvalSaveCallback(EvalCallback):
             sampled_opponents_filenames = [None for _ in range(num_sampled_opponents)]
         else:
             if(self.eval_opponent_selection == "random"):
-                sampled_opponents_filenames = [get_random_from(files_list) for _ in range(num_sampled_opponents)]  # TODO: Take care about pigonhole principle -> if the set is too small, then the likelihood for selection each element in the list will be relatively large
+                sampled_opponents_filenames = [get_random_from(files_list)[0] for _ in range(num_sampled_opponents)]  # TODO: Take care about pigonhole principle -> if the set is too small, then the likelihood for selection each element in the list will be relatively large
             
             elif(self.eval_opponent_selection == "latest"):
                 sort_steps(files_list) # TODO: Take care about this computation bottelneck here O(NlogN), it will be a headach for large archives
@@ -376,20 +385,19 @@ class EvalSaveCallback(EvalCallback):
     def set_name_prefix(self, name_prefix):
         self.name_prefix = name_prefix
 
-    def _evaluate_policy(self) -> bool:
-        if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
+    def _evaluate_policy_param(self, logger_prefix, n_eval_episodes, deterministic, sampled_opponents, override=False) -> bool:
+        if override or (self.eval_freq > 0 and self.n_calls % self.eval_freq == 0):
             # Sync training and eval env if there is VecNormalize
             sync_envs_normalization(self.training_env, self.eval_env)
 
             # Reset success rate buffer
             self._is_success_buffer = []
-            sampled_opponents = self._sample_opponents(self.n_eval_episodes)
             episode_rewards, episode_lengths, win_rate = evaluate_policy(
                 self.model,
                 self.eval_env,
-                n_eval_episodes=self.n_eval_episodes,
+                n_eval_episodes=n_eval_episodes,
                 render=self.render,
-                deterministic=self.deterministic,
+                deterministic=deterministic,
                 return_episode_rewards=True,
                 warn=self.warn,
                 callback=self._log_success_callback,
@@ -424,18 +432,18 @@ class EvalSaveCallback(EvalCallback):
                 print(f"Eval num_timesteps={self.num_timesteps}, " f"episode_reward={mean_reward:.2f} +/- {std_reward:.2f}")
                 print(f"Episode length: {mean_ep_length:.2f} +/- {std_ep_length:.2f}")
             # Add to current Logger
-            self.logger.record("eval/mean_reward", float(mean_reward))
-            self.logger.record("eval/mean_ep_length", mean_ep_length)
-            self.logger.record("eval/record_timesteps", self.num_timesteps)
+            self.logger.record(f"{logger_prefix}/mean_reward", float(mean_reward))
+            self.logger.record(f"{logger_prefix}/mean_ep_length", mean_ep_length)
+            self.logger.record(f"{logger_prefix}/record_timesteps", self.num_timesteps)
             if self.verbose > 0:
                 print(f"Win rate: {100 * win_rate:.2f}%")
-            self.logger.record("eval/win_rate", win_rate)
+            self.logger.record(f"{logger_prefix}/win_rate", win_rate)
 
             if len(self._is_success_buffer) > 0:
                 success_rate = np.mean(self._is_success_buffer)
                 if self.verbose > 0:
                     print(f"Success rate: {100 * success_rate:.2f}%")
-                self.logger.record("eval/success_rate", success_rate)
+                self.logger.record(f"{logger_prefix}/success_rate", success_rate)
 
             if mean_reward > self.best_mean_reward:
                 if self.verbose > 0:
@@ -446,10 +454,16 @@ class EvalSaveCallback(EvalCallback):
                 # Trigger callback if needed
                 if self.callback is not None:
                     return self._on_event()
-
         return True
 
-    def _save_results(self):
+    # In order to keep the oringinal callback functions, this is just a wrapper for the parameterized _evaluate_policy()
+    def _evaluate_policy(self) -> bool:
+        return self._evaluate_policy_param(logger_prefix="eval", 
+                                           n_eval_episodes=self.n_eval_episodes,
+                                           deterministic=self.deterministic,
+                                           sampled_opponents=self._sample_opponents(self.n_eval_episodes))
+
+    def _save_model(self):
         if self.save_freq > 0 and self.n_calls % self.save_freq == 0:
             metric_value = None
             if(self.eval_metric == "steps"):
@@ -470,5 +484,57 @@ class EvalSaveCallback(EvalCallback):
         # 1. evaluate the policy
         result = self._evaluate_policy()#super(EvalSaveCallback, self)._on_step()
         # 2. Save the results
-        self._save_results()
+        self._save_model()
         return result
+
+
+    # Post evaluate the model against all the opponents from opponents_path
+    def post_eval(self, agent_name, opponents_path, startswith_keyword="history", n_eval_opponent=3, deterministic=False):
+        def evaluate(n_eval_episodes, deterministic, sampled_opponents):
+            # Sync training and eval env if there is VecNormalize
+            sync_envs_normalization(self.training_env, self.eval_env)
+
+            # Reset success rate buffer
+            self._is_success_buffer = []
+            _, _, win_rate = evaluate_policy(
+                self.model,
+                self.eval_env,
+                n_eval_episodes=n_eval_episodes,
+                render=self.render,
+                deterministic=deterministic,
+                return_episode_rewards=True,
+                warn=self.warn,
+                callback=self._log_success_callback,
+                sampled_opponents=sampled_opponents
+            )
+
+            win_rate = win_rate # ratio [0,1]
+            return win_rate
+
+        opponents_models_names = get_sorted(opponents_path, startswith_keyword, sort_steps)
+        opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]
+        eval_return_list = []
+        for i, o in enumerate(opponents_models_path):
+            eval_model_list = [o for _ in range(n_eval_opponent)]
+            # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
+            # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
+            evaluation_result = evaluate(n_eval_episodes=n_eval_opponent,
+                                         deterministic=deterministic,
+                                         sampled_opponents=eval_model_list)
+            wandb.log({f"{agent_name}/post_eval/opponent_idx": i})
+            wandb.log({f"{agent_name}/post_eval/win_rate": evaluation_result}, step=i)
+
+            
+            # self.logger.record("post_eval/opponent_idx", i)
+            # evaluation_result = self._evaluate_policy_param(logger_prefix="post_eval", 
+            #                                                 n_eval_episodes=n_eval_opponent,
+            #                                                 deterministic=deterministic,
+            #                                                 sampled_opponents=eval_model_list,
+            #                                                 override=True)
+            
+            eval_return_list.append(evaluation_result)
+        # data = [[x, y] for (x, y) in zip([i for i in range(len(opponents_models_path))], eval_return_list)]
+        # table = wandb.Table(data=data, columns = ["x", "y"])
+        # wandb.log({f"{agent_name}/post_eval/": wandb.plot.line(table, "win-rate", "opponent idx", title=f"Post evaluation {agent_name}")})
+
+        return eval_return_list

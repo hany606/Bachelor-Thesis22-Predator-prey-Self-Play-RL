@@ -23,6 +23,11 @@
 # 4. How to rank/evaluate the agents? How this agent is valuable for the training?  (e.g. points)   -> Here: None
 ################################################################
 
+# TODO: Fix steps
+# TODO: Add final evaluation
+# TODO: Add flexible testing for specific models using argparse
+# TODO: Test random opponent selection during training and let's see, there should be a lot of loading model prints
+
 import os
 from datetime import datetime
 import numpy as np
@@ -64,11 +69,13 @@ LOG_DIR = None
 # PREY_TRAINING_EPISODES = 25  # in iterations
 NUM_TIMESTEPS = int(25e3)#int(1e9)
 EVAL_FREQ = int(5e3) #in steps
-NUM_ROUNDS = 50
+NUM_ROUNDS = 2#50
 SAVE_FREQ = 5000 # in steps
 FINAL_SAVE_FREQ = 3 # in rounds
 EVAL_METRIC = "winrate"
 
+EVAL_OPPONENT_SELECTION = "random"
+OPPONENT_SELECTION = "random" 
 
 env_config = {"Obs": OBS, "Act": ACT, "Env": ENV, "Hierarchy":"2D:evorobotpy2:predprey:1v1"}
 
@@ -84,7 +91,8 @@ training_config = { "pred_algorithm": PRED_ALGO,
                     "eval_freq": EVAL_FREQ,
                     "framework": "stable_baselines3",
                     "agent_selection": "latest",
-                    "opponent_selection": "latest",
+                    "opponent_selection": OPPONENT_SELECTION,
+                    "eval_opponent_selection": EVAL_OPPONENT_SELECTION,
                     "training_schema": "alternating",
                     "ranking": "none",
                     "final_save_freq": FINAL_SAVE_FREQ,
@@ -124,6 +132,7 @@ def make_deterministic(seed):
 
     np.random.seed(seed)
     torch.manual_seed(seed)
+    random.seed(seed)
     # see https://github.com/pytorch/pytorch/issues/47672
     cuda_version = torch.version.cuda
     if cuda_version is not None and float(torch.version.cuda) >= 10.2:
@@ -147,8 +156,17 @@ class make_env:
         env = Monitor(env)  # record stats such as returns
         return env
 
-def create_env(env_id, dir, config=None):
+def create_env_notused(env_id, dir, config=None):
     env = make_env(env_id, config)
+    env = DummyVecEnv([lambda: env])#DummyVecEnvSelfPlay([lambda: env])
+    # env = DummyVecEnv([env.make])
+    # env = VecVideoRecorder(env, dir,
+    #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
+    return env
+
+def create_env(*args, **kwargs):
+    env = args[0](**kwargs)
+    env = DummyVecEnvSelfPlay([lambda: env]) #DummyVecEnv([lambda: env])#
     # env = DummyVecEnv([env.make])
     # env = VecVideoRecorder(env, dir,
     #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
@@ -163,7 +181,8 @@ def train(log_dir):
     
 
     # pred_env = create_env("SelfPlay1v1-Pred-v0", os.path.join(log_dir, "pred", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPredEnv()
-    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, opponent_selection="latest") #SelfPlayPredEnv()
+    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+    # pred_env = create_env(SelfPlayPredEnv, log_dir=log_dir, algorithm_class=PPO, opponent_selection=OPPONENT_SELECTION)
     # pred_env.seed(SEED_VALUE)
     pred_model = PPO(pred_algorithm_config["policy"], pred_env, 
                      clip_range=pred_algorithm_config["clip_range"], ent_coef=pred_algorithm_config["ent_coef"],
@@ -177,14 +196,15 @@ def train(log_dir):
                                               deterministic=True,
                                               save_path=os.path.join(LOG_DIR, "pred"),
                                               eval_metric=EVAL_METRIC,
-                                              eval_opponent_selection="latest",
+                                              eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=os.path.join(log_dir, "prey"),
                                               save_freq=SAVE_FREQ)
 
 
     # --------------------------------------- Prey -------------------------------------------------------
     # prey_env = create_env("SelfPlay1v1-Prey-v0", os.path.join(log_dir, "prey", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPreyEnv()
-    prey_env = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, opponent_selection="latest") #SelfPlayPreyEnv()
+    prey_env = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
+    # prey_env = create_env(SelfPlayPreyEnv, log_dir=log_dir, algorithm_class=PPO, opponent_selection=OPPONENT_SELECTION)
     # prey_env.seed(SEED_VALUE)
     prey_model = PPO(prey_algorithm_config["policy"], prey_env, 
                      clip_range=prey_algorithm_config["clip_range"], ent_coef=prey_algorithm_config["ent_coef"],
@@ -198,7 +218,7 @@ def train(log_dir):
                                               deterministic=True,
                                               save_path=os.path.join(LOG_DIR, "prey"),
                                               eval_metric=EVAL_METRIC,
-                                              eval_opponent_selection="latest",
+                                              eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=os.path.join(log_dir, "pred"),
                                               save_freq=SAVE_FREQ)
 
@@ -216,16 +236,23 @@ def train(log_dir):
         # prey_checkpoint_callback = CheckpointCallback(save_freq=SAVE_FREQ, save_path=os.path.join(LOG_DIR, "prey"),
         #                                               name_prefix=f"history_{round_num}")
 
-        print(f"------------------- Pred {round_num+1}--------------------")
+        print(f"------------------- Pred {round_num}--------------------")
         pred_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[pred_evalsave_callback, pred_wandb_callback], reset_num_timesteps=False)
-        print(f"------------------- Prey {round_num+1}--------------------")
+        print(f"------------------- Prey {round_num}--------------------")
         prey_model.learn(total_timesteps=NUM_TIMESTEPS, callback=[prey_evalsave_callback, prey_wandb_callback], reset_num_timesteps=False)
     
         if(round_num%FINAL_SAVE_FREQ == 0):
-            # TODO: Change it to save the best model for now, not the latest
-            pred_model.save(os.path.join(LOG_DIR, "pred", "final_model")) # probably never get to this point.
-            prey_model.save(os.path.join(LOG_DIR, "prey", "final_model")) # probably never get to this point.
+            # TODO: Change it to save the best model for now, not the latest (How to define the best model)
+            pred_model.save(os.path.join(LOG_DIR, "pred", "final_model"))
+            prey_model.save(os.path.join(LOG_DIR, "prey", "final_model"))
 
+    pred_model.save(os.path.join(LOG_DIR, "pred", "final_model"))
+    prey_model.save(os.path.join(LOG_DIR, "prey", "final_model"))
+
+    print("Post Evaluation for Pred:")
+    pred_evalsave_callback.post_eval(agent_name="pred", opponents_path=os.path.join(LOG_DIR, "prey"))
+    print("Post Evaluation for Prey:")
+    prey_evalsave_callback.post_eval(agent_name="prey", opponents_path=os.path.join(LOG_DIR, "pred"))
 
     pred_env.close()
     prey_env.close()
@@ -251,7 +278,7 @@ if __name__=="__main__":
                save_code=True,  # optional
     )
 
-    wandb.run.name = wandb.run.name + f"-v3.1" #f"-run-{experiment_id}"
+    wandb.run.name = wandb.run.name + "-test"#f"-v3.1-rep-nitro-random" #f"-run-{experiment_id}"
     wandb.run.save()
 
     if not os.path.exists(LOG_DIR):

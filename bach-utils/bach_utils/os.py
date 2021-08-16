@@ -62,7 +62,6 @@ def get_latest(log_dir, startswith, return_count=False):
     file_list = get_sorted(log_dir, startswith, sort_steps, return_count)
     if(return_count):
         return [file_list[-1]], len(file_list)
-
     return [file_list[-1]]
 
 def get_first(log_dir, startswith, return_count=False):
@@ -90,3 +89,9 @@ def get_idx(log_dir, startswith, idx, sorting_function=sort_steps):
     if(idx >= len(file_list)):
         raise ValueError("Index for the file is greater than the length of the available files")
     return [file_list[idx]]
+
+def sample_set(list, num):
+    sample = []
+    for i in range(num):
+        idx = i % len(list) # if num < len(list) then it will just add them, if not then it will be a circular buffer
+        sample.append(list[idx])

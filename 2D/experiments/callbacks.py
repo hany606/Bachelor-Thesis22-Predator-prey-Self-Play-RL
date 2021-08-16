@@ -1,4 +1,5 @@
-from stable_baselines3.common.callbacks import EvalCallback
+from random import sample
+from stable_baselines3.common.callbacks import EvalCallback, EventCallback
 import os
 from bach_utils.os import *
 
@@ -14,6 +15,46 @@ from stable_baselines3.common.vec_env.base_vec_env import VecEnvStepReturn, VecE
 from copy import deepcopy
 import wandb
 
+
+def sample_opponents(sample_path, startswith_keyword, num_sampled_opponents, selection):
+    sampled_opponents_filenames = []
+    files_list = get_startswith(sample_path, startswith_keyword)
+    if(len(files_list) == 0):
+        sampled_opponents_filenames = [None for _ in range(num_sampled_opponents)]
+    else:
+        if(selection == "random"):
+            sampled_opponents_filenames = [get_random_from(files_list)[0] for _ in range(num_sampled_opponents)]  # TODO: Take care about pigonhole principle -> if the set is too small, then the likelihood for selection each element in the list will be relatively large
+        
+        elif(selection == "latest"):
+            sort_steps(files_list) # TODO: Take care about this computation bottelneck here O(NlogN), it will be a headach for large archives
+            latest = files_list[-1]
+            sampled_opponents_filenames = [latest for _ in range(num_sampled_opponents)]
+
+        elif(selection == "latest-set"):
+            sort_steps(files_list) # TODO: Take care about this computation bottelneck here O(NlogN), it will be a headach for large archives
+            sampled_opponents_filenames = sample_set(files_list.reverse(), num_sampled_opponents)
+        
+        elif(selection == "highest"):
+            sort_metric(files_list)
+            target = files_list[-1]
+            sampled_opponents_filenames = [target for _ in range(num_sampled_opponents)]
+
+        elif(selection == "highest-set"):
+            sort_metric(files_list)
+            sampled_opponents_filenames = sample_set(files_list.reverse(), num_sampled_opponents)
+
+        elif(selection == "lowest"):
+            sort_metric(files_list)
+            target = files_list[0]
+            sampled_opponents_filenames = [target for _ in range(num_sampled_opponents)]
+
+        elif(selection == "lowest-set"):
+            sort_metric(files_list)
+            sampled_opponents_filenames = sample_set(files_list, num_sampled_opponents)
+
+
+        sampled_opponents_filenames = [os.path.join(sample_path, f) for f in sampled_opponents_filenames]
+    return sampled_opponents_filenames
 
 # Based on https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/evaluation.py
 # It is changed to load different opponents or the same opponents for the same agent
@@ -138,7 +179,6 @@ def evaluate_policy_old(
 
 
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/dummy_vec_env.py
-# This is modified in order to change the opponent before the env
 class DummyVecEnvSelfPlay(DummyVecEnv):
     def __init__(self, *args, **kwargs):
         super(DummyVecEnvSelfPlay, self).__init__(*args, **kwargs)
@@ -154,9 +194,9 @@ class DummyVecEnvSelfPlay(DummyVecEnv):
         opponent_index_idx = min(self.opponents_indicies[env_idx], len(self.sampled_opponents)-1) # if it is reached the maximum, then this is the last reset for this environment without doing any other steps later. This min function is only used to protect against crashing
         opponent_policy_filename = self.sampled_opponents[opponent_index_idx]
         # print(f"Load evaluation's model: {opponent_policy_filename} with index {self.opponents_indicies[env_idx]}")
-        self.envs[env_idx].target_opponent_policy_filename = opponent_policy_filename
+        self.envs[env_idx].set_target_opponent_policy_filename(opponent_policy_filename)
 
-
+    # This is modified in order to change the opponent before the env's automatic reseting
     def step_wait(self) -> VecEnvStepReturn:
         # print("Modified")
         for env_idx in range(self.num_envs):
@@ -171,7 +211,7 @@ class DummyVecEnvSelfPlay(DummyVecEnv):
             self._save_obs(env_idx, obs)
         return (self._obs_from_buf(), np.copy(self.buf_rews), np.copy(self.buf_dones), deepcopy(self.buf_infos))
 
-    # Set different value (opponent) for different environment in the vectorized environment
+    # Modified to set different value (opponent) for different environment in the vectorized environment
     def set_attr(self, attr_name: str, values: Any, indices: VecEnvIndices = None, different_values=False, values_indices=None) -> None:
         """Set attribute inside vectorized environments (see base class)."""
         target_envs = self._get_target_envs(indices)
@@ -182,7 +222,6 @@ class DummyVecEnvSelfPlay(DummyVecEnv):
             else:
                 value = values
             setattr(env_i, attr_name, value)
-
 
 
 # This is the newer version based on https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/evaluation.py
@@ -327,6 +366,45 @@ def evaluate_policy(
     return mean_reward, std_reward, win_rate
 
 
+class OpponentSelectionCallback(EventCallback):
+    def __init__(self, *args, **kwargs):
+        self.sample_path = kwargs["sample_path"]
+        self.startswith_keyword = "history"
+        self.env = kwargs["env"]
+        self.opponent_selection = kwargs["opponent_selection"]
+        self.sample_after_rollout = kwargs["sample_after_rollout"]
+        self.num_sampled_per_round = kwargs["num_sampled_per_round"]
+
+        del kwargs["sample_path"]
+        del kwargs["env"]
+        del kwargs["opponent_selection"]
+        del kwargs["num_sampled_per_round"]
+        del kwargs["sample_after_rollout"]
+
+        self.sampled_per_round = []
+        self.sampled_idx = 0
+
+        super(OpponentSelectionCallback, self).__init__(*args, **kwargs)
+
+    def _on_training_start(self):
+        # print("training started")
+        self.sampled_per_round = sample_opponents(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)
+        # If it is not updated with every rollout, only updated at the begining
+        if(self.num_sampled_per_round == 1):
+            self.env.set_target_opponent_policy_filename(self.sampled_per_round[0])
+        super(OpponentSelectionCallback, self)._on_training_start()
+
+    def _on_rollout_start(self):
+        if(self.sample_after_rollout):
+            opponent = sample_opponents(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)[0]
+            self.env.set_target_opponent_policy_filename(opponent)
+        
+        if(self.num_sampled_per_round > 1):
+            self.env.set_target_opponent_policy_filename(self.sampled_per_round[self.sampled_idx % self.num_sampled_per_round]) # as a circular buffer
+            self.sampled_idx += 1
+        super(OpponentSelectionCallback, self)._on_rollout_start()
+
+
 # Based on: https://github.com/hardmaru/slimevolleygym/blob/master/training_scripts/train_ppo_selfplay.py
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/callbacks.py
 class EvalSaveCallback(EvalCallback):
@@ -338,49 +416,19 @@ class EvalSaveCallback(EvalCallback):
         self.save_freq = kwargs["save_freq"]
         self.name_prefix = None
         self.startswith_keyword = "history"
-        # eval_env = deepcopy(kwargs["eval_env"])
 
         del kwargs["save_path"]
         del kwargs["eval_metric"]
         del kwargs["eval_opponent_selection"]
         del kwargs["eval_sample_path"]
         del kwargs["save_freq"]
+
         super(EvalSaveCallback, self).__init__(*args, **kwargs)
-        
         if not isinstance(self.eval_env, DummyVecEnvSelfPlay):
             self.eval_env.__class__ = DummyVecEnvSelfPlay   # This works fine, the other solution is commented
 
         # if isinstance(self.eval_env, DummyVecEnv):
         #     eval_env = DummyVecEnvMod([lambda: eval_env])
-
-
-    def _sample_opponents(self, num_sampled_opponents):
-        sampled_opponents_filenames = []
-        files_list = get_startswith(self.eval_sample_path, self.startswith_keyword)
-        if(len(files_list) == 0):
-            sampled_opponents_filenames = [None for _ in range(num_sampled_opponents)]
-        else:
-            if(self.eval_opponent_selection == "random"):
-                sampled_opponents_filenames = [get_random_from(files_list)[0] for _ in range(num_sampled_opponents)]  # TODO: Take care about pigonhole principle -> if the set is too small, then the likelihood for selection each element in the list will be relatively large
-            
-            elif(self.eval_opponent_selection == "latest"):
-                sort_steps(files_list) # TODO: Take care about this computation bottelneck here O(NlogN), it will be a headach for large archives
-                latest = files_list[-1]
-                sampled_opponents_filenames = [latest for _ in range(num_sampled_opponents)]
-            
-            elif(self.eval_opponent_selection == "highest"):
-                sort_metric(files_list)
-                target = files_list[-1]
-                sampled_opponents_filenames = [target for _ in range(num_sampled_opponents)]
-
-            elif(self.eval_opponent_selection == "Lowest"):
-                sort_metric(files_list)
-                target = files_list[0]
-                sampled_opponents_filenames = [target for _ in range(num_sampled_opponents)]
-
-            sampled_opponents_filenames = [os.path.join(self.eval_sample_path, f) for f in sampled_opponents_filenames]
-        return sampled_opponents_filenames
-
 
     def set_name_prefix(self, name_prefix):
         self.name_prefix = name_prefix
@@ -461,7 +509,7 @@ class EvalSaveCallback(EvalCallback):
         return self._evaluate_policy_param(logger_prefix="eval", 
                                            n_eval_episodes=self.n_eval_episodes,
                                            deterministic=self.deterministic,
-                                           sampled_opponents=self._sample_opponents(self.n_eval_episodes))
+                                           sampled_opponents=sample_opponents(self.eval_sample_path, self.startswith_keyword, self.n_eval_episodes, selection=self.eval_opponent_selection))
 
     def _save_model(self):
         if self.save_freq > 0 and self.n_calls % self.save_freq == 0:
@@ -486,7 +534,6 @@ class EvalSaveCallback(EvalCallback):
         # 2. Save the results
         self._save_model()
         return result
-
 
     # Post evaluate the model against all the opponents from opponents_path
     def post_eval(self, agent_name, opponents_path, startswith_keyword="history", n_eval_opponent=3, deterministic=False):
@@ -522,7 +569,7 @@ class EvalSaveCallback(EvalCallback):
                                          deterministic=deterministic,
                                          sampled_opponents=eval_model_list)
             wandb.log({f"{agent_name}/post_eval/opponent_idx": i})
-            wandb.log({f"{agent_name}/post_eval/win_rate": evaluation_result}, step=i)
+            wandb.log({f"{agent_name}/post_eval/win_rate": evaluation_result})
 
             
             # self.logger.record("post_eval/opponent_idx", i)
@@ -533,8 +580,8 @@ class EvalSaveCallback(EvalCallback):
             #                                                 override=True)
             
             eval_return_list.append(evaluation_result)
-        # data = [[x, y] for (x, y) in zip([i for i in range(len(opponents_models_path))], eval_return_list)]
-        # table = wandb.Table(data=data, columns = ["x", "y"])
-        # wandb.log({f"{agent_name}/post_eval/": wandb.plot.line(table, "win-rate", "opponent idx", title=f"Post evaluation {agent_name}")})
+        data = [[x, y] for (x, y) in zip([i for i in range(len(opponents_models_path))], eval_return_list)]
+        table = wandb.Table(data=data, columns = ["opponent idx", "win-rate"])
+        wandb.log({f"{agent_name}/post_eval/table": wandb.plot.line(table, "opponent idx", "win-rate", title=f"Post evaluation {agent_name}")})
 
         return eval_return_list

@@ -90,8 +90,9 @@ def get_idx(log_dir, startswith, idx, sorting_function=sort_steps):
         raise ValueError("Index for the file is greater than the length of the available files")
     return [file_list[idx]]
 
-def sample_set(list, num):
+def sample_set(source_list, num):
     sample = []
     for i in range(num):
-        idx = i % len(list) # if num < len(list) then it will just add them, if not then it will be a circular buffer
-        sample.append(list[idx])
+        idx = i % len(source_list) # if num < len(list) then it will just add them, if not then it will be a circular buffer
+        sample.append(source_list[idx])
+    return sample

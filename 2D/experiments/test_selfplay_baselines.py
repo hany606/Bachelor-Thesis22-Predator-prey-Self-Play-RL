@@ -81,6 +81,7 @@ def test(log_dir):
     logger.configure(folder=log_dir)
     # prey model is being loaded inside the environment while reset
     pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPOMod)
+    pred_env.set_target_opponent_policy_filename(os.path.join(log_dir, "prey", "final_model"))
     # pred_env.set_render_flag(True)
     pred_env.seed(SEED_VALUE)
     # make_deterministic(SEED_VALUE)

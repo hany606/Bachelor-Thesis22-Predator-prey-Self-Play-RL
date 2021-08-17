@@ -32,7 +32,8 @@ def sample_opponents(sample_path, startswith_keyword, num_sampled_opponents, sel
 
         elif(selection == "latest-set"):
             sort_steps(files_list) # TODO: Take care about this computation bottelneck here O(NlogN), it will be a headach for large archives
-            sampled_opponents_filenames = sample_set(files_list.reverse(), num_sampled_opponents)
+            files_list.reverse()
+            sampled_opponents_filenames = sample_set(files_list, num_sampled_opponents)
         
         elif(selection == "highest"):
             sort_metric(files_list)
@@ -41,7 +42,8 @@ def sample_opponents(sample_path, startswith_keyword, num_sampled_opponents, sel
 
         elif(selection == "highest-set"):
             sort_metric(files_list)
-            sampled_opponents_filenames = sample_set(files_list.reverse(), num_sampled_opponents)
+            files_list.reverse()
+            sampled_opponents_filenames = sample_set(files_list, num_sampled_opponents)
 
         elif(selection == "lowest"):
             sort_metric(files_list)
@@ -55,7 +57,6 @@ def sample_opponents(sample_path, startswith_keyword, num_sampled_opponents, sel
 
         sampled_opponents_filenames = [os.path.join(sample_path, f) for f in sampled_opponents_filenames]
     return sampled_opponents_filenames
-
 # Based on https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/evaluation.py
 # It is changed to load different opponents or the same opponents for the same agent
 def evaluate_policy_old(

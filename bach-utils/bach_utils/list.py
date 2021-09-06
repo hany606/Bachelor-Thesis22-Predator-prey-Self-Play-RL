@@ -33,16 +33,8 @@ def get_random(source_list, seed=1, return_count=False):
 
     return return_files
 
-
 def get_idx(source_list, idx, sorting_function=utsrt.sort_steps):
     source_list_sorted = get_sorted(source_list, sorting_function)
     if(idx >= len(source_list_sorted)):
         raise ValueError("Index for the file is greater than the length of the available files")
     return [source_list_sorted[idx]]
-
-def sample_set(source_list, num):
-    sample = []
-    for i in range(num):
-        idx = i % len(source_list) # if num < len(list) then it will just add them, if not then it will be a circular buffer
-        sample.append(source_list[idx])
-    return sample

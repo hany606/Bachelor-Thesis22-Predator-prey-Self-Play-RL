@@ -19,6 +19,8 @@ from copy import deepcopy
 import wandb
 
 
+OS = True   # This flag just for testing now in order not to break the compatibility and the working of the code
+
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/dummy_vec_env.py
 class DummyVecEnvSelfPlay(DummyVecEnv):
     def __init__(self, *args, **kwargs):
@@ -232,10 +234,14 @@ class OpponentSelectionCallback(EventCallback):
     def _on_training_start(self):
         if(not self.sampled_per_round):
             # print("training started")
-            archive = self.archive.get_sorted(self.opponent_selection)
-            models_names = archive[0]
-            self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)
-            # self.sampled_per_round = utsmpl.sample_opponents(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)
+            opponent = None
+            if(not OS):
+
+                archive = self.archive.get_sorted(self.opponent_selection)
+                models_names = archive[0]
+                self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)
+            if(OS):
+                self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)
             # If it is not updated with every rollout, only updated at the begining
             if(self.num_sampled_per_round == 1):
                 self.env.set_target_opponent_policy_filename(self.sampled_per_round[0])
@@ -243,10 +249,13 @@ class OpponentSelectionCallback(EventCallback):
 
     def _on_rollout_start(self):
         if(self.sample_after_rollout):
-            archive = self.archive.get_sorted(self.opponent_selection)
-            models_names = archive[0]
-            opponent = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)[0]
-            # opponent = utsmpl.sample_opponents(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)[0]
+            opponent = None
+            if(not OS):
+                archive = self.archive.get_sorted(self.opponent_selection)
+                models_names = archive[0]
+                opponent = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)[0]
+            if(OS):
+                opponent = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)[0]
             self.env.set_target_opponent_policy_filename(opponent)
         
         if(self.num_sampled_per_round > 1):
@@ -359,10 +368,13 @@ class EvalSaveCallback(EvalCallback):
 
     # In order to keep the oringinal callback functions, this is just a wrapper for the parameterized _evaluate_policy()
     def _evaluate_policy(self) -> bool:
-        archive = self.archive.get_sorted(self.eval_opponent_selection)
-        models_names = archive[0]
-        sampled_opponents = utsmpl.sample_opponents(models_names, self.n_eval_episodes, selection=self.eval_opponent_selection)
-        # sampled_opponents = utsmpl.sample_opponents_os(self.eval_sample_path, self.startswith_keyword, self.n_eval_episodes, selection=self.eval_opponent_selection)
+        sampled_opponents = None
+        if(not OS):
+            archive = self.archive.get_sorted(self.eval_opponent_selection)
+            models_names = archive[0]
+            sampled_opponents = utsmpl.sample_opponents(models_names, self.n_eval_episodes, selection=self.eval_opponent_selection)
+        if(OS):
+            sampled_opponents = utsmpl.sample_opponents_os(self.eval_sample_path, self.startswith_keyword, self.n_eval_episodes, selection=self.eval_opponent_selection)
         return self._evaluate_policy_param(logger_prefix="eval", 
                                            n_eval_episodes=self.n_eval_episodes,
                                            deterministic=self.deterministic,
@@ -383,10 +395,11 @@ class EvalSaveCallback(EvalCallback):
             name = f"{self.name_prefix}_{self.eval_metric}_m_{metric_value}_s_{self.num_timesteps}"
             path = os.path.join(self.save_path, name)
             self.model.save(path)
-            # model_parameters = self.model.get_parameters() # TODO: this is not the correct one
-            # TODO: now only the error is saving and loading the model in the cache
-            model = deepcopy(self.model) # TODO: Check this and how much it will take from the cache
-            self.archive.add(name, model) # Add the model to the archive
+            if(not OS):
+                # model_parameters = self.model.get_parameters() # TODO: this is not the correct one
+                # TODO: now only the error is saving and loading the model in the cache
+                model = deepcopy(self.model) # TODO: Check this and how much it will take from the cache
+                self.archive.add(name, model) # Add the model to the archive
             if self.verbose > 1:
                 print(f"Saving model checkpoint to {path}")
 

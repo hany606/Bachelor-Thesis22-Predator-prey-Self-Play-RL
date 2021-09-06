@@ -1,7 +1,10 @@
 from random import sample
 from stable_baselines3.common.callbacks import EvalCallback, EventCallback
 import os
-from bach_utils.os import *
+import bach_utils.sorting as utsrt
+import bach_utils.os as utos
+import bach_utils.list as utlst
+import bach_utils.sampling as utsmpl
 
 import warnings
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
@@ -14,169 +17,6 @@ from stable_baselines3.common.vec_env import VecEnv, DummyVecEnv, sync_envs_norm
 from stable_baselines3.common.vec_env.base_vec_env import VecEnvStepReturn, VecEnvIndices
 from copy import deepcopy
 import wandb
-
-
-def sample_opponents(sample_path, startswith_keyword, num_sampled_opponents, selection):
-    sampled_opponents_filenames = []
-    files_list = get_startswith(sample_path, startswith_keyword)
-    if(len(files_list) == 0):
-        sampled_opponents_filenames = [None for _ in range(num_sampled_opponents)]
-    else:
-        if(selection == "random"):
-            sampled_opponents_filenames = [get_random_from(files_list)[0] for _ in range(num_sampled_opponents)]  # TODO: Take care about pigonhole principle -> if the set is too small, then the likelihood for selection each element in the list will be relatively large
-        
-        elif(selection == "latest"):
-            sort_steps(files_list) # TODO: Take care about this computation bottelneck here O(NlogN), it will be a headach for large archives
-            latest = files_list[-1]
-            sampled_opponents_filenames = [latest for _ in range(num_sampled_opponents)]
-
-        elif(selection == "latest-set"):
-            sort_steps(files_list) # TODO: Take care about this computation bottelneck here O(NlogN), it will be a headach for large archives
-            files_list.reverse()
-            sampled_opponents_filenames = sample_set(files_list, num_sampled_opponents)
-        
-        elif(selection == "highest"):
-            sort_metric(files_list)
-            target = files_list[-1]
-            sampled_opponents_filenames = [target for _ in range(num_sampled_opponents)]
-
-        elif(selection == "highest-set"):
-            sort_metric(files_list)
-            files_list.reverse()
-            sampled_opponents_filenames = sample_set(files_list, num_sampled_opponents)
-
-        elif(selection == "lowest"):
-            sort_metric(files_list)
-            target = files_list[0]
-            sampled_opponents_filenames = [target for _ in range(num_sampled_opponents)]
-
-        elif(selection == "lowest-set"):
-            sort_metric(files_list)
-            sampled_opponents_filenames = sample_set(files_list, num_sampled_opponents)
-
-
-        sampled_opponents_filenames = [os.path.join(sample_path, f) for f in sampled_opponents_filenames]
-    return sampled_opponents_filenames
-# Based on https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/evaluation.py
-# It is changed to load different opponents or the same opponents for the same agent
-def evaluate_policy_old(
-    model: "base_class.BaseAlgorithm",
-    env: Union[gym.Env, VecEnv],
-    n_eval_episodes: int = 10,
-    deterministic: bool = True,
-    render: bool = False,
-    callback: Optional[Callable[[Dict[str, Any], Dict[str, Any]], None]] = None,
-    reward_threshold: Optional[float] = None,
-    return_episode_rewards: bool = False,
-    warn: bool = True,
-    sampled_opponents=None
-    ) -> Union[Tuple[float, float, float], Tuple[List[float], List[int], float]]:
-    """
-    Runs policy for ``n_eval_episodes`` episodes and returns average reward.
-    This is made to work only with one env.
-
-    .. note::
-        If environment has not been wrapped with ``Monitor`` wrapper, reward and
-        episode lengths are counted as it appears with ``env.step`` calls. If
-        the environment contains wrappers that modify rewards or episode lengths
-        (e.g. reward scaling, early episode reset), these will affect the evaluation
-        results as well. You can avoid this by wrapping environment with ``Monitor``
-        wrapper before anything else.
-
-    :param model: The RL agent you want to evaluate.
-    :param env: The gym environment. In the case of a ``VecEnv``
-        this must contain only one environment.
-    :param n_eval_episodes: Number of episode to evaluate the agent
-    :param deterministic: Whether to use deterministic or stochastic actions
-    :param render: Whether to render the environment or not
-    :param callback: callback function to do additional checks,
-        called after each step. Gets locals() and globals() passed as parameters.
-    :param reward_threshold: Minimum expected reward per episode,
-        this will raise an error if the performance is not met
-    :param return_episode_rewards: If True, a list of rewards and episode lengths
-        per episode will be returned instead of the mean.
-    :param warn: If True (default), warns user about lack of a Monitor wrapper in the
-        evaluation environment.
-    :return: Mean reward per episode, std of reward per episode.
-        Returns ([float], [int]) when ``return_episode_rewards`` is True, first
-        list containing per-episode rewards and second containing per-episode lengths
-        (in number of steps).
-    """
-    is_monitor_wrapped = False
-    # Avoid circular import
-    from stable_baselines3.common.env_util import is_wrapped
-    from stable_baselines3.common.monitor import Monitor
-
-    if isinstance(env, VecEnv):
-        assert env.num_envs == 1, "You must pass only one environment when using this function"
-        is_monitor_wrapped = env.env_is_wrapped(Monitor)[0]
-    else:
-        is_monitor_wrapped = is_wrapped(env, Monitor)
-
-    if not is_monitor_wrapped and warn:
-        warnings.warn(
-            "Evaluation environment is not wrapped with a ``Monitor`` wrapper. "
-            "This may result in reporting modified episode lengths and rewards, if other wrappers happen to modify these. "
-            "Consider wrapping environment first with ``Monitor`` wrapper.",
-            UserWarning,
-        )
-
-    episode_rewards, episode_lengths = [], []
-    not_reseted = True
-    win_rate = 0
-    while len(episode_rewards) < n_eval_episodes:
-        # Number of loops here might differ from true episodes
-        # played, if underlying wrappers modify episode lengths.
-        # Avoid double reset, as VecEnv are reset automatically.
-        if not isinstance(env, VecEnv) or not_reseted:
-            opponent_policy_filename = sampled_opponents[len(episode_rewards)]
-            if(opponent_policy_filename is not None):
-                print(f"Load evaluation's model: {opponent_policy_filename}")
-                env.set_attr("target_opponent_policy_filename", opponent_policy_filename)
-            obs = env.reset()
-            not_reseted = False
-        done, state = False, None
-        episode_reward = 0.0
-        episode_length = 0
-        while not done:
-            action, state = model.predict(obs, state=state, deterministic=deterministic)
-            obs, rewards, dones, infos = env.step(action)
-            # unpack values so that the callback can access the local variables
-            reward = rewards[0]
-            done = dones[0]
-            info = infos[0]
-            episode_reward += reward
-            if callback is not None:
-                callback(locals(), globals())
-            episode_length += 1
-            if render:
-                env.render()
-        if(info["win"] > 0):
-            win_rate += 1
-        if is_monitor_wrapped:
-            # Do not trust "done" with episode endings.
-            # Remove vecenv stacking (if any)
-            if isinstance(env, VecEnv):
-                info = info[0]
-            if "episode" in info.keys():
-                # Monitor wrapper includes "episode" key in info if environment
-                # has been wrapped with it. Use those rewards instead.
-                episode_rewards.append(info["episode"]["r"])
-                episode_lengths.append(info["episode"]["l"])
-        else:
-            episode_rewards.append(episode_reward)
-            episode_lengths.append(episode_length)
-
-    mean_reward = np.mean(episode_rewards)
-    std_reward = np.std(episode_rewards)
-    # print("-----------------")
-    # print(win_rate, n_eval_episodes)
-    win_rate = win_rate/n_eval_episodes
-    if reward_threshold is not None:
-        assert mean_reward > reward_threshold, "Mean reward below threshold: " f"{mean_reward:.2f} < {reward_threshold:.2f}"
-    if return_episode_rewards:
-        return episode_rewards, episode_lengths, win_rate
-    return mean_reward, std_reward, win_rate
 
 
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/dummy_vec_env.py
@@ -375,12 +215,14 @@ class OpponentSelectionCallback(EventCallback):
         self.opponent_selection = kwargs["opponent_selection"]
         self.sample_after_rollout = kwargs["sample_after_rollout"]
         self.num_sampled_per_round = kwargs["num_sampled_per_round"]
+        self.archive = kwargs["archive"]
 
         del kwargs["sample_path"]
         del kwargs["env"]
         del kwargs["opponent_selection"]
         del kwargs["num_sampled_per_round"]
         del kwargs["sample_after_rollout"]
+        del kwargs["archive"]
 
         self.sampled_per_round = []
         self.sampled_idx = 0
@@ -388,16 +230,23 @@ class OpponentSelectionCallback(EventCallback):
         super(OpponentSelectionCallback, self).__init__(*args, **kwargs)
 
     def _on_training_start(self):
-        # print("training started")
-        self.sampled_per_round = sample_opponents(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)
-        # If it is not updated with every rollout, only updated at the begining
-        if(self.num_sampled_per_round == 1):
-            self.env.set_target_opponent_policy_filename(self.sampled_per_round[0])
+        if(not self.sampled_per_round):
+            # print("training started")
+            archive = self.archive.get_sorted(self.opponent_selection)
+            models_names = archive[0]
+            self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)
+            # self.sampled_per_round = utsmpl.sample_opponents(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)
+            # If it is not updated with every rollout, only updated at the begining
+            if(self.num_sampled_per_round == 1):
+                self.env.set_target_opponent_policy_filename(self.sampled_per_round[0])
         super(OpponentSelectionCallback, self)._on_training_start()
 
     def _on_rollout_start(self):
         if(self.sample_after_rollout):
-            opponent = sample_opponents(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)[0]
+            archive = self.archive.get_sorted(self.opponent_selection)
+            models_names = archive[0]
+            opponent = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)[0]
+            # opponent = utsmpl.sample_opponents(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)[0]
             self.env.set_target_opponent_policy_filename(opponent)
         
         if(self.num_sampled_per_round > 1):
@@ -415,6 +264,8 @@ class EvalSaveCallback(EvalCallback):
         self.eval_opponent_selection = kwargs["eval_opponent_selection"]
         self.eval_sample_path = kwargs["eval_sample_path"]
         self.save_freq = kwargs["save_freq"]
+        self.archive = kwargs["archive"]    # pass it by reference
+
         self.name_prefix = None
         self.startswith_keyword = "history"
 
@@ -423,6 +274,7 @@ class EvalSaveCallback(EvalCallback):
         del kwargs["eval_opponent_selection"]
         del kwargs["eval_sample_path"]
         del kwargs["save_freq"]
+        del kwargs["archive"]
 
         super(EvalSaveCallback, self).__init__(*args, **kwargs)
         if not isinstance(self.eval_env, DummyVecEnvSelfPlay):
@@ -507,10 +359,14 @@ class EvalSaveCallback(EvalCallback):
 
     # In order to keep the oringinal callback functions, this is just a wrapper for the parameterized _evaluate_policy()
     def _evaluate_policy(self) -> bool:
+        archive = self.archive.get_sorted(self.eval_opponent_selection)
+        models_names = archive[0]
+        sampled_opponents = utsmpl.sample_opponents(models_names, self.n_eval_episodes, selection=self.eval_opponent_selection)
+        # sampled_opponents = utsmpl.sample_opponents_os(self.eval_sample_path, self.startswith_keyword, self.n_eval_episodes, selection=self.eval_opponent_selection)
         return self._evaluate_policy_param(logger_prefix="eval", 
                                            n_eval_episodes=self.n_eval_episodes,
                                            deterministic=self.deterministic,
-                                           sampled_opponents=sample_opponents(self.eval_sample_path, self.startswith_keyword, self.n_eval_episodes, selection=self.eval_opponent_selection))
+                                           sampled_opponents=sampled_opponents)
 
     def _save_model(self):
         if self.save_freq > 0 and self.n_calls % self.save_freq == 0:
@@ -524,8 +380,13 @@ class EvalSaveCallback(EvalCallback):
             elif(self.eval_metric == "winrate"):
                 metric_value = self.win_rate
             # history_<num-round>_<reward/points/winrate>_m_<value>_s_<num-step>
-            path = os.path.join(self.save_path, f"{self.name_prefix}_{self.eval_metric}_m_{metric_value}_s_{self.num_timesteps}")
+            name = f"{self.name_prefix}_{self.eval_metric}_m_{metric_value}_s_{self.num_timesteps}"
+            path = os.path.join(self.save_path, name)
             self.model.save(path)
+            # model_parameters = self.model.get_parameters() # TODO: this is not the correct one
+            # TODO: now only the error is saving and loading the model in the cache
+            model = deepcopy(self.model) # TODO: Check this and how much it will take from the cache
+            self.archive.add(name, model) # Add the model to the archive
             if self.verbose > 1:
                 print(f"Saving model checkpoint to {path}")
 
@@ -537,6 +398,7 @@ class EvalSaveCallback(EvalCallback):
         return result
 
     # Post evaluate the model against all the opponents from opponents_path
+    # TODO: post evaluate based on the archive var
     def post_eval(self, agent_name, opponents_path, startswith_keyword="history", n_eval_opponent=3, deterministic=False):
         def evaluate(n_eval_episodes, deterministic, sampled_opponents):
             # Sync training and eval env if there is VecNormalize
@@ -559,7 +421,7 @@ class EvalSaveCallback(EvalCallback):
             win_rate = win_rate # ratio [0,1]
             return win_rate
 
-        opponents_models_names = get_sorted(opponents_path, startswith_keyword, sort_steps)
+        opponents_models_names = utos.get_sorted(opponents_path, startswith_keyword, utsrt.sort_steps)
         opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]
         eval_return_list = []
         for i, o in enumerate(opponents_models_path):

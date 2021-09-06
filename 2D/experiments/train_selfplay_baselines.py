@@ -23,10 +23,7 @@
 # 4. How to rank/evaluate the agents? How this agent is valuable for the training?  (e.g. points)   -> Here: None
 ################################################################
 
-# TODO: Fix steps
-# TODO: Add final evaluation
 # TODO: Add flexible testing for specific models using argparse
-# TODO: Test random opponent selection during training and let's see, there should be a lot of loading model prints
 
 import os
 from datetime import datetime
@@ -51,7 +48,9 @@ from gym.envs.registration import register
 
 from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPredEnv
 from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPreyEnv
+import random
 
+from bach_utils.archive import Archive
 
 OBS = "full"
 ACT = "vel"
@@ -76,7 +75,7 @@ EVAL_METRIC = "winrate"
 EVAL_OPPONENT_SELECTION = "random"
 OPPONENT_SELECTION = "random"
 NUM_SAMPLED_OPPONENT_PER_ROUND = 2
-SAMPLE_AFTER_ROLLOUT = False
+SAMPLE_AFTER_ROLLOUT = False    # This is made to choose opponent after reset or not
 
 env_config = {"Obs": OBS, "Act": ACT, "Env": ENV, "Hierarchy":"2D:evorobotpy2:predprey:1v1"}
 
@@ -179,13 +178,13 @@ def train(log_dir):
     # train selfplay agent
     logger.configure(folder=log_dir)
     make_deterministic(SEED_VALUE)
-    
+    archive = Archive(sorting_keys=[EVAL_OPPONENT_SELECTION, OPPONENT_SELECTION], sorting=True)
     # --------------------------------------- Pred -------------------------------------------------------
     
 
     # pred_env = create_env("SelfPlay1v1-Pred-v0", os.path.join(log_dir, "pred", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPredEnv()
-    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
-    pred_env_eval = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+    pred_env_eval = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
     pred_env._name = "Training"
     pred_env_eval._name = "Evaluation"
     pred_opponent_sample_path = os.path.join(log_dir, "prey")
@@ -205,18 +204,20 @@ def train(log_dir):
                                               eval_metric=EVAL_METRIC,
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=pred_opponent_sample_path,
-                                              save_freq=SAVE_FREQ)
+                                              save_freq=SAVE_FREQ,
+                                              archive=archive)
     pred_opponent_selection_callback = OpponentSelectionCallback(sample_path=pred_opponent_sample_path,
                                                                  env=pred_env, 
                                                                  opponent_selection=OPPONENT_SELECTION,
                                                                  sample_after_rollout=SAMPLE_AFTER_ROLLOUT,
-                                                                 num_sampled_per_round=NUM_SAMPLED_OPPONENT_PER_ROUND)
+                                                                 num_sampled_per_round=NUM_SAMPLED_OPPONENT_PER_ROUND,
+                                                                 archive=archive)
 
 
     # --------------------------------------- Prey -------------------------------------------------------
     # prey_env = create_env("SelfPlay1v1-Prey-v0", os.path.join(log_dir, "prey", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPreyEnv()
-    prey_env = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
-    prey_env_eval = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
+    prey_env = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
+    prey_env_eval = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
     prey_env._name = "Training"
     prey_env_eval._name = "Evaluation"
     prey_opponent_sample_path = os.path.join(log_dir, "pred")
@@ -236,12 +237,14 @@ def train(log_dir):
                                               eval_metric=EVAL_METRIC,
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=prey_opponent_sample_path,
-                                              save_freq=SAVE_FREQ)
+                                              save_freq=SAVE_FREQ,
+                                              archive=archive)
     prey_opponent_selection_callback = OpponentSelectionCallback(sample_path=prey_opponent_sample_path,
                                                                  env=prey_env, 
                                                                  opponent_selection=OPPONENT_SELECTION,
                                                                  sample_after_rollout=SAMPLE_AFTER_ROLLOUT,
-                                                                 num_sampled_per_round=NUM_SAMPLED_OPPONENT_PER_ROUND)
+                                                                 num_sampled_per_round=NUM_SAMPLED_OPPONENT_PER_ROUND,
+                                                                 archive=archive)
 
     # ----------------------------------------------------------------------------------------------------
     pred_wandb_callback = WandbCallback()
@@ -297,7 +300,8 @@ if __name__=="__main__":
         print("## CUDA not available")
     
     experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
-    LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + '/selfplay-results/save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
+    prefix = "test-" # ""
+    LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
     wandb.tensorboard.patch(root_logdir=LOG_DIR)
     wandb.init(project="Behavioral-Learning-Thesis",
                group="self-play",
@@ -307,7 +311,7 @@ if __name__=="__main__":
                save_code=True,  # optional
     )
 
-    wandb.run.name = wandb.run.name + "-test"#f"-v3.1-rep-nitro-random" #f"-run-{experiment_id}"
+    wandb.run.name = wandb.run.name + "-test-v4"#f"-v3.1-rep-nitro-random" #f"-run-{experiment_id}"
     wandb.run.save()
 
     if not os.path.exists(LOG_DIR):

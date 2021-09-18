@@ -50,7 +50,8 @@ from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPredEnv
 from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPreyEnv
 import random
 
-from bach_utils.archive import Archive
+# from bach_utils.archive import Archive
+from archive import ArchiveSB3 as Archive
 
 OBS = "full"
 ACT = "vel"
@@ -158,33 +159,43 @@ class make_env:
         env = Monitor(env)  # record stats such as returns
         return env
 
-def create_env_notused(env_id, dir, config=None):
-    env = make_env(env_id, config)
-    env = DummyVecEnv([lambda: env])#DummyVecEnvSelfPlay([lambda: env])
-    # env = DummyVecEnv([env.make])
-    # env = VecVideoRecorder(env, dir,
-    #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
-    return env
+# def create_env_notused(env_id, dir, config=None):
+#     env = make_env(env_id, config)
+#     env = DummyVecEnv([lambda: env])#DummyVecEnvSelfPlay([lambda: env])
+#     # env = DummyVecEnv([env.make])
+#     # env = VecVideoRecorder(env, dir,
+#     #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
+#     return env
 
-def create_env(*args, **kwargs):
-    env = args[0](**kwargs)
-    env = DummyVecEnvSelfPlay([lambda: env]) #DummyVecEnv([lambda: env])#
-    # env = DummyVecEnv([env.make])
-    # env = VecVideoRecorder(env, dir,
-    #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
-    return env
+# def create_env(*args, **kwargs):
+#     env = args[0](**kwargs)
+#     env = DummyVecEnvSelfPlay([lambda: env]) #DummyVecEnv([lambda: env])#
+#     # env = DummyVecEnv([env.make])
+#     # env = VecVideoRecorder(env, dir,
+#     #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
+#     return env
 
 def train(log_dir):
     # train selfplay agent
     logger.configure(folder=log_dir)
     make_deterministic(SEED_VALUE)
-    archive = Archive(sorting_keys=[EVAL_OPPONENT_SELECTION, OPPONENT_SELECTION], sorting=True)
-    # --------------------------------------- Pred -------------------------------------------------------
-    
 
+    pred_archive = Archive(sorting_keys=[EVAL_OPPONENT_SELECTION, OPPONENT_SELECTION],
+                           sorting=True,
+                           moving_least_freq_flag=False,
+                           save_path=os.path.join(LOG_DIR, "pred")
+                          )
+    prey_archive = Archive(sorting_keys=[EVAL_OPPONENT_SELECTION, OPPONENT_SELECTION],
+                           sorting=True,
+                           moving_least_freq_flag=False,
+                           save_path=os.path.join(LOG_DIR, "prey")
+                          )
+
+    # --------------------------------------- Pred -------------------------------------------------------
     # pred_env = create_env("SelfPlay1v1-Pred-v0", os.path.join(log_dir, "pred", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPredEnv()
-    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
-    pred_env_eval = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+    # Here SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
+    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=prey_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+    pred_env_eval = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=prey_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
     pred_env._name = "Training"
     pred_env_eval._name = "Evaluation"
     pred_opponent_sample_path = os.path.join(log_dir, "prey")
@@ -195,6 +206,7 @@ def train(log_dir):
                      learning_rate=pred_algorithm_config["lr"], batch_size=pred_algorithm_config["batch_size"],
                      gamma=pred_algorithm_config["gamma"], verbose=2,
                      tensorboard_log=os.path.join(log_dir,"pred"))
+    # Here the EvalSaveCallback is used the archive to save the model and sample the opponent for evaluation
     pred_evalsave_callback = EvalSaveCallback(eval_env=pred_env_eval,
                                               log_path=os.path.join(log_dir, "pred"),
                                               eval_freq=EVAL_FREQ,
@@ -205,19 +217,21 @@ def train(log_dir):
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=pred_opponent_sample_path,
                                               save_freq=SAVE_FREQ,
-                                              archive=archive)
-    pred_opponent_selection_callback = OpponentSelectionCallback(sample_path=pred_opponent_sample_path,
+                                              archive=pred_archive)
+    # Here the TrainingOpponentSelectionCallback is used the archive to sample the opponent for training
+    # The name here pred_oppoenent -> the opponent of the predator
+    pred_opponent_selection_callback = TrainingOpponentSelectionCallback(sample_path=pred_opponent_sample_path,
                                                                  env=pred_env, 
                                                                  opponent_selection=OPPONENT_SELECTION,
                                                                  sample_after_rollout=SAMPLE_AFTER_ROLLOUT,
                                                                  num_sampled_per_round=NUM_SAMPLED_OPPONENT_PER_ROUND,
-                                                                 archive=archive)
+                                                                 archive=prey_archive)
 
 
     # --------------------------------------- Prey -------------------------------------------------------
     # prey_env = create_env("SelfPlay1v1-Prey-v0", os.path.join(log_dir, "prey", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPreyEnv()
-    prey_env = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
-    prey_env_eval = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
+    prey_env = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=pred_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
+    prey_env_eval = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=pred_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
     prey_env._name = "Training"
     prey_env_eval._name = "Evaluation"
     prey_opponent_sample_path = os.path.join(log_dir, "pred")
@@ -238,13 +252,13 @@ def train(log_dir):
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=prey_opponent_sample_path,
                                               save_freq=SAVE_FREQ,
-                                              archive=archive)
-    prey_opponent_selection_callback = OpponentSelectionCallback(sample_path=prey_opponent_sample_path,
+                                              archive=prey_archive)
+    prey_opponent_selection_callback = TrainingOpponentSelectionCallback(sample_path=prey_opponent_sample_path,
                                                                  env=prey_env, 
                                                                  opponent_selection=OPPONENT_SELECTION,
                                                                  sample_after_rollout=SAMPLE_AFTER_ROLLOUT,
                                                                  num_sampled_per_round=NUM_SAMPLED_OPPONENT_PER_ROUND,
-                                                                 archive=archive)
+                                                                 archive=pred_archive)
 
     # ----------------------------------------------------------------------------------------------------
     pred_wandb_callback = WandbCallback()
@@ -273,10 +287,18 @@ def train(log_dir):
                                    prey_wandb_callback], 
                          reset_num_timesteps=False)
     
+        # TODO: call 
+        # pred_evalsave_callback.mid_eval()
+        # prey_evalsave_callback.mid_eval()
+        
+
         if(round_num%FINAL_SAVE_FREQ == 0):
-            # TODO: Change it to save the best model for now, not the latest (How to define the best model)
+            # TODO: Change it to save the best model till now, not the latest (How to define the best model)
             pred_model.save(os.path.join(LOG_DIR, "pred", "final_model"))
             prey_model.save(os.path.join(LOG_DIR, "prey", "final_model"))
+
+    pred_evalsave_callback._save_model_core()
+    prey_evalsave_callback._save_model_core()
 
     pred_model.save(os.path.join(LOG_DIR, "pred", "final_model"))
     prey_model.save(os.path.join(LOG_DIR, "prey", "final_model"))

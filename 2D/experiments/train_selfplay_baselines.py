@@ -62,14 +62,14 @@ PRED_ALGO = "PPO"
 PREY_ALGO = "PPO"
 
 SEED_VALUE = 3
-NUM_EVAL_EPISODES = 10
+NUM_EVAL_EPISODES = 1#10
 LOG_DIR = None
 # PRED_TRAINING_EPISODES = 25  # in iterations
 # PREY_TRAINING_EPISODES = 25  # in iterations
-NUM_TIMESTEPS = int(25e3)#int(1e9)
-EVAL_FREQ = int(5e3) #in steps
+NUM_TIMESTEPS = int(5e3)#int(1e9)
+EVAL_FREQ = int(5e3)#int(5e3) #in steps
 NUM_ROUNDS = 2#50
-SAVE_FREQ = 5000 # in steps
+SAVE_FREQ = int(5e3)#5000 # in steps -> if you want only to save at the end of training round -> NUM_TIMESTEPS
 FINAL_SAVE_FREQ = 3 # in rounds
 EVAL_METRIC = "winrate"
 
@@ -217,7 +217,8 @@ def train(log_dir):
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=pred_opponent_sample_path,
                                               save_freq=SAVE_FREQ,
-                                              archive={"self":pred_archive, "opponent":prey_archive})
+                                              archive={"self":pred_archive, "opponent":prey_archive},
+                                              agent_name="pred")
     # Here the TrainingOpponentSelectionCallback is used the archive to sample the opponent for training
     # The name here pred_oppoenent -> the opponent of the predator
     pred_opponent_selection_callback = TrainingOpponentSelectionCallback(sample_path=pred_opponent_sample_path,
@@ -252,7 +253,8 @@ def train(log_dir):
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=prey_opponent_sample_path,
                                               save_freq=SAVE_FREQ,
-                                              archive={"self":prey_archive, "opponent":pred_archive})
+                                              archive={"self":prey_archive, "opponent":pred_archive},
+                                              agent_name="prey")
     prey_opponent_selection_callback = TrainingOpponentSelectionCallback(sample_path=prey_opponent_sample_path,
                                                                  env=prey_env, 
                                                                  opponent_selection=OPPONENT_SELECTION,
@@ -285,12 +287,7 @@ def train(log_dir):
                          callback=[prey_opponent_selection_callback, 
                                    prey_evalsave_callback, 
                                    prey_wandb_callback], 
-                         reset_num_timesteps=False)
-    
-        # TODO: call 
-        # pred_evalsave_callback.mid_eval()
-        # prey_evalsave_callback.mid_eval()
-        
+                         reset_num_timesteps=False)        
 
         if(round_num%FINAL_SAVE_FREQ == 0):
             # TODO: Change it to save the best model till now, not the latest (How to define the best model)
@@ -304,9 +301,18 @@ def train(log_dir):
     prey_model.save(os.path.join(LOG_DIR, "prey", "final_model"))
 
     print("Post Evaluation for Pred:")
-    pred_evalsave_callback.post_eval(agent_name="pred", opponents_path=os.path.join(LOG_DIR, "prey"))
+    pred_evalsave_callback.post_eval(opponents_path=os.path.join(LOG_DIR, "prey"))
     print("Post Evaluation for Prey:")
-    prey_evalsave_callback.post_eval(agent_name="prey", opponents_path=os.path.join(LOG_DIR, "pred"))
+    prey_evalsave_callback.post_eval(opponents_path=os.path.join(LOG_DIR, "pred"))
+
+    print("HeatMap Evaluation for current round version of pred against previous of prey")
+    pred_evalsave_callback.compute_eval_matrix(prefix="history_", num_rounds=NUM_ROUNDS, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO)
+    print("HeatMap Evaluation for current round version of prey against previous of pred")
+    prey_evalsave_callback.compute_eval_matrix(prefix="history_", num_rounds=NUM_ROUNDS, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO)
+
+
+    wandb.log({f"pred/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [j for j in range(NUM_ROUNDS)], pred_evalsave_callback.evaluation_matrix, show_text=True)})
+    wandb.log({f"prey/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], prey_evalsave_callback.evaluation_matrix, show_text=True)})
 
     pred_env.close()
     prey_env.close()

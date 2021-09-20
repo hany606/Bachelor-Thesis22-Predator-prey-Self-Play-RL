@@ -1,3 +1,4 @@
+# Generation and round are being used as the same meaning
 from random import sample
 from stable_baselines3.common.callbacks import EvalCallback, EventCallback
 import os
@@ -291,7 +292,7 @@ class EvalSaveCallback(EvalCallback):
         self.save_freq = kwargs["save_freq"]
         self.archive = kwargs["archive"]["self"]  # pass it by reference
         self.opponent_archive = kwargs["archive"]["opponent"]  # pass it by reference
-
+        self.agent_name = kwargs["agent_name"]
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
@@ -301,6 +302,7 @@ class EvalSaveCallback(EvalCallback):
         del kwargs["eval_opponent_selection"]
         del kwargs["eval_sample_path"]
         del kwargs["save_freq"]
+        del kwargs["agent_name"]
         # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
@@ -316,6 +318,8 @@ class EvalSaveCallback(EvalCallback):
 
         # self.opponent_archive = self.eval_env.archive
 
+        self.evaluation_matrix = []
+
 
         # if isinstance(self.eval_env, DummyVecEnv):
         #     eval_env = DummyVecEnvMod([lambda: eval_env])
@@ -324,14 +328,14 @@ class EvalSaveCallback(EvalCallback):
         self.name_prefix = name_prefix
 
 
-    def _evaluate(self, n_eval_episodes, deterministic, sampled_opponents):
+    def _evaluate(self, model, n_eval_episodes, deterministic, sampled_opponents):
         # Sync training and eval env if there is VecNormalize
         sync_envs_normalization(self.training_env, self.eval_env)
 
         # Reset success rate buffer
         self._is_success_buffer = []
         return evaluate_policy(
-                                self.model,
+                                model,
                                 self.eval_env,
                                 n_eval_episodes=n_eval_episodes,
                                 render=self.render,
@@ -343,7 +347,7 @@ class EvalSaveCallback(EvalCallback):
                               )
 
     def _evaluate_policy_core(self, logger_prefix, n_eval_episodes, deterministic, sampled_opponents, override=False) -> bool:
-        episode_rewards, episode_lengths, win_rate = self._evaluate(n_eval_episodes, deterministic, sampled_opponents)
+        episode_rewards, episode_lengths, win_rate = self._evaluate(self.model, n_eval_episodes, deterministic, sampled_opponents)
 
         if self.log_path is not None:
             self.evaluations_timesteps.append(self.num_timesteps)
@@ -452,30 +456,105 @@ class EvalSaveCallback(EvalCallback):
     # Evaluate the agent agaist all the previous agents -> After the end of the round
     # TODO
     # Add support to retrieve from the archive
-    def mid_eval(self, agent_name):
+    # TODO: optimize it to make it compute in the middle not just at the end
+    def compute_eval_matrix(self, prefix, num_rounds, n_eval_rep=5, deterministic=False, algorithm_class=None):
+        # self.evaluation_matrix.append([])
         # Evaluate the model and save it (+ Regular evaluation)
-        self._save_model()
+        # self._save_model()
         # Evaluate the current model vs all the previous opponents
         # Get the list of all the previous opponents
+        models_names = None
+        if(not self.OS):
+            opponent_archive = self.opponent_archive.get_sorted("random")
+            opponent_models_names = opponent_archive[0] # 0 index to get just the names
+            archive = self.archive.get_sorted("random")
+            models_names = archive[0]
 
-        # Run evaluation n_eval_rep for each opponent
+        for i in range(num_rounds):
+            self.evaluation_matrix.append([])
+            startswith_keyword = f"{prefix}{i}"
+            for j in range(num_rounds):
+                opponent_startswith_keyword = f"{prefix}{j}"
+                sampled_opponents = None
+                model_self = None
+                if(not self.OS):
+                    # if(len(models_names) == 0): Not possible as we are evaluating after training
+                    sampled_opponents_startswith = utlst.get_startswith(opponent_models_names, startswith=opponent_startswith_keyword)
+                    sampled_opponents = utlst.get_latest(sampled_opponents_startswith)[0]
+                    sampled_self_startswith = utlst.get_startswith(models_names, startswith=startswith_keyword)
+                    sampled_self = utlst.get_latest(sampled_self_startswith)[0]
+                    model_self = self.archive.load(name=sampled_self, env=self.eval_env, algorithm_class=algorithm_class)
 
-        # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
+                else:
+                    sampled_opponents_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
+                    sampled_opponents = utos.get_latest(sampled_opponents_startswith)[0]
+                    sampled_self_startswith = utos.get_startswith(self.save_path, startswith=startswith_keyword)
+                    sampled_self = utos.get_latest(sampled_self_startswith)[0]
+                    model_self = self.algorithm_class.load(sampled_self, env=self.eval_env)
 
-            # Add this matrix to __init__
-            # It will be redundent to have 2 matrices but it is fine
+                # Run evaluation n_eval_rep for each opponent
+                eval_model_list = [sampled_opponents]
+                # The current model vs the iterated model form the opponent (last opponent in each generation/round)
+                _, _, win_rate = self._evaluate(model_self, n_eval_episodes=n_eval_rep,
+                                                deterministic=deterministic,
+                                                sampled_opponents=eval_model_list)
+                # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
+                # Add this matrix to __init__
+                # It will be redundent to have 2 matrices but it is fine
+                self.evaluation_matrix[-1].append(win_rate)
 
+
+        # For each generation/round previous to the current generation/round and including this round
+        # for i in range(round_num+1):    # round_num+1 In order to include itself round
+        #     startswith_keyword = f"{prefix}{round_num}"
+        #     sampled_opponents = None            
+        #     if(not self.OS):
+        #         # if(len(models_names) == 0): Not possible as we are evaluating after training
+        #         sampled_opponents_startswith = utlst.get_startswith(models_names, startswith=startswith_keyword)
+        #         sampled_opponents = utlst.get_latest(sampled_opponents_startswith)[0]
+        #     else:
+        #         sampled_opponents_startswith = utos.get_startswith(self.eval_sample_path, startswith=startswith_keyword)
+        #         sampled_opponents = utos.get_latest(sampled_opponents_startswith)[0]
+
+        #     # Run evaluation n_eval_rep for each opponent
+        #     eval_model_list = [sampled_opponents]
+        #     # The current model vs the iterated model form the opponent (last opponent in each generation/round)
+        #     _, _, win_rate = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
+        #                                     deterministic=deterministic,
+        #                                     sampled_opponents=eval_model_list)
+        #     # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
+        #     # Add this matrix to __init__
+        #     # It will be redundent to have 2 matrices but it is fine
+        #     self.evaluation_matrix[-1].append(win_rate)
+
+            # --------------------- if each version in the generation/round of 1st agent vs each version in the generation of the 2nd agent ---------------------
+            # if(not self.OS):
+            #     # if(len(models_names) == 0): Not possible as we are evaluating after training
+            #     sampled_opponents = utlst.get_startswith(models_names, startswith=startswith_keyword)
+            # if(self.OS):
+            #     sampled_opponents = utos.get_startswith(self.eval_sample_path, startswith=startswith_keyword)
+            # For each model in the generation/round for opponent
+            # for opponent in sampled_opponents:
+            #     # For each model in the generation/round for self (the agent that I am evaluating)
+            #     for model in sampled_self:
+            #         eval_model_list = [opponent for j in range]
+            #         # To make it work, change this function to include model
+            #         _, _, win_rate = self._evaluate(model, n_eval_episodes=n_eval_rep,
+            #                                         deterministic=deterministic,
+            #                                         sampled_opponents=eval_model_list)
+            # ---------------------------------------------------------------------------------------------
+
+
+        # return self.eval
         # Save result of this matrix to wandb as heatmap with the current sizes
-
+        # TODO
         # Save the round number with the name of the agent in a list
-
         # Save this list to a txt file -> This shows the generation/round number and the agent name 
-        pass
 
     # This last agent
     # Post evaluate the model against all the opponents from opponents_path
     # TODO: enable retrieving the agents from the archive
-    def post_eval(self, agent_name, opponents_path, startswith_keyword="history", n_eval_rep=3, deterministic=False):
+    def post_eval(self, opponents_path, startswith_keyword="history", n_eval_rep=3, deterministic=False):
         opponents_models_names = utos.get_sorted(opponents_path, startswith_keyword, utsrt.sort_steps)
         opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]
         eval_return_list = []
@@ -486,12 +565,12 @@ class EvalSaveCallback(EvalCallback):
             eval_model_list = [o for _ in range(n_eval_rep)]
             # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
             # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
-            _, _, win_rate = self._evaluate(n_eval_episodes=n_eval_rep,
+            _, _, win_rate = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             evaluation_result = win_rate
-            wandb.log({f"{agent_name}/post_eval/opponent_idx": i})
-            wandb.log({f"{agent_name}/post_eval/win_rate": evaluation_result})
+            wandb.log({f"{self.agent_name}/post_eval/opponent_idx": i})
+            wandb.log({f"{self.agent_name}/post_eval/win_rate": evaluation_result})
 
             
             # self.logger.record("post_eval/opponent_idx", i)
@@ -504,7 +583,7 @@ class EvalSaveCallback(EvalCallback):
             eval_return_list.append(evaluation_result)
         data = [[x, y] for (x, y) in zip([i for i in range(len(opponents_models_path))], eval_return_list)]
         table = wandb.Table(data=data, columns = ["opponent idx", "win-rate"])
-        wandb.log({f"{agent_name}/post_eval/table": wandb.plot.line(table, "opponent idx", "win-rate", title=f"Post evaluation {agent_name}")})
+        wandb.log({f"{self.agent_name}/post_eval/table": wandb.plot.line(table, "opponent idx", "win-rate", title=f"Post evaluation {self.agent_name}")})
         # self.eval_env.OS = False
         self.eval_env.set_attr("OS", False)
         self.OS = False

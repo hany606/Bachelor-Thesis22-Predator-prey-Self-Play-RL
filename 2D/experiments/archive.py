@@ -111,6 +111,7 @@ class ArchiveSB3:
         # print(f"Get sorted: current length of archive: {self.num_models} returned names{len(sorted_names)}")
         return sorted_names, sorted_policies
 
+    # sorting_key: random, latest, ....etc
     # Here possible values for the sorting_key: random, latest, highest, lowest, ... that the user using them in the training parameters
     def get_sorted(self, sorting_key):
         # print(self.sorting_functions[sorting_key][0])

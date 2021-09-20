@@ -2,6 +2,9 @@ import random
 from copy import deepcopy
 import bach_utils.sorting as utsrt
 
+def get_startswith(source_list, startswith):
+    target_list = [l for l in source_list if l.startswith(startswith)]
+    return target_list
 
 def get_sorted(source_list, sorting_function, return_count=False):
     source_list_sorted = sorting_function(source_list)

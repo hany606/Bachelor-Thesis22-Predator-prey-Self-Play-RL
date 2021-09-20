@@ -146,18 +146,18 @@ def make_deterministic(seed):
     torch.backends.cudnn.deterministic = True
 
 
-class make_env:
-    def __init__(self, env_id, config=None):
-        self.env_id = env_id
-        self.config = config
-    def make(self):
-        env = None
-        if(self.config is not None):
-            env = gym.make(self.env_id, **self.config)
-        else:
-            env = gym.make(self.env_id)
-        env = Monitor(env)  # record stats such as returns
-        return env
+# class make_env:
+#     def __init__(self, env_id, config=None):
+#         self.env_id = env_id
+#         self.config = config
+#     def make(self):
+#         env = None
+#         if(self.config is not None):
+#             env = gym.make(self.env_id, **self.config)
+#         else:
+#             env = gym.make(self.env_id)
+#         env = Monitor(env)  # record stats such as returns
+#         return env
 
 # def create_env_notused(env_id, dir, config=None):
 #     env = make_env(env_id, config)
@@ -217,7 +217,7 @@ def train(log_dir):
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=pred_opponent_sample_path,
                                               save_freq=SAVE_FREQ,
-                                              archive=pred_archive)
+                                              archive={"self":pred_archive, "opponent":prey_archive})
     # Here the TrainingOpponentSelectionCallback is used the archive to sample the opponent for training
     # The name here pred_oppoenent -> the opponent of the predator
     pred_opponent_selection_callback = TrainingOpponentSelectionCallback(sample_path=pred_opponent_sample_path,
@@ -252,7 +252,7 @@ def train(log_dir):
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=prey_opponent_sample_path,
                                               save_freq=SAVE_FREQ,
-                                              archive=prey_archive)
+                                              archive={"self":prey_archive, "opponent":pred_archive})
     prey_opponent_selection_callback = TrainingOpponentSelectionCallback(sample_path=prey_opponent_sample_path,
                                                                  env=prey_env, 
                                                                  opponent_selection=OPPONENT_SELECTION,

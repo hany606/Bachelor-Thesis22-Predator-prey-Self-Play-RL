@@ -98,25 +98,30 @@ class TrainingOpponentSelectionCallback(EventCallback):
 
         super(TrainingOpponentSelectionCallback, self).__init__(*args, **new_kwargs)
 
-    # Only once the training starts
+    # Only once the training starts of the round
     def _on_training_start(self):
-        if(not self.sampled_per_round):
-            print("training started")
-            opponent = None
-            if(not OS):
-                # print("Not OS")
-                archive = self.archive.get_sorted(self.opponent_selection)
-                models_names = archive[0]
-                self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)
-            if(OS):
-                self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)
-            # If it is not updated with every rollout, only updated at the begining
-            if(self.num_sampled_per_round == 1):
-                self.env.set_target_opponent_policy_filename(self.sampled_per_round[0])
+        # if(not self.sampled_per_round):
+        print("training started")
+        opponent = None
+        if(not OS):
+            # print("Not OS")
+            archive = self.archive.get_sorted(self.opponent_selection)
+            models_names = archive[0]
+            self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)
+        if(OS):
+            self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)
+        # If it is not updated with every rollout, only updated at the begining
+        if(self.num_sampled_per_round == 1):
+            self.env.set_target_opponent_policy_filename(self.sampled_per_round[0])
         super(TrainingOpponentSelectionCallback, self)._on_training_start()
+
+    # def _on_training_end(self):
+    #     self.sampled_per_round = []
+    #     super(TrainingOpponentSelectionCallback, self)._on_training_start()
 
     # With every rollout
     def _on_rollout_start(self):
+        print("Rollout")
         if(self.sample_after_rollout):
             opponent = None
             if(not OS):
@@ -128,6 +133,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
             self.env.set_target_opponent_policy_filename(opponent)
         
         if(self.num_sampled_per_round > 1):
+            print("Change sampled agent")
             self.env.set_target_opponent_policy_filename(self.sampled_per_round[self.sampled_idx % self.num_sampled_per_round]) # as a circular buffer
             self.sampled_idx += 1
         super(TrainingOpponentSelectionCallback, self)._on_rollout_start()
@@ -283,7 +289,8 @@ class EvalSaveCallback(EvalCallback):
         self.eval_opponent_selection = kwargs["eval_opponent_selection"]
         self.eval_sample_path = kwargs["eval_sample_path"]
         self.save_freq = kwargs["save_freq"]
-        self.archive = kwargs["archive"]  # pass it by reference
+        self.archive = kwargs["archive"]["self"]  # pass it by reference
+        self.opponent_archive = kwargs["archive"]["opponent"]  # pass it by reference
 
         self.name_prefix = None
         self.startswith_keyword = "history"
@@ -307,7 +314,7 @@ class EvalSaveCallback(EvalCallback):
 
 
 
-        self.opponent_archive = self.eval_env.archive
+        # self.opponent_archive = self.eval_env.archive
 
 
         # if isinstance(self.eval_env, DummyVecEnv):
@@ -472,8 +479,9 @@ class EvalSaveCallback(EvalCallback):
         opponents_models_names = utos.get_sorted(opponents_path, startswith_keyword, utsrt.sort_steps)
         opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]
         eval_return_list = []
-        self.eval_env.OS = False
-        self.OS = False
+        # self.eval_env.OS = True
+        self.eval_env.set_attr("OS", True)
+        self.OS = True
         for i, o in enumerate(opponents_models_path):
             eval_model_list = [o for _ in range(n_eval_rep)]
             # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
@@ -497,6 +505,7 @@ class EvalSaveCallback(EvalCallback):
         data = [[x, y] for (x, y) in zip([i for i in range(len(opponents_models_path))], eval_return_list)]
         table = wandb.Table(data=data, columns = ["opponent idx", "win-rate"])
         wandb.log({f"{agent_name}/post_eval/table": wandb.plot.line(table, "opponent idx", "win-rate", title=f"Post evaluation {agent_name}")})
-        self.eval_env.OS = True
-        self.OS = True
+        # self.eval_env.OS = False
+        self.eval_env.set_attr("OS", False)
+        self.OS = False
         return eval_return_list

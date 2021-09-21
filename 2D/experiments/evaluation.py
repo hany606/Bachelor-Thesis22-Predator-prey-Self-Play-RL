@@ -66,16 +66,16 @@ NUM_EVAL_EPISODES = 1#10
 LOG_DIR = None
 # PRED_TRAINING_EPISODES = 25  # in iterations
 # PREY_TRAINING_EPISODES = 25  # in iterations
-NUM_TIMESTEPS = int(5e3)#int(1e9)
+NUM_TIMESTEPS = int(25e3)#int(1e9)
 EVAL_FREQ = int(5e3)#int(5e3) #in steps
-NUM_ROUNDS = 2#50
+NUM_ROUNDS = 5#50
 SAVE_FREQ = int(5e3)#5000 # in steps -> if you want only to save at the end of training round -> NUM_TIMESTEPS
 FINAL_SAVE_FREQ = 3 # in rounds
 EVAL_METRIC = "winrate"
 
 EVAL_OPPONENT_SELECTION = "random"
 OPPONENT_SELECTION = "random"
-NUM_SAMPLED_OPPONENT_PER_ROUND = 2
+NUM_SAMPLED_OPPONENT_PER_ROUND = 5
 SAMPLE_AFTER_ROLLOUT = False    # This is made to choose opponent after reset or not
 
 env_config = {"Obs": OBS, "Act": ACT, "Env": ENV, "Hierarchy":"2D:evorobotpy2:predprey:1v1"}
@@ -146,62 +146,16 @@ def make_deterministic(seed):
     torch.backends.cudnn.deterministic = True
 
 
-# class make_env:
-#     def __init__(self, env_id, config=None):
-#         self.env_id = env_id
-#         self.config = config
-#     def make(self):
-#         env = None
-#         if(self.config is not None):
-#             env = gym.make(self.env_id, **self.config)
-#         else:
-#             env = gym.make(self.env_id)
-#         env = Monitor(env)  # record stats such as returns
-#         return env
-
-# def create_env_notused(env_id, dir, config=None):
-#     env = make_env(env_id, config)
-#     env = DummyVecEnv([lambda: env])#DummyVecEnvSelfPlay([lambda: env])
-#     # env = DummyVecEnv([env.make])
-#     # env = VecVideoRecorder(env, dir,
-#     #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
-#     return env
-
-# def create_env(*args, **kwargs):
-#     env = args[0](**kwargs)
-#     env = DummyVecEnvSelfPlay([lambda: env]) #DummyVecEnv([lambda: env])#
-#     # env = DummyVecEnv([env.make])
-#     # env = VecVideoRecorder(env, dir,
-#     #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
-#     return env
-
-def train(log_dir):
+def eval(log_dir):
     # train selfplay agent
     logger.configure(folder=log_dir)
     make_deterministic(SEED_VALUE)
 
-    pred_archive = Archive(sorting_keys=[EVAL_OPPONENT_SELECTION, OPPONENT_SELECTION],
-                           sorting=True,
-                           moving_least_freq_flag=False,
-                           save_path=os.path.join(LOG_DIR, "pred")
-                          )
-    prey_archive = Archive(sorting_keys=[EVAL_OPPONENT_SELECTION, OPPONENT_SELECTION],
-                           sorting=True,
-                           moving_least_freq_flag=False,
-                           save_path=os.path.join(LOG_DIR, "prey")
-                          )
-
     # --------------------------------------- Pred -------------------------------------------------------
-    # pred_env = create_env("SelfPlay1v1-Pred-v0", os.path.join(log_dir, "pred", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPredEnv()
-    # Here SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
-    pred_env = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=prey_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
-    pred_env_eval = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=prey_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
-    pred_env._name = "Training"
+    pred_env_eval = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=None)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
     pred_env_eval._name = "Evaluation"
     pred_opponent_sample_path = os.path.join(log_dir, "prey")
-    # pred_env = create_env(SelfPlayPredEnv, log_dir=log_dir, algorithm_class=PPO, opponent_selection=OPPONENT_SELECTION)
-    # pred_env.seed(SEED_VALUE)
-    pred_model = PPO(pred_algorithm_config["policy"], pred_env, 
+    pred_model = PPO(pred_algorithm_config["policy"], pred_env_eval, 
                      clip_range=pred_algorithm_config["clip_range"], ent_coef=pred_algorithm_config["ent_coef"],
                      learning_rate=pred_algorithm_config["lr"], batch_size=pred_algorithm_config["batch_size"],
                      gamma=pred_algorithm_config["gamma"], verbose=2,
@@ -217,29 +171,16 @@ def train(log_dir):
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=pred_opponent_sample_path,
                                               save_freq=SAVE_FREQ,
-                                              archive={"self":pred_archive, "opponent":prey_archive},
+                                              archive={"self":None, "opponent":None},
                                               agent_name="pred",
                                               num_rounds=NUM_ROUNDS)
-    # Here the TrainingOpponentSelectionCallback is used the archive to sample the opponent for training
-    # The name here pred_oppoenent -> the opponent of the predator
-    pred_opponent_selection_callback = TrainingOpponentSelectionCallback(sample_path=pred_opponent_sample_path,
-                                                                 env=pred_env, 
-                                                                 opponent_selection=OPPONENT_SELECTION,
-                                                                 sample_after_rollout=SAMPLE_AFTER_ROLLOUT,
-                                                                 num_sampled_per_round=NUM_SAMPLED_OPPONENT_PER_ROUND,
-                                                                 archive=prey_archive)
-
+    pred_evalsave_callback.OS = True
 
     # --------------------------------------- Prey -------------------------------------------------------
-    # prey_env = create_env("SelfPlay1v1-Prey-v0", os.path.join(log_dir, "prey", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPreyEnv()
-    prey_env = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=pred_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
-    prey_env_eval = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=pred_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
-    prey_env._name = "Training"
+    prey_env_eval = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=None)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
     prey_env_eval._name = "Evaluation"
     prey_opponent_sample_path = os.path.join(log_dir, "pred")
-    # prey_env = create_env(SelfPlayPreyEnv, log_dir=log_dir, algorithm_class=PPO, opponent_selection=OPPONENT_SELECTION)
-    # prey_env.seed(SEED_VALUE)
-    prey_model = PPO(prey_algorithm_config["policy"], prey_env, 
+    prey_model = PPO(prey_algorithm_config["policy"], prey_env_eval, 
                      clip_range=prey_algorithm_config["clip_range"], ent_coef=prey_algorithm_config["ent_coef"],
                      learning_rate=prey_algorithm_config["lr"], batch_size=prey_algorithm_config["batch_size"],
                      gamma=prey_algorithm_config["gamma"], verbose=2,
@@ -254,88 +195,32 @@ def train(log_dir):
                                               eval_opponent_selection=EVAL_OPPONENT_SELECTION,
                                               eval_sample_path=prey_opponent_sample_path,
                                               save_freq=SAVE_FREQ,
-                                              archive={"self":prey_archive, "opponent":pred_archive},
+                                              archive={"self":None, "opponent":None},
                                               agent_name="prey",
                                               num_rounds=NUM_ROUNDS)
-    prey_opponent_selection_callback = TrainingOpponentSelectionCallback(sample_path=prey_opponent_sample_path,
-                                                                 env=prey_env, 
-                                                                 opponent_selection=OPPONENT_SELECTION,
-                                                                 sample_after_rollout=SAMPLE_AFTER_ROLLOUT,
-                                                                 num_sampled_per_round=NUM_SAMPLED_OPPONENT_PER_ROUND,
-                                                                 archive=pred_archive)
-
+    prey_evalsave_callback.OS = True
     # ----------------------------------------------------------------------------------------------------
     pred_wandb_callback = WandbCallback()
     prey_wandb_callback = WandbCallback()
-    # --------------------------------------------- Training ---------------------------------------------
-    # Here alternate training
-    for round_num in range(NUM_ROUNDS):
-        pred_evalsave_callback.set_name_prefix(f"history_{round_num}")
-        prey_evalsave_callback.set_name_prefix(f"history_{round_num}")
-        # pred_checkpoint_callback = CheckpointCallback(save_freq=SAVE_FREQ, save_path=os.path.join(LOG_DIR, "pred"),
-        #                                             name_prefix=f"history_{round_num}")
 
-        # prey_checkpoint_callback = CheckpointCallback(save_freq=SAVE_FREQ, save_path=os.path.join(LOG_DIR, "prey"),
-        #                                               name_prefix=f"history_{round_num}")
-
-        print(f"------------------- Pred {round_num}--------------------")
-        pred_model.learn(total_timesteps=NUM_TIMESTEPS, 
-                         callback=[pred_opponent_selection_callback, 
-                                   pred_evalsave_callback,
-                                   pred_wandb_callback], 
-                         reset_num_timesteps=False)
-        print(f"------------------- Prey {round_num}--------------------")
-        prey_model.learn(total_timesteps=NUM_TIMESTEPS, 
-                         callback=[prey_opponent_selection_callback, 
-                                   prey_evalsave_callback, 
-                                   prey_wandb_callback], 
-                         reset_num_timesteps=False)        
-        print(f"Round: {round_num} -> HeatMap Evaluation for current round version of pred vs prey")
-        pred_evalsave_callback.compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO, opponents_path=os.path.join(LOG_DIR, "prey"), agents_path=os.path.join(LOG_DIR, "pred"))
-        print(f"Round: {round_num} -> HeatMap Evaluation for current round version of prey vs pred")
-        prey_evalsave_callback.compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO, opponents_path=os.path.join(LOG_DIR, "pred"), agents_path=os.path.join(LOG_DIR, "prey"))
-
-
-
-        if(round_num%FINAL_SAVE_FREQ == 0):
-            # TODO: Change it to save the best model till now, not the latest (How to define the best model)
-            pred_model.save(os.path.join(LOG_DIR, "pred", "final_model"))
-            prey_model.save(os.path.join(LOG_DIR, "prey", "final_model"))
-
-            np.save(os.path.join(LOG_DIR, "pred", "evaluation_matrix"), pred_evalsave_callback.evaluation_matrix)
-            np.save(os.path.join(LOG_DIR, "prey", "evaluation_matrix"), prey_evalsave_callback.evaluation_matrix)
+    for i in range(NUM_ROUNDS):
+        print(f"Round: {i} -> HeatMap Evaluation for current round version of pred vs prey")
+        pred_evalsave_callback.compute_eval_matrix_aggregate(prefix="history_", round_num=i, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO, opponents_path=os.path.join(LOG_DIR, "prey"), agents_path=os.path.join(LOG_DIR, "pred"))
+        print(f"Round: {i} -> HeatMap Evaluation for current round version of prey vs pred")
+        prey_evalsave_callback.compute_eval_matrix_aggregate(prefix="history_", round_num=i, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO, opponents_path=os.path.join(LOG_DIR, "pred"), agents_path=os.path.join(LOG_DIR, "prey"))
 
     wandb.log({f"pred/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [j for j in range(NUM_ROUNDS)], pred_evalsave_callback.evaluation_matrix, show_text=True)})
     wandb.log({f"prey/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], prey_evalsave_callback.evaluation_matrix, show_text=True)})
 
-
-    pred_evalsave_callback._save_model_core()
-    prey_evalsave_callback._save_model_core()
-
-    pred_model.save(os.path.join(LOG_DIR, "pred", "final_model"))
-    prey_model.save(os.path.join(LOG_DIR, "prey", "final_model"))
-
-    np.save(os.path.join(LOG_DIR, "pred", "evaluation_matrix"), pred_evalsave_callback.evaluation_matrix)
-    np.save(os.path.join(LOG_DIR, "prey", "evaluation_matrix"), prey_evalsave_callback.evaluation_matrix)
-
-
-
-    print("Post Evaluation for Pred:")
-    pred_evalsave_callback.post_eval(opponents_path=os.path.join(LOG_DIR, "prey"))
-    print("Post Evaluation for Prey:")
-    prey_evalsave_callback.post_eval(opponents_path=os.path.join(LOG_DIR, "pred"))
-
-    # print("HeatMap Evaluation for current round version of pred against previous of prey")
-    # pred_evalsave_callback.compute_eval_matrix(prefix="history_", num_rounds=NUM_ROUNDS, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO)
+    # print("HeatMap Evaluation for preds vs preys")
+    # pred_evalsave_callback.compute_eval_matrix(prefix="history_", num_rounds=NUM_ROUNDS, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO, opponents_path=os.path.join(LOG_DIR, "prey"), agents_path=os.path.join(LOG_DIR, "pred"))
     # wandb.log({f"pred/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [j for j in range(NUM_ROUNDS)], pred_evalsave_callback.evaluation_matrix, show_text=True)})
-   
-    # print("HeatMap Evaluation for current round version of prey against previous of pred")
-    # prey_evalsave_callback.compute_eval_matrix(prefix="history_", num_rounds=NUM_ROUNDS, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO)
+
+    # print("HeatMap Evaluation for preys vs preds")
+    # prey_evalsave_callback.compute_eval_matrix(prefix="history_", num_rounds=NUM_ROUNDS, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO, opponents_path=os.path.join(LOG_DIR, "pred"), agents_path=os.path.join(LOG_DIR, "prey"))
     # wandb.log({f"prey/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], prey_evalsave_callback.evaluation_matrix, show_text=True)})
 
-    pred_env.close()
     pred_env_eval.close()
-    prey_env.close()
     prey_env_eval.close()
 
 if __name__=="__main__":
@@ -350,7 +235,8 @@ if __name__=="__main__":
     
     experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
     prefix = "test-" # ""
-    LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
+    # LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
+    LOG_DIR = "/home/hany606/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/test-save-SelfPlay1v1-Pred_Prey-v0-PPO-full-vel-09.21.2021_01.45.43/"
     wandb.tensorboard.patch(root_logdir=LOG_DIR)
     wandb.init(project="Behavioral-Learning-Thesis",
                group="self-play",
@@ -360,7 +246,7 @@ if __name__=="__main__":
                save_code=True,  # optional
     )
 
-    wandb.run.name = wandb.run.name + "-test-v4"#f"-v3.1-rep-nitro-random" #f"-run-{experiment_id}"
+    wandb.run.name = wandb.run.name + f"-v4.0-server-random-heatmap"#random" #f"-run-{experiment_id}"
     wandb.run.save()
 
     if not os.path.exists(LOG_DIR):
@@ -370,4 +256,4 @@ if __name__=="__main__":
     if not os.path.exists(os.path.join(LOG_DIR, "prey")):
         os.makedirs(os.path.join(LOG_DIR, "prey") + '/')
 
-    train(LOG_DIR)
+    eval(LOG_DIR)

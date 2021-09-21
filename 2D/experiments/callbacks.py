@@ -293,6 +293,7 @@ class EvalSaveCallback(EvalCallback):
         self.archive = kwargs["archive"]["self"]  # pass it by reference
         self.opponent_archive = kwargs["archive"]["opponent"]  # pass it by reference
         self.agent_name = kwargs["agent_name"]
+        self.num_rounds = kwargs["num_rounds"]
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
@@ -303,6 +304,7 @@ class EvalSaveCallback(EvalCallback):
         del kwargs["eval_sample_path"]
         del kwargs["save_freq"]
         del kwargs["agent_name"]
+        del kwargs["num_rounds"]
         # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
@@ -318,8 +320,11 @@ class EvalSaveCallback(EvalCallback):
 
         # self.opponent_archive = self.eval_env.archive
 
-        self.evaluation_matrix = []
-
+        self.evaluation_matrix = np.zeros((self.num_rounds, self.num_rounds))
+        # Just for debugging, TODO: remove it
+        # for i in range(self.num_rounds):
+        #     for j in range(self.num_rounds):
+        #         self.evaluation_matrix[i,j] = -1
 
         # if isinstance(self.eval_env, DummyVecEnv):
         #     eval_env = DummyVecEnvMod([lambda: eval_env])
@@ -453,57 +458,175 @@ class EvalSaveCallback(EvalCallback):
         self._save_model()
         return result
 
-    # Evaluate the agent agaist all the previous agents -> After the end of the round
-    # TODO
-    # Add support to retrieve from the archive
-    # TODO: optimize it to make it compute in the middle not just at the end
-    def compute_eval_matrix(self, prefix, num_rounds, n_eval_rep=5, deterministic=False, algorithm_class=None):
-        # self.evaluation_matrix.append([])
-        # Evaluate the model and save it (+ Regular evaluation)
-        # self._save_model()
-        # Evaluate the current model vs all the previous opponents
-        # Get the list of all the previous opponents
+
+    def compute_eval_matrix_aggregate(self, prefix, round_num, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=False, algorithm_class=None):
         models_names = None
+        if(self.OS and (opponents_path is None or agents_path is None)):
+            raise ValueError("Wrong value for opponent/agent path")
+
         if(not self.OS):
             opponent_archive = self.opponent_archive.get_sorted("random")
             opponent_models_names = opponent_archive[0] # 0 index to get just the names
             archive = self.archive.get_sorted("random")
             models_names = archive[0]
 
+        else:
+            self.eval_env.set_attr("OS", True)
+
+        # 1. evaluate for the current round of agent 1 against all previous (including the current round) of agent 2
+        i = round_num
+        startswith_keyword = f"{prefix}{i}_"
+        agent_model = None
+        # Get 1st agent
+        if(not self.OS):
+            # Get the agents that has models' names starts with "history_<i>_"
+            sampled_agent_startswith = utlst.get_startswith(models_names, startswith=startswith_keyword)
+            # Get the latest agent in this round/generation
+            sampled_agent = utlst.get_latest(sampled_agent_startswith)[0]
+            # Load the model
+            agent_model = self.archive.load(name=sampled_agent, env=self.eval_env, algorithm_class=algorithm_class)
+        # The same but for OS stored
+        else:
+            # sampled_agent_startswith = utos.get_startswith(self.save_path, startswith=startswith_keyword)
+            sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
+            agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
+
+
+        for j in range(round_num+1):
+            print(f"Round: {i} vs {j}")
+            opponent_startswith_keyword = f"{prefix}{j}_"
+            sampled_opponent = None
+            # Get 2nd agent
+            if(not self.OS):
+                # if(len(models_names) == 0): Not possible as we are evaluating after training
+                sampled_opponent_startswith = utlst.get_startswith(opponent_models_names, startswith=opponent_startswith_keyword)
+                sampled_opponent = utlst.get_latest(sampled_opponent_startswith)[0]
+
+            else:
+                # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
+                sampled_opponent = os.path.join(opponents_path, utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword)[0])
+
+            # Run evaluation n_eval_rep for each opponent
+            eval_model_list = [sampled_opponent]
+            # The current model vs the iterated model from the opponent (last opponent in each generation/round)
+            _, _, win_rate = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+                                            deterministic=deterministic,
+                                            sampled_opponents=eval_model_list)
+            # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
+            # Add this matrix to __init__
+            # It will be redundent to have 2 matrices but it is fine
+            self.evaluation_matrix[i,j] = win_rate
+
+        # 2. evaluate for the previous rounds of agent 1 against the current round of agent 2
+        j = round_num
+        opponent_startswith_keyword = f"{prefix}{j}_"
+        sampled_opponent = None
+        # Get 2nd agent
+        if(not self.OS):
+            # if(len(models_names) == 0): Not possible as we are evaluating after training
+            sampled_opponent_startswith = utlst.get_startswith(opponent_models_names, startswith=opponent_startswith_keyword)
+            sampled_opponent = utlst.get_latest(sampled_opponent_startswith)[0]
+
+        else:
+            # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
+            sampled_opponent = os.path.join(opponents_path, utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword)[0])
+
+        eval_model_list = [sampled_opponent]
+
+        for i in range(round_num):
+            print(f"Round: {i} vs {j}")
+
+            # Get 1st agent
+            if(not self.OS):
+                # Get the agents that has models' names starts with "history_<i>_"
+                sampled_agent_startswith = utlst.get_startswith(models_names, startswith=startswith_keyword)
+                # Get the latest agent in this round/generation
+                sampled_agent = utlst.get_latest(sampled_agent_startswith)[0]
+                # Load the model
+                agent_model = self.archive.load(name=sampled_agent, env=self.eval_env, algorithm_class=algorithm_class)
+            # The same but for OS stored
+            else:
+                # sampled_agent_startswith = utos.get_startswith(self.save_path, startswith=startswith_keyword)
+                sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
+                agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
+
+            # Run evaluation n_eval_rep for each opponent
+            # The current model vs the iterated model from the opponent (last opponent in each generation/round)
+            _, _, win_rate = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+                                            deterministic=deterministic,
+                                            sampled_opponents=eval_model_list)
+            # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
+            # Add this matrix to __init__
+            # It will be redundent to have 2 matrices but it is fine
+            self.evaluation_matrix[i,j] = win_rate
+            
+
+    # Evaluate the whole matrix
+    def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=False, algorithm_class=None):
+        models_names = None
+        # self.evaluation_matrix.append([])
+        # Evaluate the model and save it (+ Regular evaluation)
+        # self._save_model()
+        # Evaluate the current model vs all the previous opponents
+        # Get the list of all the previous opponents
+        if(self.OS and (opponents_path is None or agents_path is None)):
+            raise ValueError("Wrong value for opponent/agent path")
+
+        if(not self.OS):
+            opponent_archive = self.opponent_archive.get_sorted("random")
+            opponent_models_names = opponent_archive[0] # 0 index to get just the names
+            archive = self.archive.get_sorted("random")
+            models_names = archive[0]
+
+        else:
+            self.eval_env.set_attr("OS", True)
+
+
+        self.evaluation_matrix = np.zeros((num_rounds, num_rounds))
         for i in range(num_rounds):
-            self.evaluation_matrix.append([])
-            startswith_keyword = f"{prefix}{i}"
+            startswith_keyword = f"{prefix}{i}_"
+            agent_model = None
+
+            # Get 1st agent
+            if(not self.OS):
+                # Get the agents that has models' names starts with "history_<i>_"
+                sampled_agent_startswith = utlst.get_startswith(models_names, startswith=startswith_keyword)
+                # Get the latest agent in this round/generation
+                sampled_agent = utlst.get_latest(sampled_agent_startswith)[0]
+                # Load the model
+                agent_model = self.archive.load(name=sampled_agent, env=self.eval_env, algorithm_class=algorithm_class)
+            # The same but for OS stored
+            else:
+                # sampled_agent_startswith = utos.get_startswith(self.save_path, startswith=startswith_keyword)
+                sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
+                agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
+
+
             for j in range(num_rounds):
-                opponent_startswith_keyword = f"{prefix}{j}"
-                sampled_opponents = None
-                model_self = None
+                print(f"Round: {i} vs {j}")
+                opponent_startswith_keyword = f"{prefix}{j}_"
+                sampled_opponent = None
+                # Get 2nd agent
                 if(not self.OS):
                     # if(len(models_names) == 0): Not possible as we are evaluating after training
-                    sampled_opponents_startswith = utlst.get_startswith(opponent_models_names, startswith=opponent_startswith_keyword)
-                    sampled_opponents = utlst.get_latest(sampled_opponents_startswith)[0]
-                    sampled_self_startswith = utlst.get_startswith(models_names, startswith=startswith_keyword)
-                    sampled_self = utlst.get_latest(sampled_self_startswith)[0]
-                    model_self = self.archive.load(name=sampled_self, env=self.eval_env, algorithm_class=algorithm_class)
+                    sampled_opponent_startswith = utlst.get_startswith(opponent_models_names, startswith=opponent_startswith_keyword)
+                    sampled_opponent = utlst.get_latest(sampled_opponent_startswith)[0]
 
                 else:
-                    sampled_opponents_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
-                    sampled_opponents = utos.get_latest(sampled_opponents_startswith)[0]
-                    sampled_self_startswith = utos.get_startswith(self.save_path, startswith=startswith_keyword)
-                    sampled_self = utos.get_latest(sampled_self_startswith)[0]
-                    model_self = self.algorithm_class.load(sampled_self, env=self.eval_env)
+                    # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
+                    sampled_opponent = os.path.join(opponents_path, utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword)[0])
 
                 # Run evaluation n_eval_rep for each opponent
-                eval_model_list = [sampled_opponents]
-                # The current model vs the iterated model form the opponent (last opponent in each generation/round)
-                _, _, win_rate = self._evaluate(model_self, n_eval_episodes=n_eval_rep,
+                eval_model_list = [sampled_opponent]
+                # The current model vs the iterated model from the opponent (last opponent in each generation/round)
+                _, _, win_rate = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                                 deterministic=deterministic,
                                                 sampled_opponents=eval_model_list)
                 # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
                 # Add this matrix to __init__
                 # It will be redundent to have 2 matrices but it is fine
-                self.evaluation_matrix[-1].append(win_rate)
-
-
+                self.evaluation_matrix[i,j] = win_rate
+        
         # For each generation/round previous to the current generation/round and including this round
         # for i in range(round_num+1):    # round_num+1 In order to include itself round
         #     startswith_keyword = f"{prefix}{round_num}"
@@ -588,3 +711,34 @@ class EvalSaveCallback(EvalCallback):
         self.eval_env.set_attr("OS", False)
         self.OS = False
         return eval_return_list
+
+    def agentVopponentOS(self, agent_path, opponent_path, n_eval_rep=5, deterministic=False, algorithm_class=None):
+        self.eval_env.set_attr("OS", True)
+        self.OS = True
+
+        agent_model = algorithm_class.load(agent_path, env=self.eval_env)
+        eval_model_list = [opponent_path]
+        res =  self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+                              deterministic=deterministic,
+                              sampled_opponents=eval_model_list)
+
+
+        self.eval_env.set_attr("OS", False)
+        self.OS = False
+
+        return res
+
+    def agentVopponentArchive(self, agent_name, opponent_name, n_eval_rep=5, deterministic=False, algorithm_class=None):
+        self.eval_env.set_attr("OS", False)
+        self.OS = False
+
+        agent_model = self.archive.load(name=agent_name, env=self.eval_env, algorithm_class=algorithm_class)
+        eval_model_list = [opponent_name]
+        res =  self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+                              deterministic=deterministic,
+                              sampled_opponents=eval_model_list)
+
+        self.eval_env.set_attr("OS", True)
+        self.OS = True
+
+        return res

@@ -297,6 +297,9 @@ class EvalSaveCallback(EvalCallback):
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
+        self.win_rate = None
+        self.best_mean_reward = None
+        self.last_mean_reward = None
 
         del kwargs["save_path"]
         del kwargs["eval_metric"]
@@ -407,8 +410,8 @@ class EvalSaveCallback(EvalCallback):
         return True
 
     # In order to keep the oringinal callback functions, this is just a wrapper for the parameterized _evaluate_policy() -> _evaluate_policy_core()
-    def _evaluate_policy(self) -> bool:
-        if (self.eval_freq > 0 and self.n_calls % self.eval_freq == 0):
+    def _evaluate_policy(self, force_evaluation=False) -> bool:
+        if (force_evaluation or (self.eval_freq > 0 and self.n_calls % self.eval_freq == 0)):
             sampled_opponents = None
             if(not self.OS):
                 # print("Sample models for evaluation")
@@ -426,7 +429,6 @@ class EvalSaveCallback(EvalCallback):
         return True
 
     def _save_model_core(self):
-        # self._evaluate_policy()
         metric_value = None
         if(self.eval_metric == "steps"):
             metric_value = self.num_timesteps
@@ -448,7 +450,6 @@ class EvalSaveCallback(EvalCallback):
 
     def _save_model(self):
         if self.save_freq > 0 and self.n_calls % self.save_freq == 0:
-            print("Saving the models")
             name = self._save_model_core()
 
     def _on_step(self) -> bool:
@@ -458,7 +459,14 @@ class EvalSaveCallback(EvalCallback):
         self._save_model()
         return result
 
+    def on_training_end(self) -> None:
+        if(self.save_freq == 0 and self.eval_freq == 0):
+            print("Evaluating the model according to the metric and save it")
+            self._evaluate_policy(force_evaluation=True)
+            self._save_model_core()
+        super(EvalSaveCallback, self).on_training_end()
 
+    # TODO: Add a feature that it will use the correct sorted from the archive if the metric for the archive is steps!
     def compute_eval_matrix_aggregate(self, prefix, round_num, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=False, algorithm_class=None):
         models_names = None
         if(self.OS and (opponents_path is None or agents_path is None)):

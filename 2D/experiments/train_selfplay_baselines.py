@@ -67,11 +67,12 @@ LOG_DIR = None
 # PRED_TRAINING_EPISODES = 25  # in iterations
 # PREY_TRAINING_EPISODES = 25  # in iterations
 NUM_TIMESTEPS = int(5e3)#int(1e9)
-EVAL_FREQ = int(5e3)#int(5e3) #in steps
+EVAL_FREQ = 0#int(5e3)#int(5e3) #in steps
 NUM_ROUNDS = 2#50
-SAVE_FREQ = int(5e3)#5000 # in steps -> if you want only to save at the end of training round -> NUM_TIMESTEPS
+SAVE_FREQ = 0#int(5e3)#5000 # in steps -> if you want only to save at the end of training round -> NUM_TIMESTEPS
 FINAL_SAVE_FREQ = 3 # in rounds
 EVAL_METRIC = "winrate"
+NUM_EPOCHS = 5
 
 EVAL_OPPONENT_SELECTION = "random"
 OPPONENT_SELECTION = "random"
@@ -108,7 +109,8 @@ pred_algorithm_config = {   "policy": "MlpPolicy",
                             "ent_coef": 0.0,
                             "lr": 3e-4,
                             "batch_size":64,
-                            "gamma":0.99
+                            "gamma":0.99,
+                            "n_epochs":NUM_EPOCHS
                         }
 
 
@@ -205,7 +207,8 @@ def train(log_dir):
                      clip_range=pred_algorithm_config["clip_range"], ent_coef=pred_algorithm_config["ent_coef"],
                      learning_rate=pred_algorithm_config["lr"], batch_size=pred_algorithm_config["batch_size"],
                      gamma=pred_algorithm_config["gamma"], verbose=2,
-                     tensorboard_log=os.path.join(log_dir,"pred"))
+                     tensorboard_log=os.path.join(log_dir,"pred"),
+                     n_epochs=NUM_EPOCHS,)
     # Here the EvalSaveCallback is used the archive to save the model and sample the opponent for evaluation
     pred_evalsave_callback = EvalSaveCallback(eval_env=pred_env_eval,
                                               log_path=os.path.join(log_dir, "pred"),
@@ -243,7 +246,8 @@ def train(log_dir):
                      clip_range=prey_algorithm_config["clip_range"], ent_coef=prey_algorithm_config["ent_coef"],
                      learning_rate=prey_algorithm_config["lr"], batch_size=prey_algorithm_config["batch_size"],
                      gamma=prey_algorithm_config["gamma"], verbose=2,
-                     tensorboard_log=os.path.join(log_dir,"prey"))
+                     tensorboard_log=os.path.join(log_dir,"prey"),
+                     n_epochs=NUM_EPOCHS,)
     prey_evalsave_callback = EvalSaveCallback(eval_env=prey_env_eval,
                                               log_path=os.path.join(log_dir, "prey"),
                                               eval_freq=EVAL_FREQ,
@@ -305,8 +309,8 @@ def train(log_dir):
             np.save(os.path.join(LOG_DIR, "pred", "evaluation_matrix"), pred_evalsave_callback.evaluation_matrix)
             np.save(os.path.join(LOG_DIR, "prey", "evaluation_matrix"), prey_evalsave_callback.evaluation_matrix)
 
-    wandb.log({f"pred/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [j for j in range(NUM_ROUNDS)], pred_evalsave_callback.evaluation_matrix, show_text=True)})
-    wandb.log({f"prey/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], prey_evalsave_callback.evaluation_matrix, show_text=True)})
+    wandb.log({f"pred/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], pred_evalsave_callback.evaluation_matrix, show_text=True)})
+    wandb.log({f"prey/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], prey_evalsave_callback.evaluation_matrix.T, show_text=True)}) # .T in order to make the x-axis predators and y-axis are preys
 
 
     pred_evalsave_callback._save_model_core()

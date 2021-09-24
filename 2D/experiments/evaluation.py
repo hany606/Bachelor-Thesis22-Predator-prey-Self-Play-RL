@@ -203,14 +203,22 @@ def eval(log_dir):
     pred_wandb_callback = WandbCallback()
     prey_wandb_callback = WandbCallback()
 
+    # Perform the evaluation
     for i in range(NUM_ROUNDS):
         print(f"Round: {i} -> HeatMap Evaluation for current round version of pred vs prey")
         pred_evalsave_callback.compute_eval_matrix_aggregate(prefix="history_", round_num=i, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO, opponents_path=os.path.join(LOG_DIR, "prey"), agents_path=os.path.join(LOG_DIR, "pred"))
         print(f"Round: {i} -> HeatMap Evaluation for current round version of prey vs pred")
         prey_evalsave_callback.compute_eval_matrix_aggregate(prefix="history_", round_num=i, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO, opponents_path=os.path.join(LOG_DIR, "pred"), agents_path=os.path.join(LOG_DIR, "prey"))
 
-    wandb.log({f"pred/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [j for j in range(NUM_ROUNDS)], pred_evalsave_callback.evaluation_matrix, show_text=True)})
-    wandb.log({f"prey/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], prey_evalsave_callback.evaluation_matrix, show_text=True)})
+    wandb.log({f"pred/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], pred_evalsave_callback.evaluation_matrix, show_text=True)})
+    wandb.log({f"prey/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], prey_evalsave_callback.evaluation_matrix.T, show_text=True)})
+
+    # Get the matrices from npy matrix and just log them
+    # pred_eval_mat = np.load(os.path.join(LOG_DIR, "pred", "evaluation_matrix.npy"))
+    # prey_eval_mat = np.load(os.path.join(LOG_DIR, "prey", "evaluation_matrix.npy"))
+    # wandb.log({f"pred/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], pred_eval_mat, show_text=True)})
+    # wandb.log({f"prey/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(NUM_ROUNDS)], [i for i in range(NUM_ROUNDS)], prey_eval_mat.T, show_text=True)})
+
 
     # print("HeatMap Evaluation for preds vs preys")
     # pred_evalsave_callback.compute_eval_matrix(prefix="history_", num_rounds=NUM_ROUNDS, n_eval_rep=NUM_EVAL_EPISODES, algorithm_class=PPO, opponents_path=os.path.join(LOG_DIR, "prey"), agents_path=os.path.join(LOG_DIR, "pred"))

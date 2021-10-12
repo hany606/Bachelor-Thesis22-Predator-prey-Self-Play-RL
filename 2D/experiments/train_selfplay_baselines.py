@@ -62,22 +62,27 @@ PRED_ALGO = "PPO"
 PREY_ALGO = "PPO"
 
 SEED_VALUE = 3
-NUM_EVAL_EPISODES = 1#10
+NUM_EVAL_EPISODES = 5#1#10
 LOG_DIR = None
 # PRED_TRAINING_EPISODES = 25  # in iterations
 # PREY_TRAINING_EPISODES = 25  # in iterations
-NUM_TIMESTEPS = int(5e3)#int(1e9)
-EVAL_FREQ = 0#int(5e3)#int(5e3) #in steps
+NUM_TIMESTEPS = int(2e3)#int(1e9)
 NUM_ROUNDS = 2#50
-SAVE_FREQ = 0#int(5e3)#5000 # in steps -> if you want only to save at the end of training round -> NUM_TIMESTEPS
+EVAL_FREQ = NUM_TIMESTEPS#int(1e3)#int(5e3)#int(5e3) #in steps
+SAVE_FREQ = NUM_TIMESTEPS#int(5e3)#5000 # in steps -> if you want only to save at the end of training round -> NUM_TIMESTEPS
 FINAL_SAVE_FREQ = 3 # in rounds
 EVAL_METRIC = "winrate"
-NUM_EPOCHS = 5
 
 EVAL_OPPONENT_SELECTION = "random"
 OPPONENT_SELECTION = "random"
-NUM_SAMPLED_OPPONENT_PER_ROUND = 2
-SAMPLE_AFTER_ROLLOUT = False    # This is made to choose opponent after reset or not
+NUM_SAMPLED_OPPONENT_PER_ROUND = 50#2
+SAMPLE_AFTER_ROLLOUT = True #False    # This is made to choose opponent after reset or not
+
+PRED_NUM_EPOCHS = 10#25
+PRED_LEARNING_RATE = 3e-4#0.0003
+
+PREY_NUM_EPOCHS = 3
+PREY_LEARNING_RATE = 1e-4#0.0001
 
 env_config = {"Obs": OBS, "Act": ACT, "Env": ENV, "Hierarchy":"2D:evorobotpy2:predprey:1v1"}
 
@@ -107,19 +112,20 @@ training_config = { "pred_algorithm": PRED_ALGO,
 pred_algorithm_config = {   "policy": "MlpPolicy",
                             "clip_range": 0.2,
                             "ent_coef": 0.0,
-                            "lr": 3e-4,
+                            "lr": PRED_LEARNING_RATE,
                             "batch_size":64,
                             "gamma":0.99,
-                            "n_epochs":NUM_EPOCHS
+                            "n_epochs": PRED_NUM_EPOCHS,
                         }
 
 
 prey_algorithm_config = {   "policy": "MlpPolicy",
                             "clip_range": 0.2,
                             "ent_coef": 0.0,
-                            "lr": 3e-4,
+                            "lr": PREY_LEARNING_RATE,
                             "batch_size":64,
-                            "gamma":0.99
+                            "gamma":0.99,
+                            "n_epochs":PREY_NUM_EPOCHS,
                         }
 
 
@@ -208,7 +214,7 @@ def train(log_dir):
                      learning_rate=pred_algorithm_config["lr"], batch_size=pred_algorithm_config["batch_size"],
                      gamma=pred_algorithm_config["gamma"], verbose=2,
                      tensorboard_log=os.path.join(log_dir,"pred"),
-                     n_epochs=NUM_EPOCHS,)
+                     n_epochs=pred_algorithm_config["n_epochs"])
     # Here the EvalSaveCallback is used the archive to save the model and sample the opponent for evaluation
     pred_evalsave_callback = EvalSaveCallback(eval_env=pred_env_eval,
                                               log_path=os.path.join(log_dir, "pred"),
@@ -247,7 +253,7 @@ def train(log_dir):
                      learning_rate=prey_algorithm_config["lr"], batch_size=prey_algorithm_config["batch_size"],
                      gamma=prey_algorithm_config["gamma"], verbose=2,
                      tensorboard_log=os.path.join(log_dir,"prey"),
-                     n_epochs=NUM_EPOCHS,)
+                     n_epochs=prey_algorithm_config["n_epochs"])
     prey_evalsave_callback = EvalSaveCallback(eval_env=prey_env_eval,
                                               log_path=os.path.join(log_dir, "prey"),
                                               eval_freq=EVAL_FREQ,
@@ -356,15 +362,20 @@ if __name__=="__main__":
     prefix = "test-" # ""
     LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
     wandb.tensorboard.patch(root_logdir=LOG_DIR)
-    wandb.init(project="Behavioral-Learning-Thesis",
+    wandb.init(
+            #    project="Behavioral-Learning",
+            #    group="self-play-2D",
+            #    entity='iu_mas',
+               project="Behavioral-Learning-Thesis",
                group="self-play",
                config=wandb_experiment_config,
                sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
                monitor_gym=True,  # auto-upload the videos of agents playing the game
                save_code=True,  # optional
+               notes="Debugging why the graphs are not appearing",
     )
 
-    wandb.run.name = wandb.run.name + "-test-v4"#f"-v3.1-rep-nitro-random" #f"-run-{experiment_id}"
+    wandb.run.name = wandb.run.name + "-debug-v4"#f"-v3.1-rep-nitro-random" #f"-run-{experiment_id}"
     wandb.run.save()
 
     if not os.path.exists(LOG_DIR):

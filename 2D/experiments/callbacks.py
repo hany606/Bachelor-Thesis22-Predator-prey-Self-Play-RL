@@ -448,23 +448,29 @@ class EvalSaveCallback(EvalCallback):
             print(f"Saving model checkpoint to {path}")
         return name
 
-    def _save_model(self):
-        if self.save_freq > 0 and self.n_calls % self.save_freq == 0:
+    def _save_model(self, force_saving=False):
+        if (force_saving or (self.save_freq > 0 and self.n_calls % self.save_freq == 0)):
             name = self._save_model_core()
+            return name
+        return None
 
     def _on_step(self) -> bool:
         # 1. evaluate the policy
         result = self._evaluate_policy()#super(EvalSaveCallback, self)._on_step()
         # 2. Save the results
-        self._save_model()
+        name = self._save_model()
         return result
 
-    def on_training_end(self) -> None:
+    # This doesn't work -> make save_freq=NUM_TIMESTEPS and eval_freq=NUM_TIMESTEPS will work like this
+    def _on_training_end(self) -> None:
         if(self.save_freq == 0 and self.eval_freq == 0):
+            self.eval_freq = self.n_calls   # There is a problem when I do not set it, thus, I have made this setting (The plots are not being reported in wandb)
             print("Evaluating the model according to the metric and save it")
-            self._evaluate_policy(force_evaluation=True)
-            self._save_model_core()
-        super(EvalSaveCallback, self).on_training_end()
+            result = self._evaluate_policy(force_evaluation=True)
+            name = self._save_model(force_saving=True)
+            self.eval_freq = 0   # There is a problem when this line is not
+
+        super(EvalSaveCallback, self)._on_training_end()
 
     # TODO: Add a feature that it will use the correct sorted from the archive if the metric for the archive is steps!
     def compute_eval_matrix_aggregate(self, prefix, round_num, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=False, algorithm_class=None):

@@ -19,6 +19,15 @@ git clone --recursive https://github.com/hany606/Drones-PEG-Bachelor-Thesis-2022
 git clone --recursive git@github.com:hany606/Drones-PEG-Bachelor-Thesis-2022.git
 ```
 
+Export the following variable that points to the directory of predpreylib that inside 2D/gym-predprey
+```bash
+# /home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/2D/gym-predprey/predpreylib
+# /home/hany606/Drones-PEG-Bachelor-Thesis-2022/2D/gym-predprey/predpreylib
+export PREDPREYLIB="absolute/path/to/the/root/folder/predpreylib"
+```
+
+or even better, put it inside ~/.bashrc or ~/.zshrc
+
 ### Install gym-predprey library
 
 ```bash

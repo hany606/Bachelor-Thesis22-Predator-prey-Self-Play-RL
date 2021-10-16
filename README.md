@@ -91,5 +91,16 @@ python3 test_selfplay_baselines.py --exp selfplay-results/save-SelfPlay1v1-Pred_
 
 ## Notes:
 
+
 To update the submodules to be the same as the remote (master/main)
+
+First, go to the submodules, **Check that you pushed everything to the main/master**
+```git push origin HEAD:main```
+
+Then, updates the submodules:
 ```git submodule update --remote --recursive```
+
+Then, add, commit, and push
+```git add submodule```
+```git commit -m "Update submodules"```
+```git push```

@@ -23,35 +23,36 @@
 # 4. How to rank/evaluate the agents? How this agent is valuable for the training?  (e.g. points)   -> Here: None
 ################################################################
 
-# TODO: Add flexible testing for specific models using argparse
 
 import os
 from datetime import datetime
 import numpy as np
+import argparse
+import random
+from shutil import copyfile # keep track of generations
 
 import torch
-import gym_predprey
-
-import gym
-
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv, VecVideoRecorder
 from stable_baselines3 import PPO
 from stable_baselines3.common import logger
-from shutil import copyfile # keep track of generations
+
+# from bach_utils.archive import Archive
+from archive import ArchiveSB3 as Archive
+
+import gym_predprey
+import gym
+from gym.envs.registration import register
+from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPredEnv
+from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPreyEnv
+
 from callbacks import *
 
 from wandb.integration.sb3 import WandbCallback
 import wandb
 
-from gym.envs.registration import register
+from bach_utils.json_parser import ExperimentParser as experiment
 
-from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPredEnv
-from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPreyEnv
-import random
-
-# from bach_utils.archive import Archive
-from archive import ArchiveSB3 as Archive
 
 OBS = "full"
 ACT = "vel"
@@ -66,8 +67,8 @@ NUM_EVAL_EPISODES = 5#1#10
 LOG_DIR = None
 # PRED_TRAINING_EPISODES = 25  # in iterations
 # PREY_TRAINING_EPISODES = 25  # in iterations
-NUM_TIMESTEPS = int(2e3)#int(1e9)
-NUM_ROUNDS = 2#50
+NUM_TIMESTEPS = int(25e3)#int(1e9)
+NUM_ROUNDS = 1#50
 EVAL_FREQ = NUM_TIMESTEPS#int(1e3)#int(5e3)#int(5e3) #in steps
 SAVE_FREQ = NUM_TIMESTEPS#int(5e3)#5000 # in steps -> if you want only to save at the end of training round -> NUM_TIMESTEPS
 FINAL_SAVE_FREQ = 3 # in rounds
@@ -137,6 +138,13 @@ wandb_experiment_config["prey_algorithm_config"] = prey_algorithm_config
 
 
 
+def init_argparse():
+    parser = argparse.ArgumentParser(description='Self-play experiment training script')
+    parser.add_argument('--exp', type=str, help='The experiemnt file path and name which the experiment should be loaded', metavar='')
+    # args = parser.parse_args()
+    return parser
+
+
 
 # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
 def make_deterministic(seed):
@@ -153,37 +161,7 @@ def make_deterministic(seed):
     # This is only for Convolution no problem
     torch.backends.cudnn.deterministic = True
 
-
-# class make_env:
-#     def __init__(self, env_id, config=None):
-#         self.env_id = env_id
-#         self.config = config
-#     def make(self):
-#         env = None
-#         if(self.config is not None):
-#             env = gym.make(self.env_id, **self.config)
-#         else:
-#             env = gym.make(self.env_id)
-#         env = Monitor(env)  # record stats such as returns
-#         return env
-
-# def create_env_notused(env_id, dir, config=None):
-#     env = make_env(env_id, config)
-#     env = DummyVecEnv([lambda: env])#DummyVecEnvSelfPlay([lambda: env])
-#     # env = DummyVecEnv([env.make])
-#     # env = VecVideoRecorder(env, dir,
-#     #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
-#     return env
-
-# def create_env(*args, **kwargs):
-#     env = args[0](**kwargs)
-#     env = DummyVecEnvSelfPlay([lambda: env]) #DummyVecEnv([lambda: env])#
-#     # env = DummyVecEnv([env.make])
-#     # env = VecVideoRecorder(env, dir,
-#     #     record_video_trigger=lambda x: x % 2000 == 0, video_length=500)
-#     return env
-
-def train(log_dir):
+def train(log_dir, experiment_data, agents_data, evaluation_data):
     # train selfplay agent
     logger.configure(folder=log_dir)
     make_deterministic(SEED_VALUE)

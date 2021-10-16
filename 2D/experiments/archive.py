@@ -3,6 +3,7 @@ from stable_baselines3.common.utils import check_for_correct_spaces
 from stable_baselines3.common.save_util import recursive_getattr, recursive_setattr, load_from_zip_file, save_to_zip_file
 import os
 from random import randint
+from copy import deepcopy
 
 # Approximatly the model will be ~ 0.000190734863 GB in the memory which means it will fit only for ~ 62915 model in 10GB RAM
 
@@ -189,4 +190,11 @@ class ArchiveSB3:
         self.archive_dict[name]["last_time"] = self.num_models
 
         return model
+        
+    def change_archive_core(self, archive):
+        self.archive_dict = deepcopy(archive.archive_dict)
+        self.num_models = archive.num_models
+        for k in self.sorting_keys:
+            key = self.sorting_functions[k][0]
+            self.sorted_archive_keys_dict[key] = deepcopy(archive.sorted_archive_keys_dict[key])
         

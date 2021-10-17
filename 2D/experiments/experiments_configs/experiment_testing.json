@@ -12,7 +12,7 @@
         "num_workers": 1,
         "num_rounds": 2,
         "population_size": 1,
-        "parallel_alternate_training": false,
+        "parallel_alternate_training": true,
         "seed_value": 3,
         "framework": "stable_baselines3",
 
@@ -37,8 +37,8 @@
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
         "eval_metric": "winrate",
-        "eval_opponent_selection": "random",
-        "opponent_selection": "random",
+        "eval_opponent_selection": "latest",
+        "opponent_selection": "latest",
         "training_agent_selection": "latest",
 
         "num_sampled_opponent_per_round": 50,
@@ -70,8 +70,8 @@
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
         "eval_metric": "winrate",
-        "eval_opponent_selection": "random",
-        "opponent_selection": "random",
+        "eval_opponent_selection": "latest",
+        "opponent_selection": "latest",
         "training_agent_selection": "latest",
 
         "num_sampled_opponent_per_round": 50,

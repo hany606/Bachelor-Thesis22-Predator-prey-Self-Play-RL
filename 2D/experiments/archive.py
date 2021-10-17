@@ -5,6 +5,10 @@ import os
 from random import randint
 from copy import deepcopy
 
+def random_no_sort(l, e):
+    l.append(e)
+    return l
+
 # Approximatly the model will be ~ 0.000190734863 GB in the memory which means it will fit only for ~ 62915 model in 10GB RAM
 
 # In this Archive class, there are the following archives (dict or lists datastructers):
@@ -15,7 +19,7 @@ class ArchiveSB3:
         self.archive_dict = {}  # Store the names as keys and policies as values for the dictionary
         self.sorting_flag = sorting
         # Dictionary to store the functions for the sorting related with the keys
-        self.sorting_functions = {"random": ["no_sort", lambda x: x],
+        self.sorting_functions = {"random": ["no_sort", random_no_sort],
                                   "latest": ["sort_steps", utsrt.insertion_sorted_steps],
                                   "latest-set": ["sort_steps", utsrt.insertion_sorted_steps],
                                   "highest": ["sort_metric", utsrt.insertion_sorted_metric],
@@ -89,9 +93,9 @@ class ArchiveSB3:
                 k = self.sorting_functions[key][0]
                 sorting_function = self.sorting_functions[key][1]
 
-                self.sorted_archive_keys_dict[k].append(name)   # just append the name
-                self.sorted_archive_keys_dict[k] = sorting_function(self.sorted_archive_keys_dict[k])
-                # print(f"Sort res{len(self.sorted_archive_keys_dict[k])}")
+                # self.sorted_archive_keys_dict[k].append(name)   # just append the name
+                self.sorted_archive_keys_dict[k] = sorting_function(self.sorted_archive_keys_dict[k], name)
+                print(f"Sort res{len(self.sorted_archive_keys_dict[k])}, -> key: {k}")
         # No problems will happen to sorting as it is with the keys -> name and we are keeping it
         if(self.num_models % self.moving_threshold*3 == 0 and self.moving_least_freq_flag):
             for key in self.archive_dict[name].keys():
@@ -110,7 +114,7 @@ class ArchiveSB3:
         sorted_names = self.sorted_archive_keys_dict[sorting_key]
         sorted_policies = [self.archive_dict[s] for s in sorted_names]
         # print(f"Get sorted: current length of archive: {self.num_models} returned names{len(sorted_names)}")
-        return sorted_names, sorted_policies
+        return [sorted_names, sorted_policies]
 
     # sorting_key: random, latest, ....etc
     # Here possible values for the sorting_key: random, latest, highest, lowest, ... that the user using them in the training parameters

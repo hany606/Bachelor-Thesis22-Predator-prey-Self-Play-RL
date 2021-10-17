@@ -570,8 +570,6 @@ class EvalSaveCallback(EvalCallback):
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
-            # Add this matrix to __init__
-            # It will be redundent to have 2 matrices but it is fine
             self.evaluation_matrix[i,j] = win_rate
             
 

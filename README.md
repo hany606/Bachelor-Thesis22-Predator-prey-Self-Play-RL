@@ -91,7 +91,7 @@ python3 test_selfplay_baselines.py --exp selfplay-results/save-SelfPlay1v1-Pred_
 
 ## Notes:
 
-
+1. Submodules
 To update the submodules to be the same as the remote (master/main)
 
 First, go to the submodules, **Check that you pushed everything to the main/master**
@@ -104,3 +104,8 @@ Then, add, commit, and push
 ```git add submodule```
 ```git commit -m "Update submodules"```
 ```git push```
+
+2. Remove changes in a file
+
+For example:
+```git stash -- PredPrey1v1.py```

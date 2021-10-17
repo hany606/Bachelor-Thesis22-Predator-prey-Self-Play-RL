@@ -109,3 +109,8 @@ Then, add, commit, and push
 
 For example:
 ```git stash -- PredPrey1v1.py```
+
+
+3. Pull with the newest changes in submodules
+
+```git pull --recurse-submodules```

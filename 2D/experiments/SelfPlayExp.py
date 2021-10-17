@@ -123,6 +123,7 @@ class SelfPlayExp:
         wandb.run.name = wandb.run.name + experiment_name
         wandb.run.save()
         wandb.save(self.experiment_filename)
+        wandb.save("SelfPlayExp.py")
 
     def _init_log_files(self):
         if not os.path.exists(self.log_dir):
@@ -317,7 +318,8 @@ class SelfPlayExp:
             for agent_name in agents_names_list:
                 opponent_name = self.agents_configs[agent_name]["opponent_name"]
                 # Agent will train on the previous version of the archive of the opponent agent before this round
-                self.archives[opponent_name].change_archive_core(self.old_archives[opponent_name])
+                if(self.experiment_configs.get("parallel_alternate_training", True)):
+                    self.archives[opponent_name].change_archive_core(self.old_archives[opponent_name])
                 num_timesteps = self.agents_configs[agent_name]["num_timesteps"]
 
                 self.evalsave_callbacks[agent_name].set_name_prefix(f"history_{round_num}")
@@ -332,10 +334,12 @@ class SelfPlayExp:
                                                 reset_num_timesteps=False)
                 self.new_archives[agent_name] = deepcopy(self.archives[agent_name]) # Save the resulted archive for each agent to be stored after the training process for all the agents
 
-            for agent_name in agents_names_list:
-                self.archives[agent_name].change_archive_core(self.new_archives[agent_name])
+            if(self.experiment_configs.get("parallel_alternate_training", True)):    
+                for agent_name in agents_names_list:
+                    self.archives[agent_name].change_archive_core(self.new_archives[agent_name])
+            print(f"------------------- Evaluation (Heatmap) --------------------")
             # --------------------------------------------- Evaluating agent by agent ---------------------------------------------            
-            for agent_name in agents_names_list:
+            for i,agent_name in enumerate(agents_names_list):
                 agent_config = self.agents_configs[agent_name]
                 opponent_name = agent_config["opponent_name"]
                 num_eval_episodes = agent_config["num_eval_episodes"]
@@ -343,6 +347,11 @@ class SelfPlayExp:
 
                 print(f"Round: {round_num} -> HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
                 self.evalsave_callbacks[agent_name].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
+                
+                # Log intermediate results for the heatmap
+                evaluation_matrix = self.evalsave_callbacks[agent_name].evaluation_matrix
+                evaluation_matrix = evaluation_matrix if(i%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
+                wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=False)})
 
                 if(round_num%final_save_freq == 0):
                     # TODO: Change it to save the best model till now, not the latest (How to define the best model)
@@ -358,7 +367,7 @@ class SelfPlayExp:
             evaluation_matrix = self.evalsave_callbacks[agent_name].evaluation_matrix
             evaluation_matrix = evaluation_matrix if(i%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
             
-            wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
+            wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
 
 
             evalsave_callback._save_model_core()

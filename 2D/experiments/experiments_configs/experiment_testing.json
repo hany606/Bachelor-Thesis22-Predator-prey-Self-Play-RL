@@ -11,7 +11,8 @@
         "env": "SelfPlay1v1-Pred_Prey-v0",
         "num_workers": 1,
         "num_rounds": 2,
-        "population_size": 2,    
+        "population_size": 1,
+        "parallel_alternate_training": false,
         "seed_value": 3,
         "framework": "stable_baselines3",
 

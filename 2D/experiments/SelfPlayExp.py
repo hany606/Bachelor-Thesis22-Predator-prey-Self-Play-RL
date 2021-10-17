@@ -150,22 +150,25 @@ class SelfPlayExp:
         self.envs = {}
         self.eval_envs = {}
 
+        self.envs_classes = {"pred":SelfPlayPredEnv, "prey":SelfPlayPreyEnv}
+
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
             opponent_name = agent_configs["opponent_name"]
             opponent_archive = self.archives[opponent_name]
+            env_class_name = agent_configs["env_class"]
             
             # pred_env = create_env("SelfPlay1v1-Pred-v0", os.path.join(log_dir, "pred", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPredEnv()
             # pred_env = create_env(SelfPlayPredEnv, log_dir=log_dir, algorithm_class=PPO, opponent_selection=OPPONENT_SELECTION)
             # pred_env.seed(SEED_VALUE)
 
             # Here SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
-            env = SelfPlayPredEnv(log_dir=self.log_dir, algorithm_class=PPO, archive=opponent_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+            env = globals()[env_class_name](log_dir=self.log_dir, algorithm_class=PPO, archive=opponent_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
             env._name = "Training"
             self.envs[agent_name] = env
 
-            eval_env = SelfPlayPredEnv(log_dir=self.log_dir, algorithm_class=PPO, archive=opponent_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+            eval_env = globals()[env_class_name](log_dir=self.log_dir, algorithm_class=PPO, archive=opponent_archive)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
             eval_env._name = "Evaluation"
             self.eval_envs[agent_name] = eval_env
 
@@ -178,7 +181,7 @@ class SelfPlayExp:
             agent_env = self.envs[agent_name]
 
             model = PPO(agent_configs["policy"], 
-                        agent_env, 
+                        agent_env,
                         clip_range=agent_configs["clip_range"], 
                         ent_coef=agent_configs["ent_coef"],
                         learning_rate=agent_configs["lr"], 
@@ -238,7 +241,7 @@ class SelfPlayExp:
                                                     eval_sample_path=opponent_sample_path,
                                                     save_freq=save_freq,
                                                     archive={"self":agent_archive, "opponent":opponent_archive},
-                                                    agent_name="pred",
+                                                    agent_name=agent_name,
                                                     num_rounds=num_rounds)
             self.evalsave_callbacks[agent_name] = evalsave_callback
 

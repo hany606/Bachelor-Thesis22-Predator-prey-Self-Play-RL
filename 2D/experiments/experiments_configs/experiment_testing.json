@@ -31,6 +31,7 @@
         "eval_freq": "$num_timesteps",
         "save_freq": "$num_timesteps",
         "final_save_freq": 3,
+        "env_class": "SelfPlayPredEnv",
         
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
@@ -63,7 +64,8 @@
         "eval_freq": "$num_timesteps",
         "save_freq": "$num_timesteps",
         "final_save_freq": 3,
-        
+        "env_class": "SelfPlayPreyEnv",
+
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
         "eval_metric": "winrate",

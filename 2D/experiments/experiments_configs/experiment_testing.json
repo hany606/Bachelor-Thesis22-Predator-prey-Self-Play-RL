@@ -35,8 +35,9 @@
         "env_class": "SelfPlayPredEnv",
         
         
-        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
-        "eval_metric": "winrate",
+        "__comment1__": "steps: reports the mean length of the episodes, winrate: the mean winrate of the episodes, bestreward, and lastreward",
+        "eval_metric": "steps",
+        "__comment2__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
         "eval_opponent_selection": "latest",
         "opponent_selection": "latest",
         "training_agent_selection": "latest",
@@ -68,8 +69,9 @@
         "env_class": "SelfPlayPreyEnv",
 
         
-        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
-        "eval_metric": "winrate",
+        "__comment1__": "steps: reports the mean length of the episodes, winrate: the mean winrate of the episodes, bestreward, and lastreward",
+        "eval_metric": "steps",
+        "__comment2__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
         "eval_opponent_selection": "latest",
         "opponent_selection": "latest",
         "training_agent_selection": "latest",

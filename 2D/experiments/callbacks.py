@@ -377,16 +377,16 @@ class EvalSaveCallback(EvalCallback):
             )
 
         mean_reward, std_reward = np.mean(episode_rewards), np.std(episode_rewards)
-        mean_ep_length, std_ep_length = np.mean(episode_lengths), np.std(episode_lengths)
+        self.mean_ep_length, std_ep_length = np.mean(episode_lengths), np.std(episode_lengths)
         self.last_mean_reward = mean_reward
         self.win_rate = win_rate # ratio [0,1]
 
         if self.verbose > 0:
             print(f"Eval num_timesteps={self.num_timesteps}, " f"episode_reward={mean_reward:.2f} +/- {std_reward:.2f}")
-            print(f"Episode length: {mean_ep_length:.2f} +/- {std_ep_length:.2f}")
+            print(f"Episode length: {self.mean_ep_length:.2f} +/- {std_ep_length:.2f}")
         # Add to current Logger
         self.logger.record(f"{logger_prefix}/mean_reward", float(mean_reward))
-        self.logger.record(f"{logger_prefix}/mean_ep_length", mean_ep_length)
+        self.logger.record(f"{logger_prefix}/mean_ep_length", self.mean_ep_length)
         self.logger.record(f"{logger_prefix}/record_timesteps", self.num_timesteps)
         if self.verbose > 0:
             print(f"Win rate: {100 * win_rate:.2f}%")
@@ -431,7 +431,7 @@ class EvalSaveCallback(EvalCallback):
     def _save_model_core(self):
         metric_value = None
         if(self.eval_metric == "steps"):
-            metric_value = self.num_timesteps
+            metric_value = self.mean_ep_length
         elif(self.eval_metric == "bestreward"):
             metric_value = self.best_mean_reward 
         elif(self.eval_metric == "lastreward"):
@@ -507,6 +507,7 @@ class EvalSaveCallback(EvalCallback):
 
 
         for j in range(round_num+1):
+            print("---------------")
             print(f"Round: {i} vs {j}")
             opponent_startswith_keyword = f"{prefix}{j}_"
             sampled_opponent = None
@@ -530,6 +531,7 @@ class EvalSaveCallback(EvalCallback):
             # Add this matrix to __init__
             # It will be redundent to have 2 matrices but it is fine
             self.evaluation_matrix[i,j] = win_rate
+            print(f"win rate: {win_rate}")
 
         # 2. evaluate for the previous rounds of agent 1 against the current round of agent 2
         j = round_num
@@ -548,6 +550,7 @@ class EvalSaveCallback(EvalCallback):
         eval_model_list = [sampled_opponent]
 
         for i in range(round_num):
+            print("---------------")
             print(f"Round: {i} vs {j}")
 
             # Get 1st agent
@@ -571,6 +574,7 @@ class EvalSaveCallback(EvalCallback):
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
             self.evaluation_matrix[i,j] = win_rate
+            print(f"win rate: {win_rate}")
             
 
     # Evaluate the whole matrix

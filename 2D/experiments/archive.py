@@ -95,7 +95,7 @@ class ArchiveSB3:
 
                 # self.sorted_archive_keys_dict[k].append(name)   # just append the name
                 self.sorted_archive_keys_dict[k] = sorting_function(self.sorted_archive_keys_dict[k], name)
-                print(f"Sort res{len(self.sorted_archive_keys_dict[k])}, -> key: {k}")
+                # print(f"Sort res{len(self.sorted_archive_keys_dict[k])}, -> key: {k}")
         # No problems will happen to sorting as it is with the keys -> name and we are keeping it
         if(self.num_models % self.moving_threshold*3 == 0 and self.moving_least_freq_flag):
             for key in self.archive_dict[name].keys():

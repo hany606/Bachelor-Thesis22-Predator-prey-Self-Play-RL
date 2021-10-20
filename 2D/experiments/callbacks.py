@@ -211,7 +211,8 @@ def evaluate_policy(
     n_envs = env.num_envs
     episode_rewards = []
     episode_lengths = []
-    win_rate = np.zeros(n_envs, dtype="int")
+    # win_rate = np.zeros(n_envs, dtype="int")
+    win_rates = []
 
     episode_counts = np.zeros(n_envs, dtype="int")
     # Divides episodes among different sub environments in the vector as evenly as possible
@@ -246,8 +247,11 @@ def evaluate_policy(
                     callback(locals(), globals())
 
                 if dones[i]: 
-                    if(info["win"] > 0):
-                        win_rate[i] += 1
+                    if(int(info["win"]) > 0):
+                        # win_rate[i] += 1
+                        win_rates.append(1)
+                    else:
+                        win_rates.append(0)
                     if is_monitor_wrapped:
                         # Atari wrapper can send a "done" signal when
                         # the agent loses a life, but it does not correspond
@@ -274,12 +278,13 @@ def evaluate_policy(
 
     mean_reward = np.mean(episode_rewards)
     std_reward = np.std(episode_rewards)
-    win_rate = np.sum(win_rate)/n_eval_episodes
+    win_rate = np.mean(win_rates)#np.sum(win_rate)/n_eval_episodes
+    std_win_rate = np.std(win_rates)
     if reward_threshold is not None:
         assert mean_reward > reward_threshold, "Mean reward below threshold: " f"{mean_reward:.2f} < {reward_threshold:.2f}"
     if return_episode_rewards:
-        return episode_rewards, episode_lengths, win_rate
-    return mean_reward, std_reward, win_rate
+        return episode_rewards, episode_lengths, win_rate, std_win_rate
+    return mean_reward, std_reward, win_rate, std_win_rate
 
 # Based on: https://github.com/hardmaru/slimevolleygym/blob/master/training_scripts/train_ppo_selfplay.py
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/callbacks.py
@@ -355,7 +360,7 @@ class EvalSaveCallback(EvalCallback):
                               )
 
     def _evaluate_policy_core(self, logger_prefix, n_eval_episodes, deterministic, sampled_opponents, override=False) -> bool:
-        episode_rewards, episode_lengths, win_rate = self._evaluate(self.model, n_eval_episodes, deterministic, sampled_opponents)
+        episode_rewards, episode_lengths, win_rate, std_win_rate = self._evaluate(self.model, n_eval_episodes, deterministic, sampled_opponents)
 
         if self.log_path is not None:
             self.evaluations_timesteps.append(self.num_timesteps)
@@ -379,7 +384,7 @@ class EvalSaveCallback(EvalCallback):
         mean_reward, std_reward = np.mean(episode_rewards), np.std(episode_rewards)
         self.mean_ep_length, std_ep_length = np.mean(episode_lengths), np.std(episode_lengths)
         self.last_mean_reward = mean_reward
-        self.win_rate = win_rate # ratio [0,1]
+        self.win_rate, std_win_rate = win_rate, std_win_rate # ratio [0,1]
 
         if self.verbose > 0:
             print(f"Eval num_timesteps={self.num_timesteps}, " f"episode_reward={mean_reward:.2f} +/- {std_reward:.2f}")
@@ -389,7 +394,7 @@ class EvalSaveCallback(EvalCallback):
         self.logger.record(f"{logger_prefix}/mean_ep_length", self.mean_ep_length)
         self.logger.record(f"{logger_prefix}/record_timesteps", self.num_timesteps)
         if self.verbose > 0:
-            print(f"Win rate: {100 * win_rate:.2f}%")
+            print(f"Win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}")
         self.logger.record(f"{logger_prefix}/win_rate", win_rate)
 
         if len(self._is_success_buffer) > 0:
@@ -398,6 +403,10 @@ class EvalSaveCallback(EvalCallback):
                 print(f"Success rate: {100 * success_rate:.2f}%")
             self.logger.record(f"{logger_prefix}/success_rate", success_rate)
 
+        # Dump log so the evaluation results are printed with the correct timestep
+        # self.logger.record(f"{logger_prefix}/time/total_timesteps", self.num_timesteps, exclude="tensorboard")
+        # self.logger.dump(self.num_timesteps)
+        
         if mean_reward > self.best_mean_reward:
             if self.verbose > 0:
                 print("New best mean reward!")
@@ -469,7 +478,6 @@ class EvalSaveCallback(EvalCallback):
             result = self._evaluate_policy(force_evaluation=True)
             name = self._save_model(force_saving=True)
             self.eval_freq = 0   # There is a problem when this line is not
-
         super(EvalSaveCallback, self)._on_training_end()
 
     # TODO: Add a feature that it will use the correct sorted from the archive if the metric for the archive is steps!
@@ -524,7 +532,7 @@ class EvalSaveCallback(EvalCallback):
             # Run evaluation n_eval_rep for each opponent
             eval_model_list = [sampled_opponent]
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-            _, _, win_rate = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+            _, _, win_rate, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
@@ -569,7 +577,7 @@ class EvalSaveCallback(EvalCallback):
 
             # Run evaluation n_eval_rep for each opponent
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-            _, _, win_rate = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+            _, _, win_rate, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
@@ -635,7 +643,7 @@ class EvalSaveCallback(EvalCallback):
                 # Run evaluation n_eval_rep for each opponent
                 eval_model_list = [sampled_opponent]
                 # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-                _, _, win_rate = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+                _, _, win_rate, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                                 deterministic=deterministic,
                                                 sampled_opponents=eval_model_list)
                 # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
@@ -704,7 +712,7 @@ class EvalSaveCallback(EvalCallback):
             eval_model_list = [o for _ in range(n_eval_rep)]
             # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
             # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
-            _, _, win_rate = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
+            _, _, win_rate, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             evaluation_result = win_rate

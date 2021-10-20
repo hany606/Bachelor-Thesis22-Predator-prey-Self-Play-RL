@@ -328,13 +328,15 @@ class SelfPlayExp:
                 print(f"Round: {round_num} -> HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
                 self.evalsave_callbacks[agent_name].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
                 
-                if(round_num%heatmap_log_freq == 0):
+                if(round_num%heatmap_log_freq == 0 or round_num==num_rounds-1):
                     # Log intermediate results for the heatmap
                     evaluation_matrix = self.evalsave_callbacks[agent_name].evaluation_matrix
                     evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
+                    if(round_num==num_rounds-1):
+                        wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
                     wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=False)})
 
-                if(round_num%final_save_freq == 0):
+                if(round_num%final_save_freq == 0 or round_num==num_rounds-1):
                     # TODO: Change it to save the best model till now, not the latest (How to define the best model)
                     self.models[agent_name].save(os.path.join(self.log_dir, agent_name, "final_model"))
                     np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), self.evalsave_callbacks[agent_name].evaluation_matrix)
@@ -342,25 +344,8 @@ class SelfPlayExp:
 
         
         for j,agent_name in enumerate(agents_names_list):
-            evalsave_callback = self.evalsave_callbacks[agent_name]
-            opponent_name = self.agents_configs[agent_name]["opponent_name"]
-
-            evaluation_matrix = self.evalsave_callbacks[agent_name].evaluation_matrix
-            evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
-            
-            wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
-
-
-            evalsave_callback._save_model_core()
-
-            self.models[agent_name].save(os.path.join(self.log_dir, agent_name, "final_model"))
-
-            np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), evalsave_callback.evaluation_matrix)
-
-
-
             print(f"Post Evaluation for {agent_name}:")
-            evalsave_callback.post_eval(opponents_path=os.path.join(self.log_dir, opponent_name))
+            self.evalsave_callbacks[agent_name].post_eval(opponents_path=os.path.join(self.log_dir, self.agents_configs[agent_name]["opponent_name"]))
 
             self.envs[agent_name].close()
             self.eval_envs[agent_name].close()

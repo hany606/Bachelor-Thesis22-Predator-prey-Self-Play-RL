@@ -20,7 +20,7 @@ from copy import deepcopy
 import wandb
 
 
-OS = False   # This flag just for testing now in order not to break the compatibility and the working of the code
+OS = False #True   # This flag just for testing now in order not to break the compatibility and the working of the code
 
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/dummy_vec_env.py
 # Only used for evaluation not training envs
@@ -79,6 +79,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
         self.sample_after_rollout = kwargs["sample_after_rollout"]
         self.num_sampled_per_round = kwargs["num_sampled_per_round"]
         self.archive = kwargs["archive"]
+        self.OS = OS    # Global flag
 
         del kwargs["sample_path"]
         del kwargs["env"]
@@ -104,12 +105,12 @@ class TrainingOpponentSelectionCallback(EventCallback):
         # if(not self.sampled_per_round):
         print("training started")
         opponent = None
-        if(not OS):
+        if(not self.OS):
             # print("Not OS")
             archive = self.archive.get_sorted(self.opponent_selection)
             models_names = archive[0]
             self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)
-        if(OS):
+        if(self.OS):
             self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)
         # If it is not updated with every rollout, only updated at the begining
         if(self.num_sampled_per_round == 1):
@@ -125,11 +126,11 @@ class TrainingOpponentSelectionCallback(EventCallback):
         print("Rollout")
         if(self.sample_after_rollout):
             opponent = None
-            if(not OS):
+            if(not self.OS):
                 archive = self.archive.get_sorted(self.opponent_selection)
                 models_names = archive[0]
                 opponent = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)[0]
-            if(OS):
+            if(self.OS):
                 opponent = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)[0]
             self.env.set_target_opponent_policy_filename(opponent)
         
@@ -302,6 +303,8 @@ class EvalSaveCallback(EvalCallback):
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
+        # self.OS = True
+
         self.win_rate = None
         self.best_mean_reward = None
         self.last_mean_reward = None
@@ -481,8 +484,9 @@ class EvalSaveCallback(EvalCallback):
         super(EvalSaveCallback, self)._on_training_end()
 
     # TODO: Add a feature that it will use the correct sorted from the archive if the metric for the archive is steps!
-    def compute_eval_matrix_aggregate(self, prefix, round_num, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=False, algorithm_class=None):
+    def compute_eval_matrix_aggregate(self, prefix, round_num, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None):
         models_names = None
+        deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
         if(self.OS and (opponents_path is None or agents_path is None)):
             raise ValueError("Wrong value for opponent/agent path")
 
@@ -513,7 +517,7 @@ class EvalSaveCallback(EvalCallback):
             sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
             agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
 
-
+        # TODO: Make it in one loop (Easy)
         for j in range(round_num+1):
             print("---------------")
             print(f"Round: {i} vs {j}")
@@ -532,6 +536,7 @@ class EvalSaveCallback(EvalCallback):
             # Run evaluation n_eval_rep for each opponent
             eval_model_list = [sampled_opponent]
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
+            # TODO: it is possible to change this agent_model to self.model as they are the same in this loop
             _, _, win_rate, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
@@ -560,7 +565,9 @@ class EvalSaveCallback(EvalCallback):
         for i in range(round_num):
             print("---------------")
             print(f"Round: {i} vs {j}")
-
+            startswith_keyword = f"{prefix}{i}_"
+            agent_model = None
+            
             # Get 1st agent
             if(not self.OS):
                 # Get the agents that has models' names starts with "history_<i>_"
@@ -588,6 +595,7 @@ class EvalSaveCallback(EvalCallback):
     # Evaluate the whole matrix
     def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=False, algorithm_class=None):
         models_names = None
+
         # self.evaluation_matrix.append([])
         # Evaluate the model and save it (+ Regular evaluation)
         # self._save_model()
@@ -701,7 +709,8 @@ class EvalSaveCallback(EvalCallback):
     # This last agent
     # Post evaluate the model against all the opponents from opponents_path
     # TODO: enable retrieving the agents from the archive
-    def post_eval(self, opponents_path, startswith_keyword="history", n_eval_rep=3, deterministic=False):
+    def post_eval(self, opponents_path, startswith_keyword="history", n_eval_rep=3, deterministic=None):
+        deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
         opponents_models_names = utos.get_sorted(opponents_path, startswith_keyword, utsrt.sort_steps)
         opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]
         eval_return_list = []
@@ -736,7 +745,9 @@ class EvalSaveCallback(EvalCallback):
         self.OS = False
         return eval_return_list
 
-    def agentVopponentOS(self, agent_path, opponent_path, n_eval_rep=5, deterministic=False, algorithm_class=None):
+    def agentVopponentOS(self, agent_path, opponent_path, n_eval_rep=5, deterministic=None, algorithm_class=None):
+        deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
+
         self.eval_env.set_attr("OS", True)
         self.OS = True
 
@@ -752,7 +763,9 @@ class EvalSaveCallback(EvalCallback):
 
         return res
 
-    def agentVopponentArchive(self, agent_name, opponent_name, n_eval_rep=5, deterministic=False, algorithm_class=None):
+    def agentVopponentArchive(self, agent_name, opponent_name, n_eval_rep=5, deterministic=None, algorithm_class=None):
+        deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
+
         self.eval_env.set_attr("OS", False)
         self.OS = False
 

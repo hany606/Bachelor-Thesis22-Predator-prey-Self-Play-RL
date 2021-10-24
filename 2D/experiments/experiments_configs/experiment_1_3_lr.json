@@ -1,18 +1,17 @@
 {
     "experiment":{
-        "experiment_id": "basev1",
-        "experiment_name": "-base",
+        "experiment_id": "1",
+        "experiment_name": "-train-lr-prey:pred-1:3",
         "experiment_log_prefix": "",
         "wandb_project": "Behavioral-Learning",
         "wandb_group": "self-play-2D",
         "wandb_entity": "iu_mas",
-        "wandb_notes": "Base config, based on last version of configurations for train_selfplay_baselines.py",
+        "wandb_notes": "Train with ratio 1:3 (prey:pred) and change only the lr (15e-5:45e-5)",
 
         "env": "SelfPlay1v1-Pred_Prey-v0",
         "num_workers": 1,
         "num_rounds": 50,
-        "population_size": 1,
-        "parallel_alternate_training": false,
+        "population_size": 3,    
         "seed_value": 3,
         "framework": "stable_baselines3",
 
@@ -24,18 +23,15 @@
     "agent0":{
         "id": 0,
         "name": "pred",
-        "env_class": "SelfPlayPredEnv",
         "opponent_name":"prey",
         "obs": "full",
         "act": "vel",
-
-        "num_eval_episodes": 5,  
-        "num_heatmap_eval_episodes": 5,  
+        "num_eval_episodes": 5,    
         "num_timesteps": 25e3,
         "eval_freq": "$num_timesteps",
         "save_freq": "$num_timesteps",
         "final_save_freq": 3,
-        "heatmap_log_freq":3,
+        "env_class": "SelfPlayPredEnv",
 
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
@@ -53,25 +49,22 @@
         "ent_coef": 0.0,
         "batch_size":64,
         "gamma":0.99,
-        "lr": 3e-4,
+        "lr": 45e-5,
         "n_epochs": 10
     },
 
     "agent1":{
         "id": 0,
         "name": "prey",
-        "env_class": "SelfPlayPreyEnv",
         "opponent_name":"pred",
         "obs": "full",
         "act": "vel",
-
-        "num_eval_episodes": 5,
-        "num_heatmap_eval_episodes": 5,
+        "num_eval_episodes": 5,    
         "num_timesteps": 25e3,
         "eval_freq": "$num_timesteps",
         "save_freq": "$num_timesteps",
         "final_save_freq": 3,
-        "heatmap_log_freq":3,
+        "env_class": "SelfPlayPreyEnv",
 
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
@@ -89,7 +82,7 @@
         "ent_coef": 0.0,
         "batch_size":64,
         "gamma":0.99,
-        "lr": 3e-4,
+        "lr": 15e-5,
         "n_epochs": 10
     },
 

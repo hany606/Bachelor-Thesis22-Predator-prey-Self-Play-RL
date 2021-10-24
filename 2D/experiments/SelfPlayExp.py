@@ -295,7 +295,8 @@ class SelfPlayExp:
             # Train all agents then evaluate
             # --------------------------------------------- Training agent by agent ---------------------------------------------
             # In each loop, the agent is training and the opponent is not training (Single RL agent configuration)
-            for agent_name in agents_names_list:
+            for agent_idx, agent_name in enumerate(agents_names_list):
+
                 opponent_name = self.agents_configs[agent_name]["opponent_name"]
                 # Agent will train on the previous version of the archive of the opponent agent before this round
                 if(self.experiment_configs.get("parallel_alternate_training", True)):

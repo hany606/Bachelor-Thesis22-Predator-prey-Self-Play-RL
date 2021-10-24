@@ -50,7 +50,7 @@ class ArchiveSB3:
         # Copy parameter list so we don't mutate the original dict
         data = model.__dict__.copy()
         exclude = set(model._excluded_save_params())
-        state_dicts_names, torch_variable_names = model._get_torch_save_params()
+        state_dicts_names, torch_variable_names = deepcopy(model._get_torch_save_params())
         all_pytorch_variables = state_dicts_names + torch_variable_names
         for torch_var in all_pytorch_variables:
             # We need to get only the name of the top most module as we'll remove that
@@ -70,15 +70,16 @@ class ArchiveSB3:
                 pytorch_variables[name] = attr
 
         # Build dict of state_dicts
-        params_to_save = model.get_parameters()
+        params_to_save = deepcopy(model.get_parameters())
         return {"data": data, "params": params_to_save, "pytorch": pytorch_variables, "device": model.device}
 
     # Add in the dictionary, and added them to the required sorted lists and sort them
     def add(self, name, model):
         # 1. Get the network parameter from the model policy
         model_parameters = self._get_model_parameters(model)
-        # 2. Add them to the archive
         # TODO: Think about if the length of the key will differ that much in getting and adding in the directory or not
+        
+        # 2. Add them to the archive
         # The model will never be updated under the same name, instead if it is trained again, it will be saved with a different name
         # Logically, it is not reasonable that it will save with the same name, but there is a case
         # When the evaluation was not made -> no change in the name but the model changed -> So, it is better if it is saving to evaluate the saved model before saving it

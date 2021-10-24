@@ -1,12 +1,12 @@
 {
     "experiment":{
-        "experiment_id": "basev1",
-        "experiment_name": "-base",
+        "experiment_id": "last",
+        "experiment_name": "-last",
         "experiment_log_prefix": "",
         "wandb_project": "Behavioral-Learning",
         "wandb_group": "self-play-2D",
         "wandb_entity": "iu_mas",
-        "wandb_notes": "Base config, based on last version of configurations for train_selfplay_baselines.py",
+        "wandb_notes": "Choose the latest evolved agent as an opponent",
 
         "env": "SelfPlay1v1-Pred_Prey-v0",
         "num_workers": 1,
@@ -40,8 +40,8 @@
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
         "eval_metric": "winrate",
-        "eval_opponent_selection": "random",
-        "opponent_selection": "random",
+        "eval_opponent_selection": "latest",
+        "opponent_selection": "latest",
         "training_agent_selection": "latest",
 
         "num_sampled_opponent_per_round": 50,
@@ -76,8 +76,8 @@
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
         "eval_metric": "winrate",
-        "eval_opponent_selection": "random",
-        "opponent_selection": "random",
+        "eval_opponent_selection": "latest",
+        "opponent_selection": "latest",
         "training_agent_selection": "latest",
 
         "num_sampled_opponent_per_round": 50,

@@ -1,7 +1,7 @@
 {
     "experiment":{
-        "experiment_id": "basev1",
-        "experiment_name": "-base",
+        "experiment_id": "basev4",
+        "experiment_name": "-base-300",
         "experiment_log_prefix": "",
         "wandb_project": "Behavioral-Learning",
         "wandb_group": "self-play-2D",
@@ -10,7 +10,7 @@
 
         "env": "SelfPlay1v1-Pred_Prey-v0",
         "num_workers": 1,
-        "num_rounds": 50,
+        "num_rounds": 300,
         "population_size": 1,
         "parallel_alternate_training": false,
         "seed_value": 3,

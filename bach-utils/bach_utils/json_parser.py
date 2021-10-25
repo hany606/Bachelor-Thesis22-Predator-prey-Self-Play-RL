@@ -1,7 +1,8 @@
 # This for experiements parser
 # The parser should parse the experiment file then return a dictionary with the parameters
 import json
-
+import numpy as np
+from math import sqrt
 
 class Parser:
     @staticmethod
@@ -61,6 +62,28 @@ class ExperimentParser(Parser):
         super(ExperimentParser, ExperimentParser).save(filename, data)
 
 
+
+class WandbHeatMapParser(Parser):
+    @staticmethod
+    def json2csv(filename, out_filename=None, shapes="auto"):
+        filename = filename if filename.endswith('.json') else filename+'.json'
+        if(out_filename is None):
+            out_filename = filename[:-5]
+        out_filename = out_filename if out_filename.endswith('.csv') else out_filename+'.csv'
+        data = super(ExperimentParser, ExperimentParser).load(filename)["data"]
+        data_shapes = None
+        if(shapes == "auto"):
+            shape = int(sqrt(len(data)))
+            data_shapes = [shape, shape]
+        elif(shapes == "limits"):
+            pass
+        if(isinstance(shapes, list) or isinstance(shapes, tuple)):
+            data_shapes = shapes
+        data_np = np.zeros(data_shapes)
+        for d in data:
+            data_np[d[1], d[0]] = d[2]
+        np.savetxt(out_filename, data_np, delimiter=",")
+        return data_np 
 
 if __name__=="__main__":
     print(ExperimentParser.load("default.json"))

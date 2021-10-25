@@ -3,4 +3,5 @@ from bach_utils import sorting
 from bach_utils import list
 from bach_utils import sampling
 from bach_utils import json_parser
+from bach_utils import heatmapvis
 

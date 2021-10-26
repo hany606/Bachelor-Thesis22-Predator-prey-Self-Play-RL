@@ -45,12 +45,13 @@ class ExperimentParser(Parser):
     def load(filename):
         data = super(ExperimentParser, ExperimentParser).load(filename)
         experiment = data["experiment"]
-        evaluation = data["evaluation"]
+        evaluation = data.get("evaluation", {})
+        testing = data.get("testing", {})
         agents = {}
         for k in data.keys():
             if(k.startswith("agent")):
                 agents[data[k]["name"]] = data[k]
-        return experiment, agents, evaluation
+        return experiment, agents, evaluation, testing
 
     @staticmethod
     def save(filename, experiment, agents, evaluation):

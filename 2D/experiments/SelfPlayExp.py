@@ -56,40 +56,38 @@ import wandb
 from bach_utils.json_parser import ExperimentParser
 
 
+# TODO: Should I do different classes?
+# Here the class is for the whole experiment (train, evaluation(heatmaps, plots, ...etc), test (rendering))
 class SelfPlayExp:
     def __init__(self):
-        pass
+        self.args = None
+        self.envs = None
+        self.eval_envs = None
+        self.evalsave_callbacks = None
+        self.experiment_configs = None
+        self.agents_configs = None
+        self.experiment_filename = None
+        self.evaluation_configs = None
+        self.logdir = None
+        self.archives = None
+        self.models = None
+        self.opponent_selection_callbacks = None
+        self.wandb_callbacks = None
 
-
+    
     def _init_argparse_training(self):
         parser = argparse.ArgumentParser(description='Self-play experiment training script')
-        parser.add_argument('--exp', type=str, help='The experiemnt file path and name which the experiment should be loaded', metavar='')
+        parser.add_argument('--exp', type=str, help='The experiemnt configuration file path and name which the experiment should be loaded', metavar='')
         self.args = parser.parse_args()
         
-    def _load_training_configs(self, filename=None):        
+    def _load_training_configs(self, filename):        
         self.experiment_filename = self.args.exp if filename is None else filename
-        self.experiment_configs, self.agents_configs, self.evaluation_configs = ExperimentParser.load(self.experiment_filename)
+        self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs = ExperimentParser.load(self.experiment_filename)
 
     def log_configs(self):
         print(f"Experiment configs: {self.experiment_configs}")
         print(f"Agents configs: {self.agents_configs}")
         print(f"Evaluation configs: {self.evaluation_configs}")
-
-
-    # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
-    def make_deterministic(self):
-        seed = self.experiment_configs["seed_value"]
-        np.random.seed(seed)
-        torch.manual_seed(seed)
-        random.seed(seed)
-        # see https://github.com/pytorch/pytorch/issues/47672
-        cuda_version = torch.version.cuda
-        if cuda_version is not None and float(torch.version.cuda) >= 10.2:
-            os.environ['CUBLAS_WORKSPACE_CONFIG'] = '4096:8'
-        else:
-            torch.set_deterministic(True)  # Not all Operations support this.
-        # This is only for Convolution no problem
-        torch.backends.cudnn.deterministic = True
 
     def _check_cuda(self):
         # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
@@ -97,8 +95,27 @@ class SelfPlayExp:
             print("## CUDA available")
             print(f"Current device: {torch.cuda.current_device()}")
             print(f"Device name: {torch.cuda.get_device_name(torch.cuda.current_device())}")
+            return 1
         else:
             print("## CUDA not available")
+            return 0
+    
+    # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
+    def make_deterministic(self):
+        seed = self.experiment_configs["seed_value"]
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        random.seed(seed)
+        cuda_flag = self._check_cuda()
+        if(cuda_flag):
+            # see https://github.com/pytorch/pytorch/issues/47672
+            cuda_version = torch.version.cuda
+            if cuda_version is not None and float(torch.version.cuda) >= 10.2:
+                os.environ['CUBLAS_WORKSPACE_CONFIG'] = '4096:8'
+            else:
+                torch.set_deterministic(True)  # Not all Operations support this.
+            # This is only for Convolution no problem
+            torch.backends.cudnn.deterministic = True
 
     def _generate_log_dir(self):
         experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
@@ -235,7 +252,7 @@ class SelfPlayExp:
                                                                         archive=self.archives[opponent_name])
             self.wandb_callbacks[agent_name] = WandbCallback()
 
-    def _init_training(self, experiment_filename=None):
+    def _init_training(self, experiment_filename):
         if(experiment_filename is None):
             self._init_argparse_training()
         print(f"----- Loading experiment from: {experiment_filename}")
@@ -248,7 +265,6 @@ class SelfPlayExp:
         self._init_log_files()
         # They were moved down to be logged in wandb log
         self.log_configs()
-        self._check_cuda()
 
         logger.configure(folder=self.log_dir)
 
@@ -275,8 +291,8 @@ class SelfPlayExp:
     def _change_archives(self, agent_name, archive):
         self.archives[agent_name].change_archive_core(archive)
 
-    def train(self):
-        self._init_training()
+    def train(self, experiment_filename=None):
+        self._init_training(experiment_filename=experiment_filename)
         num_rounds = self.experiment_configs["num_rounds"]
         population_size = self.experiment_configs["population_size"]    # population here has a shared archive
         agents_names_list = self._create_agents_names_list()
@@ -350,3 +366,85 @@ class SelfPlayExp:
 
             self.envs[agent_name].close()
             self.eval_envs[agent_name].close()
+
+    def _validate_argparse(self):
+        if(self.args.exp is not None):
+            return True
+        if(self.args.pred_path is None or self.args.prey_path):
+            if(self.args.exp is None):
+                raise ValueError("exp or (pred-path and prey-path) must be defined")
+            if(self.args.path is None):
+                raise ValueError("path or (pred-path and prey-path) must be defined")
+
+        if(',' not in self.args.mode):
+            raise ValueError("Mode should be in the following form <pred_mode>, <prey_mode>")
+        self.testing_modes = self.args.mode.lower().strip().split(',')
+
+        if(sum([i in ["gen", "all", "random", "limit_s", "limit", "limit_e"] for i in self.testing_modes]) != len(self.testing_modes)):
+            raise ValueError("Modes should be one of the following (Gen, All, Random, Limit)")
+
+        self.testing_target_agents_configs = [self.args.pred, self.args.prey]
+        self.testing_target_agents_indices = [None for i in range(len(self.testing_target_agents_configs))]
+        for i in range(len(self.testing_target_agents_configs)):
+            if(self.testing_modes[i] == "limit"):
+                # if there is no comma, it means that it will start from 0 and finishes with that limit
+                if(',' not in self.testing_target_agents_configs[i]):
+                    self.testing_target_agents_indices[i] = [0, int(self.testing_target_agents_configs[i])]
+                # if there is a comma, put the limit
+                else:
+                    idxs = self.args.mode.split(',')
+                    self.testing_target_agents_indices[i] = [int(idx) for idx in idxs]
+
+            # if the limit is that the start of the tested agents is that index and the end till the end
+            elif(self.testing_modes[i] == "limit_s"):
+                self.testing_target_agents_indices[i] = [int(self.testing_target_agents_configs[i]), -1]
+            
+            # if the limit is that the end of the tested agents is that index (including that index)
+            elif(self.testing_modes[i] == "limit_e"):
+                self.testing_target_agents_indices[i] = [0, int(self.testing_target_agents_configs[i])+1]
+
+            elif(self.testing_modes[i] == "gen"):
+                self.testing_taarget_agent_indices[i] = [int(self.testing_target_agents_configs[i]), int(self.testing_target_agents_configs[i])+1]
+
+            elif(self.testing_modes[i] == "all"):
+                self.testing_taarget_agent_indices[i] = [0, -1]
+            
+            elif(self.testing_modes[i] == "random"):
+                self.testing_taarget_agent_indices[i] = [None, None]
+
+    def _init_argparse_testing(self):
+        parser = argparse.ArgumentParser(description='Self-play experiment testing script')
+        parser.add_argument('--exp', type=str, default=None, help='The experiemnt configuration file path and name which the experiment should be loaded', metavar='')
+        parser.add_argument('--mode', type=str, default=None, help='The mode for the evaluation (<pred>,<prey>) (Gen, All, Random, Limit: from specific generation to another)', metavar='') #(Gen vs All), (Gen vs Gen), (All vs All), (Gen vs Random), (Random vs Gen), (Random vs Random)', metavar='')
+        parser.add_argument('--pred-path', type=str, default=None, help='Path for predator files', metavar='')
+        parser.add_argument('--prey-path', type=str, default=None, help='Path for prey files', metavar='')
+        parser.add_argument('--path', type=str, default=None, help='Path for predator and prey files', metavar='')
+        parser.add_argument('--pred', type=str, default=None, help='targets versions for predator', metavar='')
+        parser.add_argument('--prey', type=str, default=None, help='targets versions for prey', metavar='')
+
+        self.args = parser.parse_args()
+        self._validate_argparse()
+
+
+    def _load_testing_configs(self, filename):
+        self.testing_filename = self.args.exp if filename is None else filename
+        if(self.testing_filename is not None):
+            self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs = ExperimentParser.load(self.experiment_filename)
+        # if at the end it is None (filename is none, args.exp is none), then the user should have input the paths
+        else:
+            self.testing_configs = {
+                                    "pred-path":self.pred_path,
+                                    "prey-path":self.prey_path,
+                                    }
+
+    def _init_testing(self, testing_filename):
+        if(testing_filename is None):
+            self._init_argparse_evaluation_render()
+        
+        print(f"----- Loading experiment from: {testing_filename}")
+        self._load_training_configs(testing_filename)
+
+        self._init_testing_configs()
+
+    def test(self, testing_filename=None):
+        self._init_testing(test_filename=testing_filename)

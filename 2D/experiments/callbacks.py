@@ -256,7 +256,7 @@ class EvalSaveCallback(EvalCallback):
         self.model.save(path)
         if(not self.OS):
             self.archive.add(name, self.model) # Add the model to the archive
-        if self.verbose > 1:
+        if self.verbose > 0:
             print(f"Saving model checkpoint to {path}")
         return name
 
@@ -303,6 +303,7 @@ class EvalSaveCallback(EvalCallback):
         i = round_num
         startswith_keyword = f"{prefix}{i}_"
         agent_model = None
+        sampled_agent = None
         # Get 1st agent
         if(not self.OS):
             # Get the agents that has models' names starts with "history_<i>_"
@@ -333,6 +334,7 @@ class EvalSaveCallback(EvalCallback):
                 # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
                 sampled_opponent = os.path.join(opponents_path, utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword)[0])
 
+            print(f"Model {sampled_agent} vs {sampled_opponent}")
             # Run evaluation n_eval_rep for each opponent
             eval_model_list = [sampled_opponent]
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
@@ -382,6 +384,7 @@ class EvalSaveCallback(EvalCallback):
                 sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
                 agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
 
+            print(f"Model {sampled_agent} vs {sampled_opponent}")
             # Run evaluation n_eval_rep for each opponent
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
             _, _, win_rate, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,

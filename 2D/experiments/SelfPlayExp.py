@@ -55,39 +55,16 @@ import wandb
 
 from bach_utils.json_parser import ExperimentParser
 
-
-# TODO: Should I do different classes?
-# Here the class is for the whole experiment (train, evaluation(heatmaps, plots, ...etc), test (rendering))
 class SelfPlayExp:
     def __init__(self):
         self.args = None
-        self.envs = None
-        self.eval_envs = None
-        self.evalsave_callbacks = None
+        self.experiment_filename = None
         self.experiment_configs = None
         self.agents_configs = None
-        self.experiment_filename = None
         self.evaluation_configs = None
+        self.testing_configs = None
+        self.seed_value = None
         self.logdir = None
-        self.archives = None
-        self.models = None
-        self.opponent_selection_callbacks = None
-        self.wandb_callbacks = None
-
-    
-    def _init_argparse_training(self):
-        parser = argparse.ArgumentParser(description='Self-play experiment training script')
-        parser.add_argument('--exp', type=str, help='The experiemnt configuration file path and name which the experiment should be loaded', metavar='')
-        self.args = parser.parse_args()
-        
-    def _load_training_configs(self, filename):        
-        self.experiment_filename = self.args.exp if filename is None else filename
-        self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs = ExperimentParser.load(self.experiment_filename)
-
-    def log_configs(self):
-        print(f"Experiment configs: {self.experiment_configs}")
-        print(f"Agents configs: {self.agents_configs}")
-        print(f"Evaluation configs: {self.evaluation_configs}")
 
     def _check_cuda(self):
         # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
@@ -99,10 +76,10 @@ class SelfPlayExp:
         else:
             print("## CUDA not available")
             return 0
-    
+
     # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
     def make_deterministic(self):
-        seed = self.experiment_configs["seed_value"]
+        seed = self.seed_value
         np.random.seed(seed)
         torch.manual_seed(seed)
         random.seed(seed)
@@ -117,14 +94,92 @@ class SelfPlayExp:
             # This is only for Convolution no problem
             torch.backends.cudnn.deterministic = True
 
-    def _generate_log_dir(self):
+    def _init_argparse(self, description, help):
+        parser = argparse.ArgumentParser(description=description)
+        parser.add_argument('--exp', type=str, help=help, metavar='')
+        self.args = parser.parse_args()
+
+    def _load_configs(self, filename):        
+        self.experiment_filename = self.args.exp if filename is None else filename
+        self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs = ExperimentParser.load(self.experiment_filename)
+        self.seed_value = self.experiment_configs["seed_value"] if self.seed_value is None else self.seed_value
+
+    def log_configs(self):
+        print("--------------- Logging configs ---------------")
+        print(f"Experiment configs: {self.experiment_configs}")
+        print(f"Agents configs: {self.agents_configs}")
+        print(f"Evaluation configs: {self.evaluation_configs}")
+        print(f"Testing config: {self.testing_configs}")
+        print("-----------------------------------------------")
+
+    def _generate_log_dir(self, dir_postfix):
         experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
         prefix = self.experiment_configs["experiment_log_prefix"] # ""
         env_name = self.experiment_configs["env"]
         # log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
-        log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + env_name + '-' + experiment_id
+        log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results-{dir_postfix}/{prefix}save-' + env_name + '-' + experiment_id
         return log_dir
+
+    def _init_log_files(self):
+        if not os.path.exists(self.log_dir):
+            os.makedirs(self.log_dir + '/')
+        for k in self.agents_configs.keys():
+            agent_configs = self.agents_configs[k]
+            agent_name = agent_configs["name"]
+            if not os.path.exists(os.path.join(self.log_dir, agent_name)):
+                os.makedirs(os.path.join(self.log_dir, agent_name) + '/')
+
+    def _init_exp(self, experiment_filename, logdir, wandb):
+        if(experiment_filename is None):
+            self._init_argparse()
+        print(f"Parse from json file in {self.args.exp}" if experiment_filename is None else f"----- Loading experiment from: {experiment_filename}")
+        self._load_configs(experiment_filename)
         
+        if(logdir):
+            self.log_dir = self._generate_log_dir()
+            print(f"----- Initialize loggers")
+            self._init_log_files()
+            logger.configure(folder=self.log_dir)
+
+        if(wandb):
+            print(f"----- Initialize wandb")
+            self._init_wandb()
+
+        # They were moved down to be logged in wandb log
+        print(f"----- Experiment logs are being stored in: {self.log_dir}")
+        self.log_configs()
+
+        self.make_deterministic()
+    
+    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None):
+        agent_configs = self.agents_configs[key]
+        env_class_name = agent_configs["env_class"]
+
+        # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
+        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=self.seed_value)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+        env._name = name
+        return env
+
+# TODO: Should I do different classes?
+# Here the class is for the whole experiment (train, evaluation(heatmaps, plots, ...etc), test (rendering))
+class SelfPlayTraining(SelfPlayExp):
+    def __init__(self, seed_value=None):
+        super(SelfPlayTraining, self).__init__()
+        self.envs = None
+        self.eval_envs = None
+        self.evalsave_callbacks = None
+        self.archives = None
+        self.models = None
+        self.opponent_selection_callbacks = None
+        self.wandb_callbacks = None
+        self.seed_value = seed_value
+
+    def _init_argparse(self):
+        super(SelfPlayTraining, self)._init_argparse(description='Self-play experiment training script', help='The experiemnt configuration file path and name which the experiment should be loaded')
+    
+    def _generate_log_dir(self):
+        return super(SelfPlayTraining, self)._generate_log_dir(dir_postfix="train")
+
     def _init_wandb(self):
         wandb_experiment_config = {"experiment": self.experiment_configs,
                                    "agents"    : self.agents_configs,
@@ -149,14 +204,6 @@ class SelfPlayExp:
         wandb.save("SelfPlayExp.py")
         wandb.save("callbacks.py")
 
-    def _init_log_files(self):
-        if not os.path.exists(self.log_dir):
-            os.makedirs(self.log_dir + '/')
-        if not os.path.exists(os.path.join(self.log_dir, "pred")):
-            os.makedirs(os.path.join(self.log_dir, "pred") + '/')
-        if not os.path.exists(os.path.join(self.log_dir, "prey")):
-            os.makedirs(os.path.join(self.log_dir, "prey") + '/')
-
     def _init_archives(self):
         self.archives = {}
 
@@ -180,19 +227,9 @@ class SelfPlayExp:
             agent_name = agent_configs["name"]
             opponent_name = agent_configs["opponent_name"]
             opponent_archive = self.archives[opponent_name]
-            env_class_name = agent_configs["env_class"]
-            seed_val = self.experiment_configs["seed_value"]
-            
-            # pred_env = create_env("SelfPlay1v1-Pred-v0", os.path.join(log_dir, "pred", "videos"), config={"log_dir": log_dir, "algorithm_class": PPO}) #SelfPlayPredEnv()
-            # pred_env = create_env(SelfPlayPredEnv, log_dir=log_dir, algorithm_class=PPO, opponent_selection=OPPONENT_SELECTION)
-            # pred_env.seed(SEED_VALUE)
 
-            # Here SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
-            self.envs[agent_name] = globals()[env_class_name](log_dir=self.log_dir, algorithm_class=PPO, archive=opponent_archive, seed_val=seed_val)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
-            self.envs[agent_name]._name = "Training"
-
-            self.eval_envs[agent_name] = globals()[env_class_name](log_dir=self.log_dir, algorithm_class=PPO, archive=opponent_archive, seed_val=seed_val)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
-            self.eval_envs[agent_name]._name = "Evaluation"
+            self.envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Training", opponent_archive=opponent_archive)
+            self.eval_envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Evaluation", opponent_archive=opponent_archive)
 
     def _init_models(self):
         self.models = {}
@@ -253,23 +290,7 @@ class SelfPlayExp:
             self.wandb_callbacks[agent_name] = WandbCallback()
 
     def _init_training(self, experiment_filename):
-        if(experiment_filename is None):
-            self._init_argparse_training()
-        print(f"----- Loading experiment from: {experiment_filename}")
-        self._load_training_configs(experiment_filename)
-                
-        self.log_dir = self._generate_log_dir()
-        print(f"----- Experiment logs are being stored in: {self.log_dir}")
-        print(f"----- Initialize loggers, wandb")
-        self._init_wandb()
-        self._init_log_files()
-        # They were moved down to be logged in wandb log
-        self.log_configs()
-
-        logger.configure(folder=self.log_dir)
-
-        self.make_deterministic()
-
+        super(SelfPlayTraining, self)._init_exp(experiment_filename, True, True)
         print(f"----- Initialize archives, envs, models, callbacks")
         # Create the archives to store the models in the cache
         self._init_archives()
@@ -341,7 +362,8 @@ class SelfPlayExp:
                 num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
                 final_save_freq = agent_config["final_save_freq"]
                 heatmap_log_freq = agent_config["heatmap_log_freq"]
-
+                
+                print("--------------------------------------------------------------")
                 print(f"Round: {round_num} -> HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
                 self.evalsave_callbacks[agent_name].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
                 
@@ -352,11 +374,11 @@ class SelfPlayExp:
                     if(round_num==num_rounds-1):
                         wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
                     wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=False)})
-
+                    np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), evaluation_matrix)
+                    # TODO: save the evaluation matrix to wandb
                 if(round_num%final_save_freq == 0 or round_num==num_rounds-1):
                     # TODO: Change it to save the best model till now, not the latest (How to define the best model)
                     self.models[agent_name].save(os.path.join(self.log_dir, agent_name, "final_model"))
-                    np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), self.evalsave_callbacks[agent_name].evaluation_matrix)
             # --------------------------------------------- End of the round ---------------------------------------------
 
         
@@ -367,84 +389,159 @@ class SelfPlayExp:
             self.envs[agent_name].close()
             self.eval_envs[agent_name].close()
 
-    def _validate_argparse(self):
-        if(self.args.exp is not None):
-            return True
-        if(self.args.pred_path is None or self.args.prey_path):
-            if(self.args.exp is None):
-                raise ValueError("exp or (pred-path and prey-path) must be defined")
-            if(self.args.path is None):
-                raise ValueError("path or (pred-path and prey-path) must be defined")
 
-        if(',' not in self.args.mode):
-            raise ValueError("Mode should be in the following form <pred_mode>, <prey_mode>")
-        self.testing_modes = self.args.mode.lower().strip().split(',')
 
-        if(sum([i in ["gen", "all", "random", "limit_s", "limit", "limit_e"] for i in self.testing_modes]) != len(self.testing_modes)):
-            raise ValueError("Modes should be one of the following (Gen, All, Random, Limit)")
+class SelfPlayTesting(SelfPlayExp):
+    def __init__(self, seed_value=None):
+        super(SelfPlayTesting, self).__init__()
+        self.seed_value = seed_value
 
-        self.testing_target_agents_configs = [self.args.pred, self.args.prey]
-        self.testing_target_agents_indices = [None for i in range(len(self.testing_target_agents_configs))]
-        for i in range(len(self.testing_target_agents_configs)):
-            if(self.testing_modes[i] == "limit"):
-                # if there is no comma, it means that it will start from 0 and finishes with that limit
-                if(',' not in self.testing_target_agents_configs[i]):
-                    self.testing_target_agents_indices[i] = [0, int(self.testing_target_agents_configs[i])]
-                # if there is a comma, put the limit
-                else:
-                    idxs = self.args.mode.split(',')
-                    self.testing_target_agents_indices[i] = [int(idx) for idx in idxs]
 
+    def _generate_log_dir(self):
+        super(SelfPlayTesting, self)._generate_log_dir(dir_postfix="test")
+
+    def _load_testing_conditions(self, path):
+        self.testing_conditions = {}
+
+        for k in self.agents_configs.keys():
+            agent_configs = self.agents_configs[k]
+            agent_name = agent_configs["name"]
+            testing_config = self.testing_configs[agent_name]
+            agent_testing_path = os.path.join(path, agent_name) if(testing_config["path"] is None) else testing_config["path"]
+            mode = testing_config["mode"]
+
+            self.testing_conditions[agent_name] = {"path": agent_testing_path}
+
+            if(mode == "limit"):
+                self.testing_conditions[agent_name] = testing_config["gens"]
             # if the limit is that the start of the tested agents is that index and the end till the end
-            elif(self.testing_modes[i] == "limit_s"):
-                self.testing_target_agents_indices[i] = [int(self.testing_target_agents_configs[i]), -1]
+            elif(mode == "limit_s"):
+                self.testing_conditions[agent_name] = [testing_config["gens"], -1]
             
-            # if the limit is that the end of the tested agents is that index (including that index)
-            elif(self.testing_modes[i] == "limit_e"):
-                self.testing_target_agents_indices[i] = [0, int(self.testing_target_agents_configs[i])+1]
+            # if the limit is that the end of the tested agents is that index (including that index: in the for loop we will +1)
+            elif(mode == "limit_e"):
+                self.testing_conditions[agent_name] = [0, testing_config["gens"]]
 
-            elif(self.testing_modes[i] == "gen"):
-                self.testing_taarget_agent_indices[i] = [int(self.testing_target_agents_configs[i]), int(self.testing_target_agents_configs[i])+1]
+            elif(mode == "gen"):
+                self.testing_conditions[agent_name] = [testing_config["gens"], testing_config["gens"]]
 
-            elif(self.testing_modes[i] == "all"):
-                self.testing_taarget_agent_indices[i] = [0, -1]
+            elif(mode == "all"):
+                self.testing_conditions[agent_name] = [0, -1]
             
-            elif(self.testing_modes[i] == "random"):
-                self.testing_taarget_agent_indices[i] = [None, None]
+            elif(mode == "random"):
+                self.testing_conditions[agent_name] = [None, None]
 
-    def _init_argparse_testing(self):
-        parser = argparse.ArgumentParser(description='Self-play experiment testing script')
-        parser.add_argument('--exp', type=str, default=None, help='The experiemnt configuration file path and name which the experiment should be loaded', metavar='')
-        parser.add_argument('--mode', type=str, default=None, help='The mode for the evaluation (<pred>,<prey>) (Gen, All, Random, Limit: from specific generation to another)', metavar='') #(Gen vs All), (Gen vs Gen), (All vs All), (Gen vs Random), (Random vs Gen), (Random vs Random)', metavar='')
-        parser.add_argument('--pred-path', type=str, default=None, help='Path for predator files', metavar='')
-        parser.add_argument('--prey-path', type=str, default=None, help='Path for prey files', metavar='')
-        parser.add_argument('--path', type=str, default=None, help='Path for predator and prey files', metavar='')
-        parser.add_argument('--pred', type=str, default=None, help='targets versions for predator', metavar='')
-        parser.add_argument('--prey', type=str, default=None, help='targets versions for prey', metavar='')
+    def _init_testing(self, experiment_filename, logdir, wandb, path):
+        super(SelfPlayTesting, self)._init_exp(experiment_filename, logdir, wandb)
+        self._init_testing_conditions(path)
+        self._load_testing_conditions(experiment_filename)
 
-        self.args = parser.parse_args()
-        self._validate_argparse()
-
-
-    def _load_testing_configs(self, filename):
-        self.testing_filename = self.args.exp if filename is None else filename
-        if(self.testing_filename is not None):
-            self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs = ExperimentParser.load(self.experiment_filename)
-        # if at the end it is None (filename is none, args.exp is none), then the user should have input the paths
-        else:
-            self.testing_configs = {
-                                    "pred-path":self.pred_path,
-                                    "prey-path":self.prey_path,
-                                    }
-
-    def _init_testing(self, testing_filename):
-        if(testing_filename is None):
-            self._init_argparse_evaluation_render()
-        
-        print(f"----- Loading experiment from: {testing_filename}")
-        self._load_training_configs(testing_filename)
+        self._init_envs()
+        self._init_models()
 
         self._init_testing_configs()
 
-    def test(self, testing_filename=None):
-        self._init_testing(test_filename=testing_filename)
+    def test(self, experiment_filename=None, logdir=False, wandb=False, path=None):
+        self._init_testing(experiment_filename=experiment_filename, logdir=logdir, wandb=wandb, path=path)
+
+
+
+# Old code compatible with argparse
+# def _load_argparse_configs(self):
+#     if(self.args.path is not None):
+        
+#     self.testing_target_agents_configs = {self.args.pred, self.args.prey}
+#     self.testing_target_agents_indices = {}
+#     for i in range(len(self.testing_target_agents_configs)):
+#         if(self.testing_modes[i] == "limit"):
+#             # if there is no comma, it means that it will start from 0 and finishes with that limit
+#             if(',' not in self.testing_target_agents_configs[i]):
+#                 self.testing_target_agents_indices[i] = [0, int(self.testing_target_agents_configs[i])]
+#             # if there is a comma, put the limit
+#             else:
+#                 idxs = self.args.mode.split(',')
+#                 self.testing_target_agents_indices[i] = [int(idx) for idx in idxs]
+
+#         # if the limit is that the start of the tested agents is that index and the end till the end
+#         elif(self.testing_modes[i] == "limit_s"):
+#             self.testing_target_agents_indices[i] = [int(self.testing_target_agents_configs[i]), -1]
+        
+#         # if the limit is that the end of the tested agents is that index (including that index)
+#         elif(self.testing_modes[i] == "limit_e"):
+#             self.testing_target_agents_indices[i] = [0, int(self.testing_target_agents_configs[i])+1]
+
+#         elif(self.testing_modes[i] == "gen"):
+#             self.testing_taarget_agent_indices[i] = [int(self.testing_target_agents_configs[i]), int(self.testing_target_agents_configs[i])+1]
+
+#         elif(self.testing_modes[i] == "all"):
+#             self.testing_taarget_agent_indices[i] = [0, -1]
+        
+#         elif(self.testing_modes[i] == "random"):
+#             self.testing_taarget_agent_indices[i] = [None, None]
+
+# def _validate_argparse(self):
+#     # if the experiment parameter is specified, do not parse anything more, just parse from that file
+#     if(self.args.exp is not None):
+#         return True
+
+#     # if not, then validate the parameters
+#     # if any of them is None (not set) then check others and raise Errors
+#     if(self.args.pred_path is None or self.args.prey_path):
+#         if(self.args.exp is None):
+#             raise ValueError("exp or (pred-path and prey-path) must be defined")
+#         if(self.args.path is None):
+#             raise ValueError("path or (pred-path and prey-path) must be defined")
+#         # if only one path is defined in --path parameter
+#         else:
+#             self.testing_paths = [self.args.path for _ in range(2)]
+#     # if both of them are set
+#     else:
+#         self.testing_paths = [self.args.pred_path, self.args.prey_path]
+
+#     if(',' not in self.args.mode):
+#         raise ValueError("Mode should be in the following form <pred_mode>, <prey_mode>")
+#     self.testing_modes = self.args.mode.lower().strip().split(',')
+
+#     if(sum([i in ["gen", "all", "random", "limit_s", "limit", "limit_e"] for i in self.testing_modes]) != len(self.testing_modes)):
+#         raise ValueError("Modes should be one of the following (Gen, All, Random, Limit)")
+#     # if everything is fine, then load the data from argparse
+#     self._load_argparse_configs()
+
+# def _init_argparse_testing(self):
+#     parser = argparse.ArgumentParser(description='Self-play experiment testing script')
+#     parser.add_argument('--exp', type=str, default=None, help='The experiemnt configuration file path and name which the experiment should be loaded', metavar='')
+#     parser.add_argument('--mode', type=str, default=None, help='The mode for the evaluation (<pred>,<prey>) (Gen, All, Random, Limit: from specific generation to another)', metavar='') #(Gen vs All), (Gen vs Gen), (All vs All), (Gen vs Random), (Random vs Gen), (Random vs Random)', metavar='')
+#     parser.add_argument('--agent0-path', type=str, default=None, help='Path for predator files', metavar='')
+#     parser.add_argument('--agent1-path', type=str, default=None, help='Path for prey files', metavar='')
+#     parser.add_argument('--path', type=str, default=None, help='Path for predator and prey files', metavar='')
+#     parser.add_argument('--agent0', type=str, default=None, help='targets versions for predator', metavar='')
+#     parser.add_argument('--agent1', type=str, default=None, help='targets versions for prey', metavar='')
+
+#     self.args = parser.parse_args()
+#     self._validate_argparse()
+
+# def _load_testing_configs(self, filename):
+#     self.testing_filename = self.args.exp if filename is None else filename
+#     if(self.testing_filename is not None):
+#         self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs = ExperimentParser.load(self.experiment_filename)
+#     # if at the end it is None (filename is none, args.exp is none), then the user should have input the paths
+#     # TODO: do it good with agents_configs
+#     else:
+#         self.testing_configs = {
+#                                 "pred_path": self.testing_paths[0],
+#                                 "prey_path": self.testing_paths[1],
+#                                 "pred_gens": self.testing_target_agents_indices[0],
+#                                 "prey_gens": self.testing_target_agents_indices[1]
+#                                 }
+
+# def _init_testing(self, testing_filename):
+#     if(testing_filename is None):
+#         self._init_argparse_testing()
+    
+#     print(f"----- Loading experiment from: {testing_filename}")
+#     self._load_testing_configs(testing_filename)
+
+#     self._init_testing_configs()
+
+# def test(self, testing_filename=None):
+#     self._init_testing(test_filename=testing_filename)

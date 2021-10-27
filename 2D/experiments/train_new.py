@@ -1,5 +1,5 @@
-from SelfPlayExp import SelfPlayExp
+from SelfPlayExp import SelfPlayTraining
 
-training = SelfPlayExp()
+training = SelfPlayTraining()
 
 training.train()

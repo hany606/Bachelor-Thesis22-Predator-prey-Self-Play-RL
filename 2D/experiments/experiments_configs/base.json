@@ -94,5 +94,22 @@
     },
 
     "evaluation":{
+    },
+
+    "testing":{
+        "__comment__": "TODO: Think about make it more general",
+        "__comment1__": "Here it is the names of the agents not the keys",
+        "pred":{
+            "path": "None",
+            "gens": [0,1],
+            "__comment__": ["gen", "all", "random", "limit_s", "limit", "limit_e"],
+            "mode": "gen"
+        },
+        "prey":{
+            "path": "None",
+            "gens": [0,1],
+            "__comment__": ["gen", "all", "random", "limit_s", "limit", "limit_e"],
+            "mode": "gen"
+        }
     }
 }

@@ -13,7 +13,7 @@ class HeatMapVisualizer:
                    mn_val=0.0,
                    mx_val=1.0,
                    center=0.5,
-                   labels=["predator", "prey", "win rate", "win rate (heatmap)"],
+                   labels=["prey", "predator", "win rate", "win rate (heatmap)"],
                    annot=False,
                    linewidth=0,
                    cmap="YlGnBu",
@@ -41,7 +41,7 @@ class HeatMapVisualizer:
     def visPlotly(heatmap_data,
                  mn_val=0.0,
                  mx_val=1.0,
-                 labels=["predator", "prey", "win rate", "win rate (heatmap)"],
+                 labels=["prey", "predator", "win rate", "win rate (heatmap)"],
                  cmap="YlGnBu",
                  ):
         fig = go.Figure(data=go.Heatmap(

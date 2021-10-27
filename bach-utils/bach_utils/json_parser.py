@@ -9,6 +9,8 @@ class Parser:
     def dict_filter(data):
         keys = list(data.keys())
         for k in keys:
+            if(isinstance(data[k], str) and data[k].lower() == "none"):
+                data[k] = None
             # Remove the comments from the json file
             if(k.startswith("__")):
                 del data[k]

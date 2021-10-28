@@ -1,6 +1,7 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import numpy as np
 
 # https://plotly.com/python/heatmaps/
 # http://www.heatmapper.ca/pairwise/
@@ -16,11 +17,13 @@ class HeatMapVisualizer:
                    labels=["prey", "predator", "win rate", "win rate (heatmap)"],
                    annot=False,
                    linewidth=0,
-                   cmap="YlGnBu",
+                   cmap="bwr",#"YlGnBu",
                    xticklabels=5,
                    yticklabels=5,
                    cbar=True,
                    show=True):
+        if(isinstance(heatmap_data, list)):
+            heatmap_data = np.mean(heatmap_data, axis=0)
         ax = sns.heatmap(heatmap_data, 
                          vmin=mn_val, vmax=mx_val, center=center, 
                          cbar_kws={'label': labels[2]}, annot=annot,
@@ -44,6 +47,8 @@ class HeatMapVisualizer:
                  labels=["prey", "predator", "win rate", "win rate (heatmap)"],
                  cmap="YlGnBu",
                  ):
+        if(isinstance(heatmap_data, list)):
+            heatmap_data = np.mean(heatmap_data, axis=0)
         fig = go.Figure(data=go.Heatmap(
                                         z=heatmap_data, 
                                         x=[i for i in range(0,heatmap_data.shape[1])],

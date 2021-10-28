@@ -128,6 +128,33 @@ class SelfPlayExp:
             agent_name = agent_configs["name"]
             if not os.path.exists(os.path.join(self.log_dir, agent_name)):
                 os.makedirs(os.path.join(self.log_dir, agent_name) + '/')
+                
+    def _init_wandb(self):
+        wandb_experiment_config = {"experiment": self.experiment_configs,
+                                   "agents"    : self.agents_configs,
+                                   "evaluation": self.evaluation_configs
+                                   }
+        wandb.tensorboard.patch(root_logdir=self.log_dir)
+        wandb.init(
+                project=self.experiment_configs["wandb_project"],
+                group=self.experiment_configs["wandb_group"],
+                entity= None if self.experiment_configs["wandb_entity"] == "None" else self.experiment_configs["wandb_entity"],
+                config=wandb_experiment_config,
+                sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
+                monitor_gym=True,  # auto-upload the videos of agents playing the game
+                save_code=True,  # optional
+                notes=self.experiment_configs["wandb_notes"],
+        )
+
+        experiment_name = self.experiment_configs["experiment_name"]
+        wandb.run.name = wandb.run.name + experiment_name
+        wandb.run.save()
+        wandb.save(self.experiment_filename)
+        wandb.save("SelfPlayExp.py")
+        wandb.save("callbacks.py")
+        if(self.logdir is not None):
+            wandb.save(self.logdir)
+
 
     def _init_exp(self, experiment_filename, logdir, wandb):
         if(experiment_filename is None):
@@ -179,30 +206,6 @@ class SelfPlayTraining(SelfPlayExp):
     
     def _generate_log_dir(self):
         return super(SelfPlayTraining, self)._generate_log_dir(dir_postfix="train")
-
-    def _init_wandb(self):
-        wandb_experiment_config = {"experiment": self.experiment_configs,
-                                   "agents"    : self.agents_configs,
-                                   "evaluation": self.evaluation_configs
-                                   }
-        wandb.tensorboard.patch(root_logdir=self.log_dir)
-        wandb.init(
-                project=self.experiment_configs["wandb_project"],
-                group=self.experiment_configs["wandb_group"],
-                entity= None if self.experiment_configs["wandb_entity"] == "None" else self.experiment_configs["wandb_entity"],
-                config=wandb_experiment_config,
-                sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
-                monitor_gym=True,  # auto-upload the videos of agents playing the game
-                save_code=True,  # optional
-                notes=self.experiment_configs["wandb_notes"],
-        )
-
-        experiment_name = self.experiment_configs["experiment_name"]
-        wandb.run.name = wandb.run.name + experiment_name
-        wandb.run.save()
-        wandb.save(self.experiment_filename)
-        wandb.save("SelfPlayExp.py")
-        wandb.save("callbacks.py")
 
     def _init_archives(self):
         self.archives = {}

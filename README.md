@@ -6,6 +6,10 @@ This repository is created for my thesis during the bachelor degree at Innopolis
 
 - [ ] Create setup script to setup everything
 
+## Challenge:
+- [ ] At least 2 useful commits per day (Not update README.md neither update submodules)
+- [ ] Submit +1 paper(s) in top-tier conferences by the end of the thesis
+
 
 ## Installation
 
@@ -95,19 +99,25 @@ python3 test_selfplay_baselines.py --exp selfplay-results/save-SelfPlay1v1-Pred_
 To update the submodules to be the same as the remote (master/main)
 
 First, go to the submodules, **Check that you pushed everything to the main/master**
+
 ```git push origin HEAD:main```
 
 Then, updates the submodules:
+
 ```git submodule update --remote --recursive```
 
 Then, add, commit, and push
-```git add submodule```
-```git commit -m "Update submodules"```
-```git push```
+
+```bash 
+  git add submodule
+  git commit -m "Update submodules"
+  git push
+```
 
 2. Remove changes in a file
 
 For example:
+
 ```git stash -- PredPrey1v1.py```
 
 

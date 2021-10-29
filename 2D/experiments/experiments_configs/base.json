@@ -36,6 +36,8 @@
         "save_freq": "$num_timesteps",
         "final_save_freq": 3,
         "heatmap_log_freq":3,
+        "aggregate_eval_matrix":false,
+        "eval_matrix_testing_freq":3,
 
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
@@ -72,6 +74,8 @@
         "save_freq": "$num_timesteps",
         "final_save_freq": 3,
         "heatmap_log_freq":3,
+        "aggregate_eval_matrix":false,
+        "eval_matrix_testing_freq":3,
 
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
@@ -100,16 +104,18 @@
         "__comment__": "TODO: Think about make it more general",
         "__comment1__": "Here it is the names of the agents not the keys",
         "pred":{
-            "path": "None",
-            "gens": [0,1],
-            "__comment__": ["gen", "all", "random", "limit_s", "limit", "limit_e"],
-            "mode": "gen"
+            "path": "?",
+            "gens": 0,
+            "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
+            "mode": "gen",
+            "freq": 1
         },
         "prey":{
-            "path": "None",
-            "gens": [0,1],
-            "__comment__": ["gen", "all", "random", "limit_s", "limit", "limit_e"],
-            "mode": "gen"
+            "path": "?",
+            "gens": 1,
+            "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
+            "mode": "gen",
+            "freq": 1
         }
     }
 }

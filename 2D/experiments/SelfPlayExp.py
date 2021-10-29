@@ -365,12 +365,13 @@ class SelfPlayTraining(SelfPlayExp):
                 num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
                 final_save_freq = agent_config["final_save_freq"]
                 heatmap_log_freq = agent_config["heatmap_log_freq"]
+                aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
                 
                 print("--------------------------------------------------------------")
-                print(f"Round: {round_num} -> HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
-                self.evalsave_callbacks[agent_name].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
+                # print(f"Round: {round_num} -> HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
+                # self.evalsave_callbacks[agent_name].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
                 
-                if(round_num%heatmap_log_freq == 0 or round_num==num_rounds-1):
+                if(aggregate_eval_matrix and round_num%heatmap_log_freq == 0 or round_num==num_rounds-1):
                     # Log intermediate results for the heatmap
                     evaluation_matrix = self.evalsave_callbacks[agent_name].evaluation_matrix
                     evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
@@ -378,7 +379,8 @@ class SelfPlayTraining(SelfPlayExp):
                         wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
                     wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=False)})
                     np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), evaluation_matrix)
-                    # TODO: save the evaluation matrix to wandb
+                    wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix")+".npy")
+                
                 if(round_num%final_save_freq == 0 or round_num==num_rounds-1):
                     # TODO: Change it to save the best model till now, not the latest (How to define the best model)
                     self.models[agent_name].save(os.path.join(self.log_dir, agent_name, "final_model"))
@@ -386,13 +388,30 @@ class SelfPlayTraining(SelfPlayExp):
 
         
         for j,agent_name in enumerate(agents_names_list):
+            agent_config = self.agents_configs[agent_name]
+            aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
+
+            if(not aggregate_eval_matrix):
+                agent_config = self.agents_configs[agent_name]
+                opponent_name = agent_config["opponent_name"]
+                num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
+                eval_matrix_testing_freq = agent_config["eval_matrix_testing_freq"]
+
+                self.evalsave_callbacks[agent_name].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq)
+                evaluation_matrix = self.evalsave_callbacks[agent_name].evaluation_matrix
+                evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
+                # One with text and other without (I kept the name in wandb just not to be a problem with previous experiments)
+                wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
+                wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=False)})
+
+                np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), evaluation_matrix)
+                wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix")+".npy")
+
             print(f"Post Evaluation for {agent_name}:")
             self.evalsave_callbacks[agent_name].post_eval(opponents_path=os.path.join(self.log_dir, self.agents_configs[agent_name]["opponent_name"]))
-
+            
             self.envs[agent_name].close()
             self.eval_envs[agent_name].close()
-
-
 
 class SelfPlayTesting(SelfPlayExp):
     def __init__(self, seed_value=None):
@@ -405,6 +424,7 @@ class SelfPlayTesting(SelfPlayExp):
 
     def _load_testing_conditions(self, path):
         self.testing_conditions = {}
+        self.testing_modes = {}
 
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
@@ -414,38 +434,104 @@ class SelfPlayTesting(SelfPlayExp):
             mode = testing_config["mode"]
 
             self.testing_conditions[agent_name] = {"path": agent_testing_path}
+            self.testing_modes[agent_name] = mode
 
             if(mode == "limit"):
-                self.testing_conditions[agent_name] = testing_config["gens"]
+                self.testing_conditions[agent_name] = [0, testing_config["gens"], testing_config["freq"]]
             # if the limit is that the start of the tested agents is that index and the end till the end
             elif(mode == "limit_s"):
-                self.testing_conditions[agent_name] = [testing_config["gens"], -1]
+                self.testing_conditions[agent_name] = [testing_config["gens"], -1, testing_config["freq"]]
             
             # if the limit is that the end of the tested agents is that index (including that index: in the for loop we will +1)
             elif(mode == "limit_e"):
-                self.testing_conditions[agent_name] = [0, testing_config["gens"]]
+                self.testing_conditions[agent_name] = [0, testing_config["gens"], testing_config["freq"]]
 
             elif(mode == "gen"):
-                self.testing_conditions[agent_name] = [testing_config["gens"], testing_config["gens"]]
+                self.testing_conditions[agent_name] = [testing_config["gens"], testing_config["gens"], testing_config["freq"]]
 
             elif(mode == "all"):
-                self.testing_conditions[agent_name] = [0, -1]
+                self.testing_conditions[agent_name] = [0, -1, testing_config["freq"]]
             
             elif(mode == "random"):
-                self.testing_conditions[agent_name] = [None, None]
+                self.testing_conditions[agent_name] = [None, None, testing_config["freq"]]
 
-    def _init_testing(self, experiment_filename, logdir, wandb, path):
+            elif(mode == "round"):  # The round of pred vs round of prey
+                self.testin_conditions[agent_name] = [None, None, testing_config["freq"]]
+
+
+    def _init_envs(self):
+        self.envs = {}
+
+        for k in self.agents_configs.keys():
+            agent_configs = self.agents_configs[k]
+            agent_name = agent_configs["name"]
+
+            self.envs[agent_name] = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None)
+            
+    def _init_callbacks(self, wandb=False):
+        self.evalsave_callbacks = {}
+        if(wandb):
+            self.wandb_callbacks = {}
+
+        for k in self.agents_configs.keys():
+            agent_configs = self.agents_configs[k]
+            agent_name = agent_configs["name"]
+            # Here the EvalSaveCallback is used the archive to save the model and sample the opponent for evaluation
+            self.evalsave_callbacks[agent_name] = EvalSaveCallback(eval_env=self.envs[agent_name],
+                                                    log_path=None,
+                                                    eval_freq=None,
+                                                    n_eval_episodes=None,
+                                                    deterministic=True,
+                                                    save_path=None,
+                                                    eval_metric=None,
+                                                    eval_opponent_selection=None,
+                                                    eval_sample_path=None,
+                                                    save_freq=None,
+                                                    archive={"self":None, "opponent":None},
+                                                    agent_name=agent_name,
+                                                    num_rounds=None)
+            self.evalsave_callbacks.OS = True
+
+            if(wandb):
+                self.wandb_callbacks[agent_name] = WandbCallback()
+    
+    def _init_models(self):
+        self.models = {}
+        for k in self.agents_configs.keys():
+            agent_configs = self.agents_configs[k]
+            agent_name = agent_configs["name"]
+            opponent_name = agent_configs["opponent_name"]
+
+
+        for k_idx in range(len(self.agents_configs.keys())):
+            agent_configs = self.agents_configs[k_idx]
+            agent_name = agent_configs["name"]
+            agent_testing_condition = self.testing_conditions[agent_name]
+            agent_testing_mode = self.testing_modes[agent_name]
+            for k_opponent_idx in range(k_idx, len(self.agents_configs.keys())):
+                opponent_configs = self.agents_configs[k_opponent_idx]
+                opponent_name = agent_configs["name"]
+                opponent_testing_condition = self.testing_conditions[opponent_name]
+                opponent_testing_mode = self.testing_modes[opponent_name]            
+
+
+    def _init_testing(self, experiment_filename, logdir, wandb):
         super(SelfPlayTesting, self)._init_exp(experiment_filename, logdir, wandb)
-        self._init_testing_conditions(path)
         self._load_testing_conditions(experiment_filename)
 
         self._init_envs()
+        self._init_callbacks(wandb)
         self._init_models()
+        # TODO: initializations
 
-        self._init_testing_configs()
 
-    def test(self, experiment_filename=None, logdir=False, wandb=False, path=None):
-        self._init_testing(experiment_filename=experiment_filename, logdir=logdir, wandb=wandb, path=path)
+
+    def test(self, experiment_filename=None, logdir=False, wandb=False):
+        self._init_testing(experiment_filename=experiment_filename, logdir=logdir, wandb=wandb)
+        for pair in self.testing_models_pairs:
+            agent = pair[0]
+            opponent = pair[1]
+            # TODO: evaluate
 
 
 

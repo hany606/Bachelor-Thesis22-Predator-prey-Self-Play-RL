@@ -152,7 +152,7 @@ def eval(log_dir):
     make_deterministic(SEED_VALUE)
 
     # --------------------------------------- Pred -------------------------------------------------------
-    pred_env_eval = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=None)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+    pred_env_eval = SelfPlayPredEnv(log_dir=log_dir, algorithm_class=PPO, archive=None, seed_val=3)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
     pred_env_eval._name = "Evaluation"
     pred_opponent_sample_path = os.path.join(log_dir, "prey")
     pred_model = PPO(pred_algorithm_config["policy"], pred_env_eval, 
@@ -177,7 +177,7 @@ def eval(log_dir):
     pred_evalsave_callback.OS = True
 
     # --------------------------------------- Prey -------------------------------------------------------
-    prey_env_eval = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=None)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
+    prey_env_eval = SelfPlayPreyEnv(log_dir=log_dir, algorithm_class=PPO, archive=None, seed_val=3)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPreyEnv()
     prey_env_eval._name = "Evaluation"
     prey_opponent_sample_path = os.path.join(log_dir, "pred")
     prey_model = PPO(prey_algorithm_config["policy"], prey_env_eval, 
@@ -244,7 +244,7 @@ if __name__=="__main__":
     experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
     prefix = "test-" # ""
     # LOG_DIR = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
-    LOG_DIR = "/home/hany606/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/test-save-SelfPlay1v1-Pred_Prey-v0-PPO-full-vel-09.21.2021_01.45.43/"
+    LOG_DIR = "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/working/save-SelfPlay1v1-Pred_Prey-v0-PPO-full-vel-07.30.2021_21.57.56"#"/home/hany606/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/test-save-SelfPlay1v1-Pred_Prey-v0-PPO-full-vel-09.21.2021_01.45.43/"
     wandb.tensorboard.patch(root_logdir=LOG_DIR)
     wandb.init(project="Behavioral-Learning-Thesis",
                group="self-play",

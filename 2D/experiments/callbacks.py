@@ -396,16 +396,17 @@ class EvalSaveCallback(EvalCallback):
             
 
     # Evaluate the whole matrix
-    def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=False, algorithm_class=None):
+    def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None, freq=1):
         models_names = None
+        deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
+        if(self.OS and (opponents_path is None or agents_path is None)):
+            raise ValueError("Wrong value for opponent/agent path")
 
         # self.evaluation_matrix.append([])
         # Evaluate the model and save it (+ Regular evaluation)
         # self._save_model()
         # Evaluate the current model vs all the previous opponents
         # Get the list of all the previous opponents
-        if(self.OS and (opponents_path is None or agents_path is None)):
-            raise ValueError("Wrong value for opponent/agent path")
 
         if(not self.OS):
             opponent_archive = self.opponent_archive.get_sorted("random")
@@ -418,9 +419,10 @@ class EvalSaveCallback(EvalCallback):
 
 
         self.evaluation_matrix = np.zeros((num_rounds, num_rounds))
-        for i in range(num_rounds):
+        for i in range(0, num_rounds, freq):
             startswith_keyword = f"{prefix}{i}_"
             agent_model = None
+            sampled_agent = None
 
             # Get 1st agent
             if(not self.OS):
@@ -437,7 +439,8 @@ class EvalSaveCallback(EvalCallback):
                 agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
 
 
-            for j in range(num_rounds):
+            for j in range(0, num_rounds, freq):
+                print("---------------")
                 print(f"Round: {i} vs {j}")
                 opponent_startswith_keyword = f"{prefix}{j}_"
                 sampled_opponent = None
@@ -451,6 +454,8 @@ class EvalSaveCallback(EvalCallback):
                     # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
                     sampled_opponent = os.path.join(opponents_path, utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword)[0])
 
+                print(f"Model {sampled_agent} vs {sampled_opponent}")
+
                 # Run evaluation n_eval_rep for each opponent
                 eval_model_list = [sampled_opponent]
                 # The current model vs the iterated model from the opponent (last opponent in each generation/round)
@@ -461,54 +466,9 @@ class EvalSaveCallback(EvalCallback):
                 # Add this matrix to __init__
                 # It will be redundent to have 2 matrices but it is fine
                 self.evaluation_matrix[i,j] = win_rate
+                print(f"win rate: {win_rate}")
+
         
-        # For each generation/round previous to the current generation/round and including this round
-        # for i in range(round_num+1):    # round_num+1 In order to include itself round
-        #     startswith_keyword = f"{prefix}{round_num}"
-        #     sampled_opponents = None            
-        #     if(not self.OS):
-        #         # if(len(models_names) == 0): Not possible as we are evaluating after training
-        #         sampled_opponents_startswith = utlst.get_startswith(models_names, startswith=startswith_keyword)
-        #         sampled_opponents = utlst.get_latest(sampled_opponents_startswith)[0]
-        #     else:
-        #         sampled_opponents_startswith = utos.get_startswith(self.eval_sample_path, startswith=startswith_keyword)
-        #         sampled_opponents = utos.get_latest(sampled_opponents_startswith)[0]
-
-        #     # Run evaluation n_eval_rep for each opponent
-        #     eval_model_list = [sampled_opponents]
-        #     # The current model vs the iterated model form the opponent (last opponent in each generation/round)
-        #     _, _, win_rate = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
-        #                                     deterministic=deterministic,
-        #                                     sampled_opponents=eval_model_list)
-        #     # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
-        #     # Add this matrix to __init__
-        #     # It will be redundent to have 2 matrices but it is fine
-        #     self.evaluation_matrix[-1].append(win_rate)
-
-            # --------------------- if each version in the generation/round of 1st agent vs each version in the generation of the 2nd agent ---------------------
-            # if(not self.OS):
-            #     # if(len(models_names) == 0): Not possible as we are evaluating after training
-            #     sampled_opponents = utlst.get_startswith(models_names, startswith=startswith_keyword)
-            # if(self.OS):
-            #     sampled_opponents = utos.get_startswith(self.eval_sample_path, startswith=startswith_keyword)
-            # For each model in the generation/round for opponent
-            # for opponent in sampled_opponents:
-            #     # For each model in the generation/round for self (the agent that I am evaluating)
-            #     for model in sampled_self:
-            #         eval_model_list = [opponent for j in range]
-            #         # To make it work, change this function to include model
-            #         _, _, win_rate = self._evaluate(model, n_eval_episodes=n_eval_rep,
-            #                                         deterministic=deterministic,
-            #                                         sampled_opponents=eval_model_list)
-            # ---------------------------------------------------------------------------------------------
-
-
-        # return self.eval
-        # Save result of this matrix to wandb as heatmap with the current sizes
-        # TODO
-        # Save the round number with the name of the agent in a list
-        # Save this list to a txt file -> This shows the generation/round number and the agent name 
-
     # This last agent
     # Post evaluate the model against all the opponents from opponents_path
     # TODO: enable retrieving the agents from the archive

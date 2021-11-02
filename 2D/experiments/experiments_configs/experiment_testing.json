@@ -104,16 +104,19 @@
         "__comment__": "TODO: Think about make it more general",
         "__comment1__": "Here it is the names of the agents not the keys",
         "pred":{
-            "path": "None",
-            "gens": [0,1],
-            "__comment__": ["gen", "all", "random", "limit_s", "limit", "limit_e"],
-            "mode": "gen"
+            "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46/pred",
+            "gens": 0,
+            "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
+            "__comment2__": "round parameter does not care about the gens parameter",
+            "mode": "round",
+            "freq": 1
         },
         "prey":{
-            "path": "None",
-            "gens": [0,1],
-            "__comment__": ["gen", "all", "random", "limit_s", "limit", "limit_e"],
-            "mode": "gen"
+            "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46/prey",
+            "gens": 0,
+            "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
+            "mode": "round",
+            "freq": 1
         }
     }
 }

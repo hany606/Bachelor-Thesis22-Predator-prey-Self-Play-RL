@@ -163,7 +163,7 @@ class EvalSaveCallback(EvalCallback):
                               )
 
     def _evaluate_policy_core(self, logger_prefix, n_eval_episodes, deterministic, sampled_opponents, override=False) -> bool:
-        episode_rewards, episode_lengths, win_rate, std_win_rate = self._evaluate(self.model, n_eval_episodes, deterministic, sampled_opponents)
+        episode_rewards, episode_lengths, win_rate, std_win_rate, _ = self._evaluate(self.model, n_eval_episodes, deterministic, sampled_opponents)
 
         if self.log_path is not None:
             self.evaluations_timesteps.append(self.num_timesteps)
@@ -339,7 +339,7 @@ class EvalSaveCallback(EvalCallback):
             eval_model_list = [sampled_opponent]
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
             # TODO: it is possible to change this agent_model to self.model as they are the same in this loop
-            _, _, win_rate, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+            _, _, win_rate, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
@@ -387,7 +387,7 @@ class EvalSaveCallback(EvalCallback):
             print(f"Model {sampled_agent} vs {sampled_opponent}")
             # Run evaluation n_eval_rep for each opponent
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-            _, _, win_rate, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+            _, _, win_rate, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
@@ -417,9 +417,10 @@ class EvalSaveCallback(EvalCallback):
         else:
             self.eval_env.set_attr("OS", True)
 
-
-        self.evaluation_matrix = np.zeros((num_rounds, num_rounds))
-        for i in range(0, num_rounds, freq):
+        agent_axis = [h for h in range(0, num_rounds, freq)]
+        opponent_axis = [h for h in range(0, num_rounds, freq)]
+        self.evaluation_matrix = np.zeros((int(num_rounds/freq), int(num_rounds/freq)))
+        for i in range(0, int(num_rounds/freq)):#, freq):
             startswith_keyword = f"{prefix}{i}_"
             agent_model = None
             sampled_agent = None
@@ -438,8 +439,7 @@ class EvalSaveCallback(EvalCallback):
                 sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
                 agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
 
-
-            for j in range(0, num_rounds, freq):
+            for j in range(0, int(num_rounds/freq)):
                 print("---------------")
                 print(f"Round: {i} vs {j}")
                 opponent_startswith_keyword = f"{prefix}{j}_"
@@ -459,7 +459,7 @@ class EvalSaveCallback(EvalCallback):
                 # Run evaluation n_eval_rep for each opponent
                 eval_model_list = [sampled_opponent]
                 # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-                _, _, win_rate, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+                _, _, win_rate, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                                 deterministic=deterministic,
                                                 sampled_opponents=eval_model_list)
                 # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
@@ -468,7 +468,7 @@ class EvalSaveCallback(EvalCallback):
                 self.evaluation_matrix[i,j] = win_rate
                 print(f"win rate: {win_rate}")
 
-        
+        return [agent_axis, opponent_axis]
     # This last agent
     # Post evaluate the model against all the opponents from opponents_path
     # TODO: enable retrieving the agents from the archive
@@ -484,7 +484,7 @@ class EvalSaveCallback(EvalCallback):
             eval_model_list = [o for _ in range(n_eval_rep)]
             # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
             # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
-            _, _, win_rate, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
+            _, _, win_rate, _, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             evaluation_result = win_rate

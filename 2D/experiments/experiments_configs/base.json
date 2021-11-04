@@ -109,14 +109,14 @@
             "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
             "__comment2__": "round parameter does not care about the gens parameter",
             "mode": "round",
-            "freq": 5
+            "freq": 1
         },
         "prey":{
             "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46/prey",
             "gens": 0,
             "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
             "mode": "round",
-            "freq": 5
+            "freq": 1
         }
     }
 }

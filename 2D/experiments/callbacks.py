@@ -100,6 +100,7 @@ class EvalSaveCallback(EvalCallback):
         self.opponent_archive = kwargs["archive"]["opponent"]  # pass it by reference
         self.agent_name = kwargs["agent_name"]
         self.num_rounds = kwargs["num_rounds"]
+        self.seed_value = kwargs["seed_value"]
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
@@ -116,6 +117,7 @@ class EvalSaveCallback(EvalCallback):
         del kwargs["save_freq"]
         del kwargs["agent_name"]
         del kwargs["num_rounds"]
+        del kwargs["seed_value"]
         # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
@@ -284,6 +286,7 @@ class EvalSaveCallback(EvalCallback):
         super(EvalSaveCallback, self)._on_training_end()
 
     # TODO: Add a feature that it will use the correct sorted from the archive if the metric for the archive is steps!
+    # Deprecated
     def compute_eval_matrix_aggregate(self, prefix, round_num, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None):
         models_names = None
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
@@ -417,11 +420,17 @@ class EvalSaveCallback(EvalCallback):
         else:
             self.eval_env.set_attr("OS", True)
 
-        dim = num_rounds//freq+1
+        # dim = num_rounds//freq+1
         agent_axis = [i for i in range(0, num_rounds, freq)]
         opponent_axis = [i for i in range(0, num_rounds, freq)]
-        self.evaluation_matrix = np.zeros((dim, dim))
-        for i in range(0, dim): #, freq):
+        # Enforce doing evaluation for the last generation
+        if(agent_axis[-1] != num_rounds-1):
+            agent_axis.append(num_rounds-1)
+        if(opponent_axis[-1] != num_rounds-1):
+            opponent_axis.append(num_rounds-1)
+        self.evaluation_matrix = np.zeros((len(agent_axis), len(opponent_axis)))
+        # Enumerate in order to correctly place in the matrix
+        for ei, i in enumerate(agent_axis): #, freq):
             startswith_keyword = f"{prefix}{i}_"
             agent_model = None
             sampled_agent = None
@@ -440,8 +449,10 @@ class EvalSaveCallback(EvalCallback):
                 sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
                 agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
 
-            for j in range(0, int(num_rounds/freq)):
+            for ej, j in enumerate(opponent_axis):
                 print("---------------")
+                # This is made in order to make different generatations evaluations affect the others
+                make_deterministic(seed_value=self.seed_value, cuda_check=False)
                 print(f"Round: {i} vs {j}")
                 opponent_startswith_keyword = f"{prefix}{j}_"
                 sampled_opponent = None
@@ -466,7 +477,7 @@ class EvalSaveCallback(EvalCallback):
                 # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
                 # Add this matrix to __init__
                 # It will be redundent to have 2 matrices but it is fine
-                self.evaluation_matrix[i,j] = win_rate
+                self.evaluation_matrix[ei, ej] = win_rate
                 print(f"win rate: {win_rate}")
 
         return [agent_axis, opponent_axis]
@@ -482,6 +493,7 @@ class EvalSaveCallback(EvalCallback):
         self.eval_env.set_attr("OS", True)
         self.OS = True
         for i, o in enumerate(opponents_models_path):
+            make_deterministic(seed_value=self.seed_value, cuda_check=False)
             eval_model_list = [o for _ in range(n_eval_rep)]
             # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
             # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better

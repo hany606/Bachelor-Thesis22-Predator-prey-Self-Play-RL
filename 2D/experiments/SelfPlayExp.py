@@ -83,32 +83,11 @@ class SelfPlayExp:
         self.log_dir = None
 
     def _check_cuda(self):
-        # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
-        if torch.cuda.is_available():
-            print("## CUDA available")
-            print(f"Current device: {torch.cuda.current_device()}")
-            print(f"Device name: {torch.cuda.get_device_name(torch.cuda.current_device())}")
-            return 1
-        else:
-            print("## CUDA not available")
-            return 0
+        check_cuda()
 
-    # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
-    def make_deterministic(self):
-        seed = self.seed_value
-        np.random.seed(seed)
-        torch.manual_seed(seed)
-        random.seed(seed)
-        cuda_flag = self._check_cuda()
-        if(cuda_flag):
-            # see https://github.com/pytorch/pytorch/issues/47672
-            cuda_version = torch.version.cuda
-            if cuda_version is not None and float(torch.version.cuda) >= 10.2:
-                os.environ['CUBLAS_WORKSPACE_CONFIG'] = '4096:8'
-            else:
-                torch.set_deterministic(True)  # Not all Operations support this.
-            # This is only for Convolution no problem
-            torch.backends.cudnn.deterministic = True
+    def make_deterministic(self, seed_value=None, cuda_check=True):
+        seed = self.seed_value if seed_value is None else seed_value
+        make_deterministic(seed, cuda_check=cuda_check)
 
     def _init_argparse(self, description, help):
         parser = argparse.ArgumentParser(description=description)
@@ -304,7 +283,8 @@ class SelfPlayTraining(SelfPlayExp):
                                                     save_freq=int(agent_configs["save_freq"]),
                                                     archive={"self":self.archives[agent_name], "opponent":self.archives[opponent_name]},
                                                     agent_name=agent_name,
-                                                    num_rounds=self.experiment_configs["num_rounds"])
+                                                    num_rounds=self.experiment_configs["num_rounds"],
+                                                    seed_value=self.seed_value)
 
             # Here the TrainingOpponentSelectionCallback is used the archive to sample the opponent for training
             # The name here pred_oppoenent -> the opponent of the predator
@@ -440,13 +420,14 @@ class SelfPlayTraining(SelfPlayExp):
             self.eval_envs[agent_name].close()
             
 class SelfPlayTesting(SelfPlayExp):
-    def __init__(self, seed_value=None):
+    def __init__(self, seed_value=None, render_sleep_time=0.01):
         super(SelfPlayTesting, self).__init__()
         self.seed_value = seed_value
         self.load_prefix = "history_"
         self.render = True
         self.deterministic = True
         self.warn = True
+        self.render_sleep_time = render_sleep_time
 
     def _init_argparse(self):
         super(SelfPlayTesting, self)._init_argparse(description='Self-play experiment testing script', help='The experiemnt configuration file path and name which the experiment should be loaded')
@@ -532,21 +513,25 @@ class SelfPlayTesting(SelfPlayExp):
         super(SelfPlayTesting, self)._init_exp(experiment_filename, logdir, wandb)
         print(f"----- Load testing conditions")
         self._load_testing_conditions(experiment_filename)
-        print(f"----- Initialize environments")
-        self._init_envs()
-        print(f"----- Initialize models")
-        self._init_models()
+        # print(f"----- Initialize environments")
+        # self._init_envs()
+        # print(f"----- Initialize models")
+        # self._init_models()
 
     def render_callback(self, ret):
-        if(ret == 1):
-            return -1
+        # if(ret == 1):
+        #     return -1
         return ret
 
     def _test_round_by_round(self, key, n_eval_episodes):
         agent_configs = self.agents_configs[key]
         agent_name = agent_configs["name"]
         opponent_name = agent_configs["opponent_name"]
+        # TODO: debug why if we did not do this (redefine the env again) it does not work properly for the rendering
+        # self.envs[agent_name] = super(SelfPlayTesting, self).create_env(key=key, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
         for round_num in range(0, self.experiment_configs["num_rounds"], self.testing_conditions[agent_name]["limits"][2]):
+            print("----------------------------------------")
+            self.make_deterministic(cuda_check=False)   # This was added as we observed that previous rounds affect the other rounds
             startswith_keyword = f"{self.load_prefix}{round_num}_"
             # 1. fetch the agent
             agent_latest = utos.get_latest(self.testing_conditions[agent_name]["path"], startswith=startswith_keyword)
@@ -554,9 +539,9 @@ class SelfPlayTesting(SelfPlayExp):
                 continue
             sampled_agent = os.path.join(self.testing_conditions[agent_name]["path"], agent_latest[0])  # Join it with the agent path
             # 2. load to the model
-            agent_model = self.models[agent_name].load(sampled_agent, self.envs[agent_name])
             # TODO: debug why if we did not do this (redefine the env again) it does not work properly for the rendering
-            self.envs[agent_name] = super(SelfPlayTesting, self).create_env(key=key, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
+            env = super(SelfPlayTesting, self).create_env(key=key, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
+            agent_model = PPOMod.load(sampled_agent, env)
             # 3. fetch the opponent
             opponent_latest = utos.get_latest(self.testing_conditions[opponent_name]["path"], startswith=startswith_keyword)
             if(len(opponent_latest) == 0):
@@ -566,7 +551,7 @@ class SelfPlayTesting(SelfPlayExp):
             sampled_opponents = [sampled_opponent]
             mean_reward, std_reward, win_rate, std_win_rate, render_ret = evaluate_policy_simple(
                                                                                                     agent_model,
-                                                                                                    self.envs[agent_name],
+                                                                                                    env,
                                                                                                     n_eval_episodes=n_eval_episodes,
                                                                                                     render=self.render,
                                                                                                     deterministic=self.deterministic,
@@ -576,11 +561,11 @@ class SelfPlayTesting(SelfPlayExp):
                                                                                                     sampled_opponents=sampled_opponents,
                                                                                                     render_extra_info=f"{round_num} vs {round_num}",
                                                                                                     render_callback=self.render_callback,
-                                                                                                    sleep_time=0.0001, #0.1,
+                                                                                                    sleep_time=self.render_sleep_time, #0.1,
                                                                                                 )
 
             print(f"{round_num} vs {round_num} -> win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}\trewards: {mean_reward:.2f} +/- {std_reward:.2f}")
-
+            env.close()
     def _test_different_rounds(self, key, n_eval_episodes):
         # TODO: for random
         agent_configs = self.agents_configs[key]

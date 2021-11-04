@@ -63,6 +63,7 @@ class PPOMod(PPO):
 
     # To fix issue while loading when loading from different versions of pickle and python from the server and the local machine
     # https://stackoverflow.com/questions/63329657/python-3-7-error-unsupported-pickle-protocol-5
+    @staticmethod
     def load(model_path, env):
         custom_objects = {
             "lr_schedule": lambda x: .003,
@@ -195,12 +196,12 @@ class SelfPlayExp:
 
         self.make_deterministic()
     
-    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None):
+    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None, seed_value=None):
+        seed_value = self.seed_value if seed_value is None else seed_value
         agent_configs = self.agents_configs[key]
         env_class_name = agent_configs["env_class"]
-
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
-        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=self.seed_value)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
         env._name = name
         return env
 
@@ -496,8 +497,8 @@ class SelfPlayTesting(SelfPlayExp):
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
-
-            env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None)
+            # env = globals()["SelfPlayPredEnv"](algorithm_class=PPOMod, archive=None, seed_val=3)
+            env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
             # if not isinstance(env, VecEnv):
             #     env = DummyVecEnv([lambda: env])
 
@@ -514,7 +515,7 @@ class SelfPlayTesting(SelfPlayExp):
             agent_name = agent_configs["name"]
 
             self.models[agent_name] = PPOMod
-            # (  agent_configs["policy"], 
+            # (agent_configs["policy"], 
             #                                 self.envs[agent_name],
             #                                 clip_range=agent_configs["clip_range"], 
             #                                 ent_coef=agent_configs["ent_coef"],
@@ -522,20 +523,24 @@ class SelfPlayTesting(SelfPlayExp):
             #                                 batch_size=agent_configs["batch_size"],
             #                                 gamma=agent_configs["gamma"], 
             #                                 verbose=2,
-            #                                 tensorboard_log=os.path.join(self.log_dir,agent_name),
+            #                                 # tensorboard_log=os.path.join(self.log_dir,agent_name),
             #                                 n_epochs=agent_configs["n_epochs"]
             #                             )     
 
 
     def _init_testing(self, experiment_filename, logdir, wandb):
         super(SelfPlayTesting, self)._init_exp(experiment_filename, logdir, wandb)
+        print(f"----- Load testing conditions")
         self._load_testing_conditions(experiment_filename)
-
+        print(f"----- Initialize environments")
         self._init_envs()
+        print(f"----- Initialize models")
         self._init_models()
 
     def render_callback(self, ret):
-        return -1
+        if(ret == 1):
+            return -1
+        return ret
 
     def _test_round_by_round(self, key, n_eval_episodes):
         agent_configs = self.agents_configs[key]
@@ -549,7 +554,9 @@ class SelfPlayTesting(SelfPlayExp):
                 continue
             sampled_agent = os.path.join(self.testing_conditions[agent_name]["path"], agent_latest[0])  # Join it with the agent path
             # 2. load to the model
-            agent_model = self.models[agent_name].load(sampled_agent, env=self.envs[agent_name])
+            agent_model = self.models[agent_name].load(sampled_agent, self.envs[agent_name])
+            # TODO: debug why if we did not do this (redefine the env again) it does not work properly for the rendering
+            self.envs[agent_name] = super(SelfPlayTesting, self).create_env(key=key, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
             # 3. fetch the opponent
             opponent_latest = utos.get_latest(self.testing_conditions[opponent_name]["path"], startswith=startswith_keyword)
             if(len(opponent_latest) == 0):
@@ -569,10 +576,11 @@ class SelfPlayTesting(SelfPlayExp):
                                                                                                     sampled_opponents=sampled_opponents,
                                                                                                     render_extra_info=f"{round_num} vs {round_num}",
                                                                                                     render_callback=self.render_callback,
+                                                                                                    sleep_time=0.0001, #0.1,
                                                                                                 )
 
             print(f"{round_num} vs {round_num} -> win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}\trewards: {mean_reward:.2f} +/- {std_reward:.2f}")
-            
+
     def _test_different_rounds(self, key, n_eval_episodes):
         # TODO: for random
         agent_configs = self.agents_configs[key]
@@ -586,7 +594,7 @@ class SelfPlayTesting(SelfPlayExp):
                 continue
             sampled_agent = os.path.join(self.testing_conditions[agent_name]["path"], agent_latest[0])  # Join it with the agent path
             # 2. load to the model
-            agent_model = self.models[agent_name].load(sampled_agent, env=self.envs[agent_name])
+            agent_model = self.models[agent_name].load(sampled_agent, self.envs[agent_name])
             for j in range(self.testing_conditions[opponent_name]["limits"][0], self.testing_conditions[opponent_name]["limits"][1]+1, self.testing_conditions[opponent_name]["limits"][2]):
                 opponent_startswith_keyword = f"{self.load_prefix}{j}_"
                 # 3. fetch the opponent

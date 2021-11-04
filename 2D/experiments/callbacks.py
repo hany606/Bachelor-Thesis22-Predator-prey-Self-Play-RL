@@ -417,10 +417,11 @@ class EvalSaveCallback(EvalCallback):
         else:
             self.eval_env.set_attr("OS", True)
 
-        agent_axis = [h for h in range(0, num_rounds, freq)]
-        opponent_axis = [h for h in range(0, num_rounds, freq)]
-        self.evaluation_matrix = np.zeros((int(num_rounds/freq), int(num_rounds/freq)))
-        for i in range(0, int(num_rounds/freq)):#, freq):
+        dim = num_rounds//freq+1
+        agent_axis = [i for i in range(0, num_rounds, freq)]
+        opponent_axis = [i for i in range(0, num_rounds, freq)]
+        self.evaluation_matrix = np.zeros((dim, dim))
+        for i in range(0, dim): #, freq):
             startswith_keyword = f"{prefix}{i}_"
             agent_model = None
             sampled_agent = None

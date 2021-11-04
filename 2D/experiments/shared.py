@@ -6,7 +6,7 @@ import gym
 from stable_baselines3.common import base_class
 from copy import deepcopy
 import warnings
-
+from time import sleep
 
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/dummy_vec_env.py
 # Only used for evaluation not training envs
@@ -69,7 +69,7 @@ def evaluate_policy(
     sampled_opponents = None,
     render_extra_info = None,
     render_callback = None,
-    ) -> Union[Tuple[float, float, float], Tuple[List[float], List[int], List[float]]]:
+    ):
     """
     Runs policy for ``n_eval_episodes`` episodes and returns average reward.
     If a vector env is passed in, this divides the episodes to evaluate onto the
@@ -211,7 +211,7 @@ def evaluate_policy(
 
 def evaluate_policy_simple(
     model: "base_class.BaseAlgorithm",
-    env: Union[gym.Env, VecEnv],
+    env,#: Union[gym.Env, VecEnv],
     n_eval_episodes: int = 10,
     deterministic: bool = True,
     render: bool = False,
@@ -222,7 +222,8 @@ def evaluate_policy_simple(
     sampled_opponents = None,
     render_extra_info = None,
     render_callback = None,
-    ) -> Union[Tuple[float, float, float], Tuple[List[float], List[int], List[float]]]:
+    sleep_time=0.0001,
+    ):
     """
     Runs policy for ``n_eval_episodes`` episodes and returns average reward.
     If a vector env is passed in, this divides the episodes to evaluate onto the
@@ -265,36 +266,42 @@ def evaluate_policy_simple(
 
     current_rewards = np.zeros(n_envs)
     current_lengths = np.zeros(n_envs, dtype="int")
-    env.target_opponent_policy_filename =  sampled_opponents[0]
+    env.set_target_opponent_policy_filename(sampled_opponents[0])
+
     # print(f"Load evaluation models for {n_envs} vectorized env")
+    env.seed(3)
     observations = env.reset()
     state = None
     # print("Evaluation started --------------------")
-    for i in range(n_envs):
+    # for i in range(n_envs):
+    done = False
+    while not done:
         action, state = model.predict(observations, state=state, deterministic=deterministic)
+        # action = env.action_space.sample()
+        # print(action)
         observation, reward, done, info = env.step(action)
-        current_rewards += reward
-        current_lengths += 1
 
-        if done: 
+        # print(observation, reward, done, info)
+        episode_rewards.append(reward)
+        episode_lengths.append(1)
+
+        if ((isinstance(done, dict) and done["__all__"]) or (isinstance(done, bool) and done)):
             if(int(info["win"]) > 0):
                 # win_rate[i] += 1
                 win_rates.append(1)
             else:
                 win_rates.append(0)
-
-                episode_rewards.append(current_rewards[i])
-                episode_lengths.append(current_lengths[i])
-            current_rewards[i] = 0
-            current_lengths[i] = 0
-            if state is not None:
-                state *= 0
-
         if render:
             render_ret = env.render(extra_info=render_extra_info)
+            sleep(sleep_time)
             if(render_callback is not None):
                 render_ret = render_callback(render_ret)
-                if(render_ret == -1):
+                if(render_ret == 2):
+                    sleep_time /=10
+                elif(render_ret == 3):
+                    sleep_time *= 10
+                elif(render_ret == -1):
+                    win_rates.append(0)
                     break 
 
     mean_reward = np.mean(episode_rewards)

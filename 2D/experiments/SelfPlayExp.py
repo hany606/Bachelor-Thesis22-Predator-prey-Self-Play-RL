@@ -108,11 +108,11 @@ class SelfPlayExp:
         print("-----------------------------------------------")
 
     def _generate_log_dir(self, dir_postfix):
-        experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
+        self.experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
         prefix = self.experiment_configs["experiment_log_prefix"] # ""
         env_name = self.experiment_configs["env"]
         # log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
-        log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results-{dir_postfix}/{prefix}save-' + env_name + '-' + experiment_id
+        log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results-{dir_postfix}/{prefix}save-' + env_name + '-' + self.experiment_id
         return log_dir
 
     def _init_log_files(self):
@@ -129,7 +129,8 @@ class SelfPlayExp:
                                    "agents"    : self.agents_configs,
                                    "evaluation": self.evaluation_configs,
                                    "testing": self.testing_configs,
-                                   "log_dir": self.log_dir
+                                   "log_dir": self.log_dir,
+                                   "experiment_id": self.experiment_id
                                    }
         wandb.tensorboard.patch(root_logdir=self.log_dir)
         wandb.init(
@@ -144,7 +145,7 @@ class SelfPlayExp:
         )
 
         experiment_name = self.experiment_configs["experiment_name"]
-        wandb.run.name = wandb.run.name + experiment_name
+        wandb.run.name = wandb.run.name + experiment_name + self.experiment_id
         wandb.run.save()
         wandb.save(self.experiment_filename)
         wandb.save("SelfPlayExp.py")

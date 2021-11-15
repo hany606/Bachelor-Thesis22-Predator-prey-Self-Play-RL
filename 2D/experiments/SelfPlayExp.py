@@ -145,7 +145,7 @@ class SelfPlayExp:
         )
 
         experiment_name = self.experiment_configs["experiment_name"]
-        wandb.run.name = wandb.run.name + experiment_name + self.experiment_id
+        wandb.run.name = wandb.run.name + experiment_name + "-" + self.experiment_id
         wandb.run.save()
         wandb.save(self.experiment_filename)
         wandb.save("SelfPlayExp.py")
@@ -179,10 +179,11 @@ class SelfPlayExp:
     def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None, seed_value=None):
         seed_value = self.seed_value if seed_value is None else seed_value
         agent_configs = self.agents_configs[key]
+        agent_name = agent_configs["name"]
         env_class_name = agent_configs["env_class"]
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
         env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
-        env._name = name
+        env._name = name+f"-({agent_name})"
         return env
 
     def _init_env(self):

@@ -20,10 +20,17 @@ def alphanum_key(s):
     return [ trynum(c) for c in re.split('([0-9]+)', s) ]
 
 def steps_key(s):
-    return [trynum(c) for c in re.split('(_s_)', s)][-1]
+    return [trynum(c) for c in re.split('(_s_(.*)_p_)', s)][-2]
+
+def population_key(s):
+    return [trynum(c) for c in re.split('(_p_)', s)][-1]
+    # return [trynum(c) for c in re.split('(_p_(.*)_c_)', s)][-2]
+
+# Not used for now
+def checkpoitn_key(s):
+    return [trynum(c) for c in re.split('(_c_)', s)][-1]
 
 def metric_key(s):
-    #return [tryint(c) for c in re.split('(_s_)', re.split('(_m_)', s)[-1])][0]
     return [trynum(c) for c in re.split('(_m_(.*)_s_)', s)][-2]
 
 def _sort(l, sorting_key):
@@ -75,4 +82,17 @@ def insertion_sorted_metric(l, e):
     return _insertion_sort(l, e, metric_key)
 # --------------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------------
+# Sort based on th metric in the file name
+# Search for _m_ in the path and order using after it till the othe _ (_m_<....>_)
+# e.g. ["history_1_winrate_m_0.53_s_565_p_0", "history_1_winrate_m_0.8_s_562_p_1"] -> ['history_1_winrate_m_0.53_s_565_p_0', 'history_1_winrate_m_0.8_s_562_p_1']
+def sort_population(l):
+    return _sort(l, population_key)
+def insertion_sorted_population(l, e):
+    return _insertion_sort(l, e, population_key)
+# --------------------------------------------------------------------------------
 
+
+if __name__ == '__main__':
+    l = ["history_1_winrate_m_0.53_s_565_p_0_c_1", "history_1_winrate_m_0.8_s_562_p_1_c_1"]#, "history_2_winrate_m_0.59_s_562_p_1", "history_4_winrate_m_0.56_s_563_p_1", "history_3_winrate_m_0.15_s_567_p_1"]
+    print(_sort(l, population_key))

@@ -37,7 +37,7 @@ import torch
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv, VecVideoRecorder
 from stable_baselines3 import PPO
-from stable_baselines3.common import callbacks, logger
+from stable_baselines3.common import logger
 
 # from bach_utils.archive import Archive
 from archive import ArchiveSB3 as Archive
@@ -54,25 +54,6 @@ from wandb.integration.sb3 import WandbCallback
 import wandb
 
 from bach_utils.json_parser import ExperimentParser
-from shared import *
-from copy import deepcopy
-import bach_utils.os as utos
-
-
-# This is a modified PPO to tackle problem related of loading from different version of pickle than it was saved with
-class PPOMod(PPO):
-    def __init__(self, *args, **kwargs):
-        super(PPOMod, self).__init__(*args, **kwargs)
-
-    # To fix issue while loading when loading from different versions of pickle and python from the server and the local machine
-    # https://stackoverflow.com/questions/63329657/python-3-7-error-unsupported-pickle-protocol-5
-    @staticmethod
-    def load(model_path, env):
-        custom_objects = {
-            "lr_schedule": lambda x: .003,
-            "clip_range": lambda x: .02
-        }
-        return PPO.load(model_path, env, custom_objects=custom_objects)
 
 class SelfPlayExp:
     def __init__(self):
@@ -83,14 +64,35 @@ class SelfPlayExp:
         self.evaluation_configs = None
         self.testing_configs = None
         self.seed_value = None
-        self.log_dir = None
+        self.logdir = None
 
     def _check_cuda(self):
-        check_cuda()
+        # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
+        if torch.cuda.is_available():
+            print("## CUDA available")
+            print(f"Current device: {torch.cuda.current_device()}")
+            print(f"Device name: {torch.cuda.get_device_name(torch.cuda.current_device())}")
+            return 1
+        else:
+            print("## CUDA not available")
+            return 0
 
-    def make_deterministic(self, seed_value=None, cuda_check=True):
-        seed = self.seed_value if seed_value is None else seed_value
-        make_deterministic(seed, cuda_check=cuda_check)
+    # Source: https://github.com/rlturkiye/flying-cavalry/blob/main/rllib/main.py
+    def make_deterministic(self):
+        seed = self.seed_value
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        random.seed(seed)
+        cuda_flag = self._check_cuda()
+        if(cuda_flag):
+            # see https://github.com/pytorch/pytorch/issues/47672
+            cuda_version = torch.version.cuda
+            if cuda_version is not None and float(torch.version.cuda) >= 10.2:
+                os.environ['CUBLAS_WORKSPACE_CONFIG'] = '4096:8'
+            else:
+                torch.set_deterministic(True)  # Not all Operations support this.
+            # This is only for Convolution no problem
+            torch.backends.cudnn.deterministic = True
 
     def _init_argparse(self, description, help):
         parser = argparse.ArgumentParser(description=description)
@@ -111,11 +113,11 @@ class SelfPlayExp:
         print("-----------------------------------------------")
 
     def _generate_log_dir(self, dir_postfix):
-        self.experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
+        experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
         prefix = self.experiment_configs["experiment_log_prefix"] # ""
         env_name = self.experiment_configs["env"]
         # log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
-        log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results-{dir_postfix}/{prefix}save-' + env_name + '-' + self.experiment_id
+        log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results-{dir_postfix}/{prefix}save-' + env_name + '-' + experiment_id
         return log_dir
 
     def _init_log_files(self):
@@ -130,10 +132,7 @@ class SelfPlayExp:
     def _init_wandb(self):
         wandb_experiment_config = {"experiment": self.experiment_configs,
                                    "agents"    : self.agents_configs,
-                                   "evaluation": self.evaluation_configs,
-                                   "testing": self.testing_configs,
-                                   "log_dir": self.log_dir,
-                                   "experiment_id": self.experiment_id
+                                   "evaluation": self.evaluation_configs
                                    }
         wandb.tensorboard.patch(root_logdir=self.log_dir)
         wandb.init(
@@ -148,13 +147,13 @@ class SelfPlayExp:
         )
 
         experiment_name = self.experiment_configs["experiment_name"]
-        wandb.run.name = wandb.run.name + experiment_name + "-" + self.experiment_id
+        wandb.run.name = wandb.run.name + experiment_name
         wandb.run.save()
         wandb.save(self.experiment_filename)
         wandb.save("SelfPlayExp.py")
         wandb.save("callbacks.py")
-        if(self.log_dir is not None):
-            wandb.save(self.log_dir)
+        if(self.logdir is not None):
+            wandb.save(self.logdir)
 
 
     def _init_exp(self, experiment_filename, logdir, wandb):
@@ -179,21 +178,14 @@ class SelfPlayExp:
 
         self.make_deterministic()
     
-    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None, seed_value=None):
-        seed_value = self.seed_value if seed_value is None else seed_value
+    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None):
         agent_configs = self.agents_configs[key]
-        agent_name = agent_configs["name"]
         env_class_name = agent_configs["env_class"]
+
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
-        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
-        env._name = name+f"-({agent_name})"
+        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=self.seed_value)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+        env._name = name
         return env
-
-    def _init_env(self):
-        raise NotImplementedError("Initialization for environment is not implemented")
-
-    def _init_models(self):
-        raise NotImplementedError("Initialization for models is not implemented")
 
 # TODO: Should I do different classes?
 # Here the class is for the whole experiment (train, evaluation(heatmaps, plots, ...etc), test (rendering))
@@ -244,32 +236,27 @@ class SelfPlayTraining(SelfPlayExp):
 
     def _init_models(self):
         self.models = {}
-        population_size = self.experiment_configs["population_size"]    # population here has a shared archive
+
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
-            self.models[agent_name] = []
 
-            for population_num in range(population_size):
-                self.models[agent_name].append( PPO(agent_configs["policy"], 
-                                                    self.envs[agent_name],
-                                                    clip_range=agent_configs["clip_range"], 
-                                                    ent_coef=agent_configs["ent_coef"],
-                                                    learning_rate=agent_configs["lr"], 
-                                                    batch_size=agent_configs["batch_size"],
-                                                    gamma=agent_configs["gamma"], 
-                                                    verbose=2,
-                                                    tensorboard_log=os.path.join(self.log_dir,agent_name),
-                                                    n_epochs=agent_configs["n_epochs"]
-                                                   )
-                                             )
+            self.models[agent_name] = PPO(  agent_configs["policy"], 
+                                            self.envs[agent_name],
+                                            clip_range=agent_configs["clip_range"], 
+                                            ent_coef=agent_configs["ent_coef"],
+                                            learning_rate=agent_configs["lr"], 
+                                            batch_size=agent_configs["batch_size"],
+                                            gamma=agent_configs["gamma"], 
+                                            verbose=2,
+                                            tensorboard_log=os.path.join(self.log_dir,agent_name),
+                                            n_epochs=agent_configs["n_epochs"]
+                                        )
     
     def _init_callbacks(self):
         self.opponent_selection_callbacks = {}
         self.evalsave_callbacks = {}
         self.wandb_callbacks = {}
-        population_size = self.experiment_configs["population_size"]    # population here has a shared archive
-        self.evalsave_callbacks_master_idx = population_size - 1
 
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
@@ -279,28 +266,21 @@ class SelfPlayTraining(SelfPlayExp):
             opponent_sample_path = os.path.join(self.log_dir, opponent_name)
             agent_path = os.path.join(self.log_dir, agent_name)
             
-            self.evalsave_callbacks[agent_name] = []
-            for population_num in range(population_size):
-                enable_evaluation_matrix = (population_num == self.evalsave_callbacks_master_idx)
-                # Here the EvalSaveCallback is used the archive to save the model and sample the opponent for evaluation
-                self.evalsave_callbacks[agent_name].append(
-                                                            EvalSaveCallback(eval_env=self.eval_envs[agent_name],
-                                                                            log_path=agent_path,
-                                                                            eval_freq=int(agent_configs["eval_freq"]),
-                                                                            n_eval_episodes=agent_configs["num_eval_episodes"],
-                                                                            deterministic=True,
-                                                                            save_path=agent_path,
-                                                                            eval_metric=agent_configs["eval_metric"],
-                                                                            eval_opponent_selection=agent_configs["eval_opponent_selection"],
-                                                                            eval_sample_path=opponent_sample_path,
-                                                                            save_freq=int(agent_configs["save_freq"]),
-                                                                            archive={"self":self.archives[agent_name], "opponent":self.archives[opponent_name]},
-                                                                            agent_name=agent_name,
-                                                                            num_rounds=self.experiment_configs["num_rounds"],
-                                                                            seed_value=self.seed_value,
-                                                                            enable_evaluation_matrix=enable_evaluation_matrix)
-                                                            )
-                self.evalsave_callbacks[agent_name][-1].population_idx = population_num
+
+            # Here the EvalSaveCallback is used the archive to save the model and sample the opponent for evaluation
+            self.evalsave_callbacks[agent_name] = EvalSaveCallback(eval_env=self.eval_envs[agent_name],
+                                                    log_path=agent_path,
+                                                    eval_freq=int(agent_configs["eval_freq"]),
+                                                    n_eval_episodes=agent_configs["num_eval_episodes"],
+                                                    deterministic=True,
+                                                    save_path=agent_path,
+                                                    eval_metric=agent_configs["eval_metric"],
+                                                    eval_opponent_selection=agent_configs["eval_opponent_selection"],
+                                                    eval_sample_path=opponent_sample_path,
+                                                    save_freq=int(agent_configs["save_freq"]),
+                                                    archive={"self":self.archives[agent_name], "opponent":self.archives[opponent_name]},
+                                                    agent_name=agent_name,
+                                                    num_rounds=self.experiment_configs["num_rounds"])
 
             # Here the TrainingOpponentSelectionCallback is used the archive to sample the opponent for training
             # The name here pred_oppoenent -> the opponent of the predator
@@ -349,8 +329,7 @@ class SelfPlayTraining(SelfPlayExp):
             # --------------------------------------------- Starting of the round ---------------------------------------------
             # Copy the archives before the training to the old_archives to be loaded before the training as opponents  
             for i,agent_name in enumerate(agents_names_list):
-                for population_num in range(population_size):
-                    self.evalsave_callbacks[agent_name][population_num].set_name_prefix(f"history_{round_num}")
+                self.evalsave_callbacks[agent_name].set_name_prefix(f"history_{round_num}")
                 self.old_archives[agent_name] = deepcopy(self.archives[agent_name])
 
             # Train all agents then evaluate
@@ -362,18 +341,16 @@ class SelfPlayTraining(SelfPlayExp):
                 # Agent will train on the previous version of the archive of the opponent agent before this round
                 if(self.experiment_configs.get("parallel_alternate_training", True)):
                     self.archives[opponent_name].change_archive_core(self.old_archives[opponent_name])
+
                 for population_num in range(population_size):
                     print(f"------------------- Train {agent_name}, round: {round_num},  population: {population_num}--------------------")
-                    print(f"Model mem id: {self.models[agent_name][population_num]}")
-                    # Here the model for a different population is trained as they are in parallel (Not sequentioal for the population)
-                    # However, different population contributes here in the same archive, and select opponent from the same archive as all agents
-                    self.models[agent_name][population_num].learn(  total_timesteps=int(self.agents_configs[agent_name]["num_timesteps"]), 
-                                                                    callback=[
-                                                                                self.opponent_selection_callbacks[agent_name], 
-                                                                                self.evalsave_callbacks[agent_name][population_num],
-                                                                                self.wandb_callbacks[agent_name]
-                                                                             ], 
-                                                                    reset_num_timesteps=False)
+                    self.models[agent_name].learn(total_timesteps=int(self.agents_configs[agent_name]["num_timesteps"]), 
+                                                  callback=[
+                                                            self.opponent_selection_callbacks[agent_name], 
+                                                            self.evalsave_callbacks[agent_name],
+                                                            self.wandb_callbacks[agent_name]
+                                                            ], 
+                                                reset_num_timesteps=False)
                 self.new_archives[agent_name] = deepcopy(self.archives[agent_name]) # Save the resulted archive for each agent to be stored after the training process for all the agents
                 # wandb.log({f"round_num": round_num})
 
@@ -390,15 +367,13 @@ class SelfPlayTraining(SelfPlayExp):
                 heatmap_log_freq = agent_config["heatmap_log_freq"]
                 aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
                 
-                if(aggregate_eval_matrix):
-                    print("--------------------------------------------------------------")
-                    print(f"Round: {round_num} -> Aggregate HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
-                    # It does not matter which population will compute the evaluation matrix as all of them shares the same archive
-                    self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
+                print("--------------------------------------------------------------")
+                # print(f"Round: {round_num} -> HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
+                # self.evalsave_callbacks[agent_name].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
                 
-                if(aggregate_eval_matrix and (round_num%heatmap_log_freq == 0 or round_num==num_rounds-1)): # The logging frequency or the last round
+                if(aggregate_eval_matrix and round_num%heatmap_log_freq == 0 or round_num==num_rounds-1):
                     # Log intermediate results for the heatmap
-                    evaluation_matrix = self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].evaluation_matrix
+                    evaluation_matrix = self.evalsave_callbacks[agent_name].evaluation_matrix
                     evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
                     if(round_num==num_rounds-1):
                         wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
@@ -408,10 +383,7 @@ class SelfPlayTraining(SelfPlayExp):
                 
                 if(round_num%final_save_freq == 0 or round_num==num_rounds-1):
                     # TODO: Change it to save the best model till now, not the latest (How to define the best model)
-                    for population_num in range(population_size):
-                        self.models[agent_name][population_num].save(os.path.join(self.log_dir, agent_name, f"final_model_pop{population_num}"))
-                    # To keep the consistency of the old script generations
-                    self.models[agent_name][-1].save(os.path.join(self.log_dir, agent_name, "final_model"))
+                    self.models[agent_name].save(os.path.join(self.log_dir, agent_name, "final_model"))
             # --------------------------------------------- End of the round ---------------------------------------------
 
         
@@ -420,40 +392,31 @@ class SelfPlayTraining(SelfPlayExp):
             aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
 
             if(not aggregate_eval_matrix):
-                print(f"Full evaluation matrix for {agent_name}")
+                agent_config = self.agents_configs[agent_name]
                 opponent_name = agent_config["opponent_name"]
                 num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
                 eval_matrix_testing_freq = agent_config["eval_matrix_testing_freq"]
 
-                axis = self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq)
-                evaluation_matrix = self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].evaluation_matrix
+                self.evalsave_callbacks[agent_name].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq)
+                evaluation_matrix = self.evalsave_callbacks[agent_name].evaluation_matrix
                 evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
                 # One with text and other without (I kept the name in wandb just not to be a problem with previous experiments)
-                wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], evaluation_matrix, show_text=True)})
-                wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], evaluation_matrix, show_text=False)})
+                wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
+                wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=False)})
 
                 np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), evaluation_matrix)
                 wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix")+".npy")
-                # TODO: should I do it for all the agents or not or just one?
 
             print(f"Post Evaluation for {agent_name}:")
-            self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].post_eval(opponents_path=os.path.join(self.log_dir, self.agents_configs[agent_name]["opponent_name"]))
+            self.evalsave_callbacks[agent_name].post_eval(opponents_path=os.path.join(self.log_dir, self.agents_configs[agent_name]["opponent_name"]))
             
             self.envs[agent_name].close()
             self.eval_envs[agent_name].close()
-            
+
 class SelfPlayTesting(SelfPlayExp):
-    def __init__(self, seed_value=None, render_sleep_time=0.01):
+    def __init__(self, seed_value=None):
         super(SelfPlayTesting, self).__init__()
         self.seed_value = seed_value
-        self.load_prefix = "history_"
-        self.render = True
-        self.deterministic = True
-        self.warn = True
-        self.render_sleep_time = render_sleep_time
-
-    def _init_argparse(self):
-        super(SelfPlayTesting, self)._init_argparse(description='Self-play experiment testing script', help='The experiemnt configuration file path and name which the experiment should be loaded')
 
     def _generate_log_dir(self):
         super(SelfPlayTesting, self)._generate_log_dir(dir_postfix="test")
@@ -471,193 +434,102 @@ class SelfPlayTesting(SelfPlayExp):
 
             self.testing_conditions[agent_name] = {"path": agent_testing_path}
             self.testing_modes[agent_name] = mode
-            num_rounds = self.experiment_configs["num_rounds"]
 
             if(mode == "limit"):
-                self.testing_conditions[agent_name]["limits"] = [0, testing_config["gens"], testing_config["freq"]]
+                self.testing_conditions[agent_name] = [0, testing_config["gens"], testing_config["freq"]]
             # if the limit is that the start of the tested agents is that index and the end till the end
             elif(mode == "limit_s"):
-                self.testing_conditions[agent_name]["limits"] = [testing_config["gens"], num_rounds-1, testing_config["freq"]]
+                self.testing_conditions[agent_name] = [testing_config["gens"], -1, testing_config["freq"]]
             
             # if the limit is that the end of the tested agents is that index (including that index: in the for loop we will +1)
             elif(mode == "limit_e"):
-                self.testing_conditions[agent_name]["limits"] = [0, testing_config["gens"], testing_config["freq"]]
+                self.testing_conditions[agent_name] = [0, testing_config["gens"], testing_config["freq"]]
 
             elif(mode == "gen"):
-                self.testing_conditions[agent_name]["limits"] = [testing_config["gens"], testing_config["gens"], testing_config["freq"]]
+                self.testing_conditions[agent_name] = [testing_config["gens"], testing_config["gens"], testing_config["freq"]]
 
             elif(mode == "all"):
-                self.testing_conditions[agent_name]["limits"] = [0, num_rounds-1, testing_config["freq"]]
+                self.testing_conditions[agent_name] = [0, -1, testing_config["freq"]]
             
             elif(mode == "random"):
-                self.testing_conditions[agent_name]["limits"] = [None, None, testing_config["freq"]]
+                self.testing_conditions[agent_name] = [None, None, testing_config["freq"]]
 
             elif(mode == "round"):  # The round of pred vs round of prey
-                print(num_rounds)
-                self.testing_conditions[agent_name]["limits"] = [0, num_rounds-1, testing_config["freq"]]
-            print(self.testing_conditions[agent_name]["limits"])
+                self.testin_conditions[agent_name] = [None, None, testing_config["freq"]]
+
+
     def _init_envs(self):
         self.envs = {}
 
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
-            # env = globals()["SelfPlayPredEnv"](algorithm_class=PPOMod, archive=None, seed_val=3)
-            env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
-            # if not isinstance(env, VecEnv):
-            #     env = DummyVecEnv([lambda: env])
 
-            # if not isinstance(env, DummyVecEnvSelfPlay):
-            #     env.__class__ = DummyVecEnvSelfPlay   # This works fine, the other solution is commented
+            self.envs[agent_name] = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None)
             
-            self.envs[agent_name] = env
-    
-    def _init_models(self):
-        self.models = {}
+    def _init_callbacks(self, wandb=False):
+        self.evalsave_callbacks = {}
+        if(wandb):
+            self.wandb_callbacks = {}
 
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
+            # Here the EvalSaveCallback is used the archive to save the model and sample the opponent for evaluation
+            self.evalsave_callbacks[agent_name] = EvalSaveCallback(eval_env=self.envs[agent_name],
+                                                    log_path=None,
+                                                    eval_freq=None,
+                                                    n_eval_episodes=None,
+                                                    deterministic=True,
+                                                    save_path=None,
+                                                    eval_metric=None,
+                                                    eval_opponent_selection=None,
+                                                    eval_sample_path=None,
+                                                    save_freq=None,
+                                                    archive={"self":None, "opponent":None},
+                                                    agent_name=agent_name,
+                                                    num_rounds=None)
+            self.evalsave_callbacks.OS = True
 
-            self.models[agent_name] = PPOMod
-            # (agent_configs["policy"], 
-            #                                 self.envs[agent_name],
-            #                                 clip_range=agent_configs["clip_range"], 
-            #                                 ent_coef=agent_configs["ent_coef"],
-            #                                 learning_rate=agent_configs["lr"], 
-            #                                 batch_size=agent_configs["batch_size"],
-            #                                 gamma=agent_configs["gamma"], 
-            #                                 verbose=2,
-            #                                 # tensorboard_log=os.path.join(self.log_dir,agent_name),
-            #                                 n_epochs=agent_configs["n_epochs"]
-            #                             )     
+            if(wandb):
+                self.wandb_callbacks[agent_name] = WandbCallback()
+    
+    def _init_models(self):
+        self.models = {}
+        for k in self.agents_configs.keys():
+            agent_configs = self.agents_configs[k]
+            agent_name = agent_configs["name"]
+            opponent_name = agent_configs["opponent_name"]
+
+        for k_idx in range(len(self.agents_configs.keys())):
+            agent_configs = self.agents_configs[k_idx]
+            agent_name = agent_configs["name"]
+            agent_testing_condition = self.testing_conditions[agent_name]
+            agent_testing_mode = self.testing_modes[agent_name]
+            for k_opponent_idx in range(k_idx, len(self.agents_configs.keys())):
+                opponent_configs = self.agents_configs[k_opponent_idx]
+                opponent_name = agent_configs["name"]
+                opponent_testing_condition = self.testing_conditions[opponent_name]
+                opponent_testing_mode = self.testing_modes[opponent_name]            
 
 
     def _init_testing(self, experiment_filename, logdir, wandb):
         super(SelfPlayTesting, self)._init_exp(experiment_filename, logdir, wandb)
-        print(f"----- Load testing conditions")
         self._load_testing_conditions(experiment_filename)
-        # print(f"----- Initialize environments")
-        # self._init_envs()
-        # print(f"----- Initialize models")
-        # self._init_models()
 
-    def render_callback(self, ret):
-        # if(ret == 1):
-        #     return -1
-        return ret
+        self._init_envs()
+        self._init_callbacks(wandb)
+        self._init_models()
+        # TODO: initializations
 
-    def _test_round_by_round(self, key, n_eval_episodes):
-        agent_configs = self.agents_configs[key]
-        agent_name = agent_configs["name"]
-        opponent_name = agent_configs["opponent_name"]
-        # TODO: debug why if we did not do this (redefine the env again) it does not work properly for the rendering
-        # self.envs[agent_name] = super(SelfPlayTesting, self).create_env(key=key, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
-        for round_num in range(0, self.experiment_configs["num_rounds"], self.testing_conditions[agent_name]["limits"][2]):
-            print("----------------------------------------")
-            self.make_deterministic(cuda_check=False)   # This was added as we observed that previous rounds affect the other rounds
-            startswith_keyword = f"{self.load_prefix}{round_num}_"
-            # 1. fetch the agent
-            agent_latest = utos.get_latest(self.testing_conditions[agent_name]["path"], startswith=startswith_keyword)
-            if(len(agent_latest) == 0): # the experiment might have not be completed yet
-                continue
-            sampled_agent = os.path.join(self.testing_conditions[agent_name]["path"], agent_latest[0])  # Join it with the agent path
-            # 2. load to the model
-            # TODO: debug why if we did not do this (redefine the env again) it does not work properly for the rendering
-            env = super(SelfPlayTesting, self).create_env(key=key, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
-            agent_model = PPOMod.load(sampled_agent, env)
-            # 3. fetch the opponent
-            opponent_latest = utos.get_latest(self.testing_conditions[opponent_name]["path"], startswith=startswith_keyword)
-            if(len(opponent_latest) == 0):
-                continue
-            sampled_opponent = os.path.join(self.testing_conditions[opponent_name]["path"], opponent_latest[0])  # Join it with the agent path
-            # 4. load the opponent to self.envs._load_opponent
-            sampled_opponents = [sampled_opponent]
-            mean_reward, std_reward, win_rate, std_win_rate, render_ret = evaluate_policy_simple(
-                                                                                                    agent_model,
-                                                                                                    env,
-                                                                                                    n_eval_episodes=n_eval_episodes,
-                                                                                                    render=self.render,
-                                                                                                    deterministic=self.deterministic,
-                                                                                                    return_episode_rewards=False,
-                                                                                                    warn=self.warn,
-                                                                                                    callback=None,
-                                                                                                    sampled_opponents=sampled_opponents,
-                                                                                                    render_extra_info=f"{round_num} vs {round_num}",
-                                                                                                    render_callback=self.render_callback,
-                                                                                                    sleep_time=self.render_sleep_time, #0.1,
-                                                                                                )
 
-            print(f"{round_num} vs {round_num} -> win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}\trewards: {mean_reward:.2f} +/- {std_reward:.2f}")
-            env.close()
-    def _test_different_rounds(self, key, n_eval_episodes):
-        # TODO: for random
-        agent_configs = self.agents_configs[key]
-        agent_name = agent_configs["name"]
-        opponent_name = agent_configs["opponent_name"]
-        for i in range(self.testing_conditions[agent_name]["limits"][0], self.testing_conditions[agent_name]["limits"][1]+1, self.testing_conditions[agent_name]["limits"][2]):
-            agent_startswith_keyword = f"{self.load_prefix}{i}_"
-            # 1. fetch the agent
-            agent_latest = utos.get_latest(self.testing_conditions[agent_name]["path"], startswith=agent_startswith_keyword)
-            if(len(agent_latest) == 0): # the experiment might have not be completed yet
-                continue
-            sampled_agent = os.path.join(self.testing_conditions[agent_name]["path"], agent_latest[0])  # Join it with the agent path
-            # 2. load to the model
-            env = super(SelfPlayTesting, self).create_env(key=key, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
-            agent_model = PPOMod.load(sampled_agent, env)
-            for j in range(self.testing_conditions[opponent_name]["limits"][0], self.testing_conditions[opponent_name]["limits"][1]+1, self.testing_conditions[opponent_name]["limits"][2]):
-                print("----------------------------------------")
-                self.make_deterministic(cuda_check=False)   # This was added as we observed that previous rounds affect the other rounds
 
-                opponent_startswith_keyword = f"{self.load_prefix}{j}_"
-                # 3. fetch the opponent
-                opponent_latest = utos.get_latest(self.testing_conditions[opponent_name]["path"], startswith=opponent_startswith_keyword)
-                if(len(opponent_latest) == 0):
-                    continue
-                sampled_opponent = os.path.join(self.testing_conditions[opponent_name]["path"], opponent_latest[0])  # Join it with the agent path
-                # 4. load the opponent to self.envs._load_opponent
-                sampled_opponents = [sampled_opponent]
-                mean_reward, std_reward, win_rate, std_win_rate, render_ret = evaluate_policy_simple(
-                                                                                                        agent_model,
-                                                                                                        env,
-                                                                                                        n_eval_episodes=n_eval_episodes,
-                                                                                                        render=self.render,
-                                                                                                        deterministic=self.deterministic,
-                                                                                                        return_episode_rewards=False,
-                                                                                                        callback=None,
-                                                                                                        warn=self.warn,
-                                                                                                        sampled_opponents=sampled_opponents,
-                                                                                                        render_extra_info=f"{i} vs {j}",
-                                                                                                        render_callback=self.render_callback,
-                                                                                                        sleep_time=self.render_sleep_time, #0.1,
-                                                                                                    )
-                print(f"{i} vs {j} -> win rate: {win_rate}")
-        
-    def test(self, experiment_filename=None, logdir=False, wandb=False, n_eval_episodes=1):
+    def test(self, experiment_filename=None, logdir=False, wandb=False):
         self._init_testing(experiment_filename=experiment_filename, logdir=logdir, wandb=wandb)
-        already_evaluated_agents = []
-        # In order to extend it multipe agents, we can make it as a recursive function (list:[models....,, None]) and pass the next element in the list, the termination criteria if the argument is None
-        for k in self.agents_configs.keys():
-            agent_configs = self.agents_configs[k]
-            agent_name = agent_configs["name"]
-            agent_opponent_joint = sorted([agent_name, agent_configs["opponent_name"]])
-            if(agent_opponent_joint in already_evaluated_agents):
-                continue
-
-            if(self.testing_modes[agent_name] == "round"):
-                self._test_round_by_round(k, n_eval_episodes)
-                # break
-            else:
-                self._test_different_rounds(k, n_eval_episodes)
-            already_evaluated_agents.append(agent_opponent_joint)
-
-
-        # 1. fetch the agent
-        # 2. load to the model to self.models
-        # 3. fetch the opponent
-        # 4. load the opponent to self.envs._load_opponent
-        # Inside the for loop check if the name exists or not (the experiment might have not be completed yet)
-
+        for pair in self.testing_models_pairs:
+            agent = pair[0]
+            opponent = pair[1]
+            # TODO: evaluate
 
 
 

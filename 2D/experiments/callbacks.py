@@ -101,9 +101,11 @@ class EvalSaveCallback(EvalCallback):
         self.agent_name = kwargs["agent_name"]
         self.num_rounds = kwargs["num_rounds"]
         self.seed_value = kwargs["seed_value"]
+        self.enable_evaluation_matrix = kwargs["enable_evaluation_matrix"]
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
+        self.population_idx = 0
         # self.OS = True
 
         self.win_rate = None
@@ -118,6 +120,7 @@ class EvalSaveCallback(EvalCallback):
         del kwargs["agent_name"]
         del kwargs["num_rounds"]
         del kwargs["seed_value"]
+        del kwargs["enable_evaluation_matrix"]
         # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
@@ -132,8 +135,9 @@ class EvalSaveCallback(EvalCallback):
 
 
         # self.opponent_archive = self.eval_env.archive
-
-        self.evaluation_matrix = np.zeros((self.num_rounds, self.num_rounds))
+        # This is to prevent storing more memory while the evaluation matrix will not be computed for this evaluation callback (optimization for the memory)
+        if(self.enable_evaluation_matrix):
+            self.evaluation_matrix = np.zeros((self.num_rounds, self.num_rounds))
         # Just for debugging, TODO: remove it
         # for i in range(self.num_rounds):
         #     for j in range(self.num_rounds):
@@ -149,6 +153,9 @@ class EvalSaveCallback(EvalCallback):
     def _evaluate(self, model, n_eval_episodes, deterministic, sampled_opponents):
         # Sync training and eval env if there is VecNormalize
         sync_envs_normalization(self.training_env, self.eval_env)
+        # This is made in order to prevent making different generatations evaluations affect the others
+        make_deterministic(seed_value=self.seed_value, cuda_check=False)
+
 
         # Reset success rate buffer
         self._is_success_buffer = []
@@ -253,7 +260,8 @@ class EvalSaveCallback(EvalCallback):
         elif(self.eval_metric == "winrate"):
             metric_value = self.win_rate
         # history_<num-round>_<reward/points/winrate>_m_<value>_s_<num-step>
-        name = f"{self.name_prefix}_{self.eval_metric}_m_{metric_value}_s_{self.num_timesteps}"
+        name = f"{self.name_prefix}_{self.eval_metric}_m_{metric_value}_s_{self.num_timesteps}_p_{self.population_idx}"#_c_{self.checkpoint_num}"
+        self.checkpoint_num += 1
         path = os.path.join(self.save_path, name)
         self.model.save(path)
         if(not self.OS):
@@ -277,6 +285,7 @@ class EvalSaveCallback(EvalCallback):
 
     # This doesn't work -> make save_freq=NUM_TIMESTEPS and eval_freq=NUM_TIMESTEPS will work like this
     def _on_training_end(self) -> None:
+        self.checkpoint_num = 0
         if(self.save_freq == 0 and self.eval_freq == 0):
             self.eval_freq = self.n_calls   # There is a problem when I do not set it, thus, I have made this setting (The plots are not being reported in wandb)
             print("Evaluating the model according to the metric and save it")
@@ -439,7 +448,7 @@ class EvalSaveCallback(EvalCallback):
             if(not self.OS):
                 # Get the agents that has models' names starts with "history_<i>_"
                 sampled_agent_startswith = utlst.get_startswith(models_names, startswith=startswith_keyword)
-                # Get the latest agent in this round/generation
+                # Get the latest agent in this round/generation/population
                 sampled_agent = utlst.get_latest(sampled_agent_startswith)[0]
                 # Load the model
                 agent_model = self.archive.load(name=sampled_agent, env=self.eval_env, algorithm_class=algorithm_class)
@@ -451,8 +460,6 @@ class EvalSaveCallback(EvalCallback):
 
             for ej, j in enumerate(opponent_axis):
                 print("---------------")
-                # This is made in order to make different generatations evaluations affect the others
-                make_deterministic(seed_value=self.seed_value, cuda_check=False)
                 print(f"Round: {i} vs {j}")
                 opponent_startswith_keyword = f"{prefix}{j}_"
                 sampled_opponent = None
@@ -485,6 +492,8 @@ class EvalSaveCallback(EvalCallback):
     # Post evaluate the model against all the opponents from opponents_path
     # TODO: enable retrieving the agents from the archive
     def post_eval(self, opponents_path, startswith_keyword="history", n_eval_rep=3, deterministic=None):
+        # TODO: fix it in order to print the labels correctly for the x-axis -> as it is now, just enumerate them
+        #           But what it should be <round_num>:<idx>:<population_number> -> such that the idx is the order of it in the checkpoint of the round
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
         opponents_models_names = utos.get_sorted(opponents_path, startswith_keyword, utsrt.sort_steps)
         opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]

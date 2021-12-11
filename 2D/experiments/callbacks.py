@@ -261,7 +261,7 @@ class EvalSaveCallback(EvalCallback):
             metric_value = self.win_rate
         # history_<num-round>_<reward/points/winrate>_m_<value>_s_<num-step>
         name = f"{self.name_prefix}_{self.eval_metric}_m_{metric_value}_s_{self.num_timesteps}_p_{self.population_idx}"#_c_{self.checkpoint_num}"
-        self.checkpoint_num += 1
+        # self.checkpoint_num += 1
         path = os.path.join(self.save_path, name)
         self.model.save(path)
         if(not self.OS):

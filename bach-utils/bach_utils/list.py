@@ -2,6 +2,8 @@ import random
 from copy import deepcopy
 import bach_utils.sorting as utsrt
 
+# TODO: Check whether do we still need return_count or not?
+
 def get_startswith(source_list, startswith):
     target_list = [l for l in source_list if l.startswith(startswith)]
     return target_list
@@ -12,11 +14,23 @@ def get_sorted(source_list, sorting_function, return_count=False):
         return source_list_sorted, len(source_list_sorted)
     return source_list_sorted
 
-def get_latest(source_list, return_count=False):
+# def get_latest(source_list, return_count=False):
+#     source_list_sorted = get_sorted(source_list, utsrt.sort_steps, return_count)
+#     if(return_count):
+#         return [source_list_sorted[-1]], len(source_list_sorted)
+#     return [source_list_sorted[-1]]
+
+def get_latest(source_list, return_count=False, population_idx=None):
     source_list_sorted = get_sorted(source_list, utsrt.sort_steps, return_count)
+    return_list = None
+    if(population_idx is None):
+        return_list = [source_list_sorted[-1]]
+    else:
+        source_list_sorted_population = get_sorted(source_list, utsrt.sort_population, return_count)
+        return_list = [source_list_sorted_population[population_idx]]
     if(return_count):
-        return [source_list_sorted[-1]], len(source_list_sorted)
-    return [source_list_sorted[-1]]
+        return return_list, len(source_list_sorted)
+    return return_list
 
 def get_first(source_list, return_count=False):
     source_list_sorted = get_sorted(source_list, utsrt.sort_steps, return_count)

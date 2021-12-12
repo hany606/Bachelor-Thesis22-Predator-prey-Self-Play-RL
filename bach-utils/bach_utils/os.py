@@ -27,6 +27,10 @@ def get_latest(log_dir, startswith, return_count=False):
         return [file_list[-1]], len(file_list)
     return [file_list[-1]]
 
+def get_latest(log_dir, startswith, return_count=False, population_idx=None):
+    file_list = get_startswith(log_dir, startswith)
+    return utlst.get_latest(file_list, return_count, population_idx=population_idx)
+
 def get_first(log_dir, startswith, return_count=False):
     file_list = get_startswith(log_dir, startswith)
     return utlst.get_first(file_list, return_count)

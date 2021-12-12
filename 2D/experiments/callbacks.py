@@ -408,7 +408,7 @@ class EvalSaveCallback(EvalCallback):
             
 
     # Evaluate the whole matrix
-    def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None, freq=1):
+    def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None, freq=1, population_size=1):
         models_names = None
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
         if(self.OS and (opponents_path is None or agents_path is None)):
@@ -432,6 +432,7 @@ class EvalSaveCallback(EvalCallback):
         # dim = num_rounds//freq+1
         agent_axis = [i for i in range(0, num_rounds, freq)]
         opponent_axis = [i for i in range(0, num_rounds, freq)]
+        population_axis = [i for i in range(0, population_size)]
         # Enforce doing evaluation for the last generation
         if(agent_axis[-1] != num_rounds-1):
             agent_axis.append(num_rounds-1)
@@ -449,48 +450,64 @@ class EvalSaveCallback(EvalCallback):
                 # Get the agents that has models' names starts with "history_<i>_"
                 sampled_agent_startswith = utlst.get_startswith(models_names, startswith=startswith_keyword)
                 # Get the latest agent in this round/generation/population
-                sampled_agent = utlst.get_latest(sampled_agent_startswith)[0]
+                # sampled_agent = utlst.get_latest(sampled_agent_startswith)[0]
+                # Get the latest agent in this round/generation for this specific population
+                sampled_agent = utlst.get_latest(sampled_agent_startswith, population_idx=self.population_idx)[0] 
                 # Load the model
                 agent_model = self.archive.load(name=sampled_agent, env=self.eval_env, algorithm_class=algorithm_class)
             # The same but for OS stored
             else:
                 # sampled_agent_startswith = utos.get_startswith(self.save_path, startswith=startswith_keyword)
-                sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
+                # sampled_agent = utos.get_latest(self.save_path, startswith=startswith_keyword)[0]
+                sampled_agent = utos.get_latest(sampled_agent_startswith, population_idx=self.population_idx)[0]
+                sampled_agent = os.path.join(agents_path, sampled_agent)  # Join it with the agent path
                 agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
 
             for ej, j in enumerate(opponent_axis):
                 print("---------------")
                 print(f"Round: {i} vs {j}")
                 opponent_startswith_keyword = f"{prefix}{j}_"
-                sampled_opponent = None
-                # Get 2nd agent
-                if(not self.OS):
-                    # if(len(models_names) == 0): Not possible as we are evaluating after training
-                    sampled_opponent_startswith = utlst.get_startswith(opponent_models_names, startswith=opponent_startswith_keyword)
-                    sampled_opponent = utlst.get_latest(sampled_opponent_startswith)[0]
+                
+                win_rates = []
+                # For each opponent from different population, we evaluate the agent of the specific population against all the populations
+                for ep, population_idx in enumerate(population_axis):
+                    # To ensure that each evalaution is determinsitic and not affected by the previous one somehow
+                    make_deterministic(seed_value=self.seed_value, cuda_check=False)
+                    sampled_opponent = None
+                    # Get 2nd agent
+                    if(not self.OS):
+                        # if(len(models_names) == 0): Not possible as we are evaluating after training
+                        sampled_opponent_startswith = utlst.get_startswith(opponent_models_names, startswith=opponent_startswith_keyword)
+                        # Get the latest agent in this round/generation/population
+                        # sampled_opponent = utlst.get_latest(sampled_opponent_startswith)[0]
+                        # Get the latest opponent in this round/generation for this specific population
+                        sampled_opponent = utlst.get_latest(sampled_opponent_startswith, population_idx=population_idx)[0] 
+                    else:
+                        # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
+                        sampled_opponent = utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword, population_idx=self.population_idx)[0]
+                        sampled_opponent = os.path.join(opponents_path, sampled_opponent)
 
-                else:
-                    # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
-                    sampled_opponent = os.path.join(opponents_path, utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword)[0])
+                    print(f"Model {sampled_agent} vs {sampled_opponent}")
 
-                print(f"Model {sampled_agent} vs {sampled_opponent}")
-
-                # Run evaluation n_eval_rep for each opponent
-                eval_model_list = [sampled_opponent]
-                # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-                _, _, win_rate, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
-                                                deterministic=deterministic,
-                                                sampled_opponents=eval_model_list)
+                    # Run evaluation n_eval_rep for each opponent
+                    eval_model_list = [sampled_opponent]
+                    # The current model vs the iterated model from the opponent (last opponent in each generation/round)
+                    _, _, win_rate, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+                                                    deterministic=deterministic,
+                                                    sampled_opponents=eval_model_list)
+                    win_rates.append(win_rate)
                 # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
                 # Add this matrix to __init__
                 # It will be redundent to have 2 matrices but it is fine
-                self.evaluation_matrix[ei, ej] = win_rate
+                mean_win_rate = np.mean(win_rates)
+                self.evaluation_matrix[ei, ej] = mean_win_rate
                 print(f"win rate: {win_rate}")
 
         return [agent_axis, opponent_axis]
     # This last agent
     # Post evaluate the model against all the opponents from opponents_path
     # TODO: enable retrieving the agents from the archive
+    # TODO: make it compatible ith different populations 
     def post_eval(self, opponents_path, startswith_keyword="history", n_eval_rep=3, deterministic=None):
         # TODO: fix it in order to print the labels correctly for the x-axis -> as it is now, just enumerate them
         #           But what it should be <round_num>:<idx>:<population_number> -> such that the idx is the order of it in the checkpoint of the round
@@ -510,8 +527,8 @@ class EvalSaveCallback(EvalCallback):
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             evaluation_result = win_rate
-            wandb.log({f"{self.agent_name}/post_eval/opponent_idx": i})
-            wandb.log({f"{self.agent_name}/post_eval/win_rate": evaluation_result})
+            # wandb.log({f"{self.agent_name}/post_eval/opponent_idx": i})
+            # wandb.log({f"{self.agent_name}/post_eval/win_rate": evaluation_result})
 
             
             # self.logger.record("post_eval/opponent_idx", i)
@@ -522,13 +539,10 @@ class EvalSaveCallback(EvalCallback):
             #                                                 override=True)
             
             eval_return_list.append(evaluation_result)
-        data = [[x, y] for (x, y) in zip([i for i in range(len(opponents_models_path))], eval_return_list)]
-        table = wandb.Table(data=data, columns = ["opponent idx", "win-rate"])
-        wandb.log({f"{self.agent_name}/post_eval/table": wandb.plot.line(table, "opponent idx", "win-rate", title=f"Post evaluation {self.agent_name}")})
         # self.eval_env.OS = False
         self.eval_env.set_attr("OS", False)
         self.OS = False
-        return eval_return_list
+        return np.array(eval_return_list)
 
     def agentVopponentOS(self, agent_path, opponent_path, n_eval_rep=5, deterministic=None, algorithm_class=None):
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means

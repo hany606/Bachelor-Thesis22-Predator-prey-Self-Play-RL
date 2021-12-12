@@ -269,7 +269,7 @@ class SelfPlayTraining(SelfPlayExp):
         self.evalsave_callbacks = {}
         self.wandb_callbacks = {}
         population_size = self.experiment_configs["population_size"]    # population here has a shared archive
-        self.evalsave_callbacks_master_idx = population_size - 1
+        # self.evalsave_callbacks_master_idx = population_size - 1
 
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
@@ -281,7 +281,8 @@ class SelfPlayTraining(SelfPlayExp):
             
             self.evalsave_callbacks[agent_name] = []
             for population_num in range(population_size):
-                enable_evaluation_matrix = (population_num == self.evalsave_callbacks_master_idx)
+                # enable_evaluation_matrix = (population_num == self.evalsave_callbacks_master_idx)
+                enable_evaluation_matrix = True
                 # Here the EvalSaveCallback is used the archive to save the model and sample the opponent for evaluation
                 self.evalsave_callbacks[agent_name].append(
                                                             EvalSaveCallback(eval_env=self.eval_envs[agent_name],
@@ -345,7 +346,7 @@ class SelfPlayTraining(SelfPlayExp):
         # --------------------------------------------- Training Rounds ---------------------------------------------
         # Here alternate training
         for round_num in range(num_rounds):
-            # wandb.log({f"round_num": round_num}, step=)
+            wandb.log({f"progress (round_num)": round_num})
             # --------------------------------------------- Starting of the round ---------------------------------------------
             # Copy the archives before the training to the old_archives to be loaded before the training as opponents  
             for i,agent_name in enumerate(agents_names_list):
@@ -380,7 +381,7 @@ class SelfPlayTraining(SelfPlayExp):
             if(self.experiment_configs.get("parallel_alternate_training", True)):    
                 for agent_name in agents_names_list:
                     self.archives[agent_name].change_archive_core(self.new_archives[agent_name])
-            print(f"------------------- Evaluation (Heatmap) --------------------")
+            # print(f"------------------- Evaluation (Heatmap) --------------------")
             # --------------------------------------------- Evaluating agent by agent ---------------------------------------------            
             for j,agent_name in enumerate(agents_names_list):
                 agent_config = self.agents_configs[agent_name]
@@ -394,19 +395,34 @@ class SelfPlayTraining(SelfPlayExp):
                     print("--------------------------------------------------------------")
                     print(f"Round: {round_num} -> Aggregate HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
                     # It does not matter which population will compute the evaluation matrix as all of them shares the same archive
-                    self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
+                    # self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
+        
+                    # Now, we will calculate the evaluation matrix (Tournment table) for each population and then take the average at the end
+                    for population_num in range(population_size):
+                        self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
+                        
                 
+                # Log intermediate results for the heatmap
                 if(aggregate_eval_matrix and (round_num%heatmap_log_freq == 0 or round_num==num_rounds-1)): # The logging frequency or the last round
-                    # Log intermediate results for the heatmap
-                    evaluation_matrix = self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].evaluation_matrix
-                    evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
+                    evaluation_matrices = []
+                    for population_num in range(population_size):
+                        evaluation_matrix = self.evalsave_callbacks[agent_name][population_num].evaluation_matrix
+                        evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
+                        evaluation_matrices.append(evaluation_matrix)
+                    mean_evaluation_matrix = np.mean(evaluation_matrices, axis=0)
+                    std_evaluation_matrix = np.std(evaluation_matrices, axis=0)
+
                     if(round_num==num_rounds-1):
-                        wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=True)})
-                    wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], evaluation_matrix, show_text=False)})
-                    np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), evaluation_matrix)
+                        wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], mean_evaluation_matrix, show_text=True)})
+                        wandb.log({f"{agent_name}/std_heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], std_evaluation_matrix, show_text=True)})
+
+                    wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], mean_evaluation_matrix, show_text=False)})
+                    wandb.log({f"{agent_name}/mid_eval/std_heatmap"'': wandb.plots.HeatMap([i for i in range(num_rounds)], [i for i in range(num_rounds)], std_evaluation_matrix, show_text=False)})
+                    np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), mean_evaluation_matrix)
                     wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix")+".npy")
                 
                 if(round_num%final_save_freq == 0 or round_num==num_rounds-1):
+                    print(f"------------------- Models saving freq --------------------")
                     # TODO: Change it to save the best model till now, not the latest (How to define the best model)
                     for population_num in range(population_size):
                         self.models[agent_name][population_num].save(os.path.join(self.log_dir, agent_name, f"final_model_pop{population_num}"))
@@ -420,25 +436,43 @@ class SelfPlayTraining(SelfPlayExp):
             aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
 
             if(not aggregate_eval_matrix):
-                print(f"Full evaluation matrix for {agent_name}")
                 opponent_name = agent_config["opponent_name"]
                 num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
                 eval_matrix_testing_freq = agent_config["eval_matrix_testing_freq"]
 
-                axis = self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq)
-                evaluation_matrix = self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].evaluation_matrix
-                evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
+                evaluation_matrices = []
+                for population_num in range(population_size):
+                    print(f"Full evaluation matrix for {agent_name} (population: {population_num})")
+                    axis = self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq, population_size=population_size)
+                    evaluation_matrix = self.evalsave_callbacks[agent_name][population_num].evaluation_matrix
+                    evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
+                    evaluation_matrices.append(evaluation_matrix)
+                mean_evaluation_matrix = np.mean(evaluation_matrices, axis=0)
+                std_evaluation_matrix = np.std(evaluation_matrices, axis=0)
                 # One with text and other without (I kept the name in wandb just not to be a problem with previous experiments)
-                wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], evaluation_matrix, show_text=True)})
-                wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], evaluation_matrix, show_text=False)})
+                wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], mean_evaluation_matrix, show_text=True)})
+                wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], mean_evaluation_matrix, show_text=False)})
+                wandb.log({f"{agent_name}/std_heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], std_evaluation_matrix, show_text=True)})
 
-                np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), evaluation_matrix)
+                np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), mean_evaluation_matrix)
                 wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix")+".npy")
-                # TODO: should I do it for all the agents or not or just one?
-
-            print(f"Post Evaluation for {agent_name}:")
-            self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].post_eval(opponents_path=os.path.join(self.log_dir, self.agents_configs[agent_name]["opponent_name"]))
             
+            # TODO: should I do it for all the agents or not or just one?
+            # Now it is made for all the agents and takes the mean and the standard deviation
+            post_eval_list = []
+            for population_num in range(population_size):
+                print(f"Post Evaluation for {agent_name} (population: {population_num})")
+                eval_return_list = self.evalsave_callbacks[agent_name][population_num].post_eval(opponents_path=os.path.join(self.log_dir, self.agents_configs[agent_name]["opponent_name"]))
+                post_eval_list.append(eval_return_list)
+            mean_post_eval = np.mean(post_eval_list, axis=0)
+            std_post_eval = np.std(post_eval_list, axis=0)
+            data = [[x, y] for (x, y) in zip([i for i in range(len(mean_post_eval))], mean_post_eval)]
+            table = wandb.Table(data=data, columns = ["opponent idx", "win-rate"])
+            std_data = [[x, y] for (x, y) in zip([i for i in range(len(std_post_eval))], std_post_eval)]
+            std_table = wandb.Table(data=std_data, columns = ["opponent idx", "win-rate"])
+            wandb.log({f"{agent_name}/post_eval/table": wandb.plot.line(table, "opponent idx", "win-rate", title=f"Post evaluation {agent_name}")})
+            wandb.log({f"{agent_name}/post_eval/std_table": wandb.plot.line(std_table, "opponent idx", "win-rate", title=f"Std Post evaluation {agent_name}")})
+
             self.envs[agent_name].close()
             self.eval_envs[agent_name].close()
             

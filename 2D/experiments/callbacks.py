@@ -58,9 +58,9 @@ class TrainingOpponentSelectionCallback(EventCallback):
             # print("Not OS")
             archive = self.archive.get_sorted(self.opponent_selection)
             models_names = archive[0]
-            self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True, randomly_seed=self.randomly_reseed_sampling)
+            self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True, randomly_reseed=self.randomly_reseed_sampling)
         if(self.OS):
-            self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_seed=self.randomly_reseed_sampling)
+            self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_reseed=self.randomly_reseed_sampling)
         # If it is not updated with every rollout, only updated at the begining
         if(self.num_sampled_per_round == 1):
             self.env.set_target_opponent_policy_filename(self.sampled_per_round[0])
@@ -78,9 +78,9 @@ class TrainingOpponentSelectionCallback(EventCallback):
             if(not self.OS):
                 archive = self.archive.get_sorted(self.opponent_selection)
                 models_names = archive[0]
-                opponent = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True, randomly_seed=self.randomly_reseed_sampling)[0]
+                opponent = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True, randomly_reseed=self.randomly_reseed_sampling)[0]
             if(self.OS):
-                opponent = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_seed=self.randomly_reseed_sampling)[0]
+                opponent = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_reseed=self.randomly_reseed_sampling)[0]
             self.env.set_target_opponent_policy_filename(opponent)
         
         if(self.num_sampled_per_round > 1):
@@ -245,9 +245,9 @@ class EvalSaveCallback(EvalCallback):
                 archive = self.opponent_archive.get_sorted(self.eval_opponent_selection)
                 models_names = archive[0]
                 # print(len(models_names))
-                sampled_opponents = utsmpl.sample_opponents(models_names, self.n_eval_episodes, selection=self.eval_opponent_selection, sorted=True, randomly_seed=self.randomly_reseed_sampling)
+                sampled_opponents = utsmpl.sample_opponents(models_names, self.n_eval_episodes, selection=self.eval_opponent_selection, sorted=True, randomly_reseed=self.randomly_reseed_sampling)
             if(self.OS):
-                sampled_opponents = utsmpl.sample_opponents_os(self.eval_sample_path, self.startswith_keyword, self.n_eval_episodes, selection=self.eval_opponent_selection, randomly_seed=self.randomly_reseed_sampling)
+                sampled_opponents = utsmpl.sample_opponents_os(self.eval_sample_path, self.startswith_keyword, self.n_eval_episodes, selection=self.eval_opponent_selection, randomly_reseed=self.randomly_reseed_sampling)
             return self._evaluate_policy_core(logger_prefix="eval", 
                                             n_eval_episodes=self.n_eval_episodes,
                                             deterministic=self.deterministic,

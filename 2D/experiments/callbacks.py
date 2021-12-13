@@ -12,6 +12,7 @@ import numpy as np
 from stable_baselines3.common.vec_env import sync_envs_normalization
 import wandb
 from shared import *
+from bach_utils.shared import *
 
 OS = False #True   # This flag just for testing now in order not to break the compatibility and the working of the code
 
@@ -25,6 +26,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
         self.sample_after_rollout = kwargs["sample_after_rollout"]
         self.num_sampled_per_round = kwargs["num_sampled_per_round"]
         self.archive = kwargs["archive"]
+        self.randomly_reseed_sampling = kwargs["randomly_reseed_sampling"]
         self.OS = OS    # Global flag
 
         del kwargs["sample_path"]
@@ -32,6 +34,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
         del kwargs["opponent_selection"]
         del kwargs["num_sampled_per_round"]
         del kwargs["sample_after_rollout"]
+        del kwargs["randomly_reseed_sampling"]
         # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
@@ -55,9 +58,9 @@ class TrainingOpponentSelectionCallback(EventCallback):
             # print("Not OS")
             archive = self.archive.get_sorted(self.opponent_selection)
             models_names = archive[0]
-            self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)
+            self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True, randomly_seed=self.randomly_reseed_sampling)
         if(self.OS):
-            self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)
+            self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_seed=self.randomly_reseed_sampling)
         # If it is not updated with every rollout, only updated at the begining
         if(self.num_sampled_per_round == 1):
             self.env.set_target_opponent_policy_filename(self.sampled_per_round[0])
@@ -75,9 +78,9 @@ class TrainingOpponentSelectionCallback(EventCallback):
             if(not self.OS):
                 archive = self.archive.get_sorted(self.opponent_selection)
                 models_names = archive[0]
-                opponent = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True)[0]
+                opponent = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True, randomly_seed=self.randomly_reseed_sampling)[0]
             if(self.OS):
-                opponent = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection)[0]
+                opponent = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_seed=self.randomly_reseed_sampling)[0]
             self.env.set_target_opponent_policy_filename(opponent)
         
         if(self.num_sampled_per_round > 1):
@@ -102,6 +105,7 @@ class EvalSaveCallback(EvalCallback):
         self.num_rounds = kwargs["num_rounds"]
         self.seed_value = kwargs["seed_value"]
         self.enable_evaluation_matrix = kwargs["enable_evaluation_matrix"]
+        self.randomly_reseed_sampling = kwargs["randomly_reseed_sampling"]
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
@@ -121,6 +125,7 @@ class EvalSaveCallback(EvalCallback):
         del kwargs["num_rounds"]
         del kwargs["seed_value"]
         del kwargs["enable_evaluation_matrix"]
+        del kwargs["randomly_reseed_sampling"]
         # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
@@ -240,9 +245,9 @@ class EvalSaveCallback(EvalCallback):
                 archive = self.opponent_archive.get_sorted(self.eval_opponent_selection)
                 models_names = archive[0]
                 # print(len(models_names))
-                sampled_opponents = utsmpl.sample_opponents(models_names, self.n_eval_episodes, selection=self.eval_opponent_selection, sorted=True)
+                sampled_opponents = utsmpl.sample_opponents(models_names, self.n_eval_episodes, selection=self.eval_opponent_selection, sorted=True, randomly_seed=self.randomly_reseed_sampling)
             if(self.OS):
-                sampled_opponents = utsmpl.sample_opponents_os(self.eval_sample_path, self.startswith_keyword, self.n_eval_episodes, selection=self.eval_opponent_selection)
+                sampled_opponents = utsmpl.sample_opponents_os(self.eval_sample_path, self.startswith_keyword, self.n_eval_episodes, selection=self.eval_opponent_selection, randomly_seed=self.randomly_reseed_sampling)
             return self._evaluate_policy_core(logger_prefix="eval", 
                                             n_eval_episodes=self.n_eval_episodes,
                                             deterministic=self.deterministic,
@@ -507,38 +512,42 @@ class EvalSaveCallback(EvalCallback):
     # This last agent
     # Post evaluate the model against all the opponents from opponents_path
     # TODO: enable retrieving the agents from the archive
-    # TODO: make it compatible ith different populations 
-    def post_eval(self, opponents_path, startswith_keyword="history", n_eval_rep=3, deterministic=None):
+    def post_eval(self, opponents_path, startswith_keyword="history", n_eval_rep=3, deterministic=None, population_size=None):
         # TODO: fix it in order to print the labels correctly for the x-axis -> as it is now, just enumerate them
         #           But what it should be <round_num>:<idx>:<population_number> -> such that the idx is the order of it in the checkpoint of the round
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
-        opponents_models_names = utos.get_sorted(opponents_path, startswith_keyword, utsrt.sort_steps)
-        opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]
-        eval_return_list = []
-        # self.eval_env.OS = True
-        self.eval_env.set_attr("OS", True)
-        self.OS = True
-        for i, o in enumerate(opponents_models_path):
-            make_deterministic(seed_value=self.seed_value, cuda_check=False)
-            eval_model_list = [o for _ in range(n_eval_rep)]
-            # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
-            # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
-            _, _, win_rate, _, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
-                                            deterministic=deterministic,
-                                            sampled_opponents=eval_model_list)
-            evaluation_result = win_rate
-            # wandb.log({f"{self.agent_name}/post_eval/opponent_idx": i})
-            # wandb.log({f"{self.agent_name}/post_eval/win_rate": evaluation_result})
+        population_axis = [i for i in range(0, population_size)]
+        population_eval_return_list = [] # Store for each population of opponents vs single population of agents
+        for ep, population_idx in enumerate(population_axis):
+            opponents_models_names = utos.get_sorted(opponents_path, startswith_keyword, utsrt.sort_steps, population_idx=population_idx)
+            # sampled_agent = utos.get_latest(sampled_agent_startswith, population_idx=self.population_idx)[0]
 
-            
-            # self.logger.record("post_eval/opponent_idx", i)
-            # evaluation_result = self._evaluate_policy_core(logger_prefix="post_eval", 
-            #                                                 n_eval_episodes=n_eval_opponent,
-            #                                                 deterministic=deterministic,
-            #                                                 sampled_opponents=eval_model_list,
-            #                                                 override=True)
-            
-            eval_return_list.append(evaluation_result)
+            opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]
+            eval_return_list = []
+            # self.eval_env.OS = True
+            self.eval_env.set_attr("OS", True)
+            self.OS = True
+            for i, o in enumerate(opponents_models_path):   # For all the opponents saved for this population
+                make_deterministic(seed_value=self.seed_value, cuda_check=False)
+                eval_model_list = [o for _ in range(n_eval_rep)]
+                # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
+                # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
+                _, _, win_rate, _, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
+                                                deterministic=deterministic,
+                                                sampled_opponents=eval_model_list)
+                evaluation_result = win_rate
+                # wandb.log({f"{self.agent_name}/post_eval/opponent_idx": i})
+                # wandb.log({f"{self.agent_name}/post_eval/win_rate": evaluation_result})
+
+                
+                # self.logger.record("post_eval/opponent_idx", i)
+                # evaluation_result = self._evaluate_policy_core(logger_prefix="post_eval", 
+                #                                                 n_eval_episodes=n_eval_opponent,
+                #                                                 deterministic=deterministic,
+                #                                                 sampled_opponents=eval_model_list,
+                #                                                 override=True)
+                eval_return_list.append(evaluation_result)
+            population_eval_return_list.append(eval_return_list)
         # self.eval_env.OS = False
         self.eval_env.set_attr("OS", False)
         self.OS = False

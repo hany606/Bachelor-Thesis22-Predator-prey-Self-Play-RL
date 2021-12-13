@@ -57,6 +57,7 @@ from bach_utils.json_parser import ExperimentParser
 from shared import *
 from copy import deepcopy
 import bach_utils.os as utos
+from bach_utils.shared import *
 
 
 # This is a modified PPO to tackle problem related of loading from different version of pickle than it was saved with
@@ -299,18 +300,21 @@ class SelfPlayTraining(SelfPlayExp):
                                                                             agent_name=agent_name,
                                                                             num_rounds=self.experiment_configs["num_rounds"],
                                                                             seed_value=self.seed_value,
-                                                                            enable_evaluation_matrix=enable_evaluation_matrix)
+                                                                            enable_evaluation_matrix=enable_evaluation_matrix,
+                                                                            randomly_reseed_sampling=agent_configs.get("randomly_reseed_sampling", False))
                                                             )
                 self.evalsave_callbacks[agent_name][-1].population_idx = population_num
 
             # Here the TrainingOpponentSelectionCallback is used the archive to sample the opponent for training
             # The name here pred_oppoenent -> the opponent of the predator
+            # TODO: extend maybe we can have different opponent selection criteria for each population! Hmmm interesting (I wanna see the results)!
             self.opponent_selection_callbacks[agent_name] = TrainingOpponentSelectionCallback(sample_path=opponent_sample_path,
                                                                         env=self.envs[agent_name], 
                                                                         opponent_selection=agent_configs["opponent_selection"],
                                                                         sample_after_rollout=agent_configs["sample_after_rollout"],
                                                                         num_sampled_per_round=agent_configs["num_sampled_opponent_per_round"],
-                                                                        archive=self.archives[opponent_name])
+                                                                        archive=self.archives[opponent_name],
+                                                                        randomly_reseed_sampling=agent_configs.get("randomly_reseed_sampling", False))
             self.wandb_callbacks[agent_name] = WandbCallback()
 
     def _init_training(self, experiment_filename):
@@ -461,8 +465,10 @@ class SelfPlayTraining(SelfPlayExp):
             # Now it is made for all the agents and takes the mean and the standard deviation
             post_eval_list = []
             for population_num in range(population_size):
+                print("-----------------------------------------------------------------------")
                 print(f"Post Evaluation for {agent_name} (population: {population_num})")
-                eval_return_list = self.evalsave_callbacks[agent_name][population_num].post_eval(opponents_path=os.path.join(self.log_dir, self.agents_configs[agent_name]["opponent_name"]))
+                print("-----------------------------------------------------------------------")
+                eval_return_list = self.evalsave_callbacks[agent_name][population_num].post_eval(opponents_path=os.path.join(self.log_dir, self.agents_configs[agent_name]["opponent_name"]), population_size=population_size)
                 post_eval_list.append(eval_return_list)
             mean_post_eval = np.mean(post_eval_list, axis=0)
             std_post_eval = np.std(post_eval_list, axis=0)

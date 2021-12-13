@@ -10,22 +10,22 @@ def get_startswith(log_dir, startswith):
     file_list = [f for f in os.listdir(log_dir) if f.startswith(startswith)]
     return file_list
 
-def get_sorted(log_dir, startswith, sorting_function, return_count=False):
+def get_sorted(log_dir, startswith, sorting_function, return_count=False, population_idx=None):
     file_list = get_startswith(log_dir, startswith)
-    return utlst.get_sorted(file_list, sorting_function, return_count)
+    return utlst.get_sorted(file_list, sorting_function, return_count, population_idx)
     sorting_function(file_list)
     if(return_count):
         return file_list, len(file_list)
     return file_list
 
-def get_latest(log_dir, startswith, return_count=False):
-    file_list = get_startswith(log_dir, startswith)
-    return utlst.get_latest(file_list, return_count)
+# def get_latest(log_dir, startswith, return_count=False):
+#     file_list = get_startswith(log_dir, startswith)
+#     return utlst.get_latest(file_list, return_count)
 
-    file_list = get_sorted(log_dir, startswith, utsrt.sort_steps, return_count)
-    if(return_count):
-        return [file_list[-1]], len(file_list)
-    return [file_list[-1]]
+#     file_list = get_sorted(log_dir, startswith, utsrt.sort_steps, return_count)
+#     if(return_count):
+#         return [file_list[-1]], len(file_list)
+#     return [file_list[-1]]
 
 def get_latest(log_dir, startswith, return_count=False, population_idx=None):
     file_list = get_startswith(log_dir, startswith)

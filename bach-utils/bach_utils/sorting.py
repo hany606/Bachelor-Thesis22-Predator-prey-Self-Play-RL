@@ -23,11 +23,12 @@ def steps_key(s):
     return [trynum(c) for c in re.split('(_s_(.*)_p_)', s)][-2]
 
 def population_key(s):
+    # print([trynum(c) for c in re.split('(_p_)', s)][-1])
     return [trynum(c) for c in re.split('(_p_)', s)][-1]
     # return [trynum(c) for c in re.split('(_p_(.*)_c_)', s)][-2]
 
 # Not used for now
-def checkpoitn_key(s):
+def checkpoint_key(s):
     return [trynum(c) for c in re.split('(_c_)', s)][-1]
 
 def metric_key(s):
@@ -94,5 +95,7 @@ def insertion_sorted_population(l, e):
 
 
 if __name__ == '__main__':
-    l = ["history_1_winrate_m_0.53_s_565_p_0_c_1", "history_1_winrate_m_0.8_s_562_p_1_c_1"]#, "history_2_winrate_m_0.59_s_562_p_1", "history_4_winrate_m_0.56_s_563_p_1", "history_3_winrate_m_0.15_s_567_p_1"]
+    # l = ["history_1_winrate_m_0.53_s_565_p_0_c_1", "history_1_winrate_m_0.8_s_562_p_1_c_1"]#, "history_2_winrate_m_0.59_s_562_p_1", "history_4_winrate_m_0.56_s_563_p_1", "history_3_winrate_m_0.15_s_567_p_1"]
+    l = ["history_1_winrate_m_0.53_s_565_p_1", "history_1_winrate_m_0.8_s_562_p_0"]#, "history_2_winrate_m_0.59_s_562_p_1", "history_4_winrate_m_0.56_s_563_p_1", "history_3_winrate_m_0.15_s_567_p_1"]
+    print("Sorting by the population number")
     print(_sort(l, population_key))

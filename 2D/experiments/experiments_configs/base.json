@@ -48,6 +48,7 @@
 
         "num_sampled_opponent_per_round": 50,
         "sample_after_rollout": true,
+        "randomly_reseed_sampling": false,
 
         "rl_algorithm": "PPO",
         "policy": "MlpPolicy",
@@ -86,6 +87,7 @@
 
         "num_sampled_opponent_per_round": 50,
         "sample_after_rollout": true,
+        "randomly_reseed_sampling": false,
 
         "rl_algorithm": "PPO",
         "policy": "MlpPolicy",

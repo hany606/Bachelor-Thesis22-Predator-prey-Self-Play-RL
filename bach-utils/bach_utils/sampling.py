@@ -4,6 +4,9 @@ import bach_utils.list as utlst
 import bach_utils.sorting as utsrt
 from copy import deepcopy
 import os
+from datetime import datetime
+import random
+
 
 def sample_set(source_list, num):
     sample = []
@@ -13,7 +16,11 @@ def sample_set(source_list, num):
     return sample
 
 # Return names of the sampled models
-def sample_opponents(files_list, num_sampled_opponents, selection, sorted=False):
+def sample_opponents(files_list, num_sampled_opponents, selection, sorted=False, randomly_reseed=True):
+    if(randomly_reseed):
+        random_seed = datetime.now().microsecond//1000
+        random.seed(random_seed)
+        
     sampled_opponents_filenames = []
     if(len(files_list) == 0):
         sampled_opponents_filenames = [None for _ in range(num_sampled_opponents)]
@@ -65,8 +72,8 @@ def sample_opponents(files_list, num_sampled_opponents, selection, sorted=False)
     return sampled_opponents_filenames
 
 # Return paths of the sampled models
-def sample_opponents_os(sample_path, startswith_keyword, num_sampled_opponents, selection, sorted=False):
+def sample_opponents_os(sample_path, startswith_keyword, num_sampled_opponents, selection, sorted=False, randomly_reseed=True):
     files_list = utos.get_startswith(sample_path, startswith_keyword)
-    sampled_opponents_filenames = sample_opponents(files_list, num_sampled_opponents, selection, sorted)
+    sampled_opponents_filenames = sample_opponents(files_list, num_sampled_opponents, selection, sorted, randomly_reseed=randomly_reseed)
     sampled_opponents_filenames = [os.path.join(sample_path, f) if f is not None else None for f in sampled_opponents_filenames]
     return sampled_opponents_filenames

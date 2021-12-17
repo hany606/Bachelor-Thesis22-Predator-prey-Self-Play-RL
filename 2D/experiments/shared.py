@@ -23,9 +23,9 @@ class DummyVecEnvSelfPlay(DummyVecEnv):
     def change_opponent(self, env_idx):
         self.opponents_indicies[env_idx] += 1
         opponent_index_idx = min(self.opponents_indicies[env_idx], len(self.sampled_opponents)-1) # if it is reached the maximum, then this is the last reset for this environment without doing any other steps later. This min function is only used to protect against crashing
-        opponent_policy_filename = self.sampled_opponents[opponent_index_idx]
-        # print(f"Load evaluation's model: {opponent_policy_filename} with index {self.opponents_indicies[env_idx]}")
-        self.envs[env_idx].set_target_opponent_policy_filename(opponent_policy_filename)
+        opponent_policy_name = self.sampled_opponents[opponent_index_idx]
+        # print(f"Load evaluation's model: {opponent_policy_name} with index {self.opponents_indicies[env_idx]}")
+        self.envs[env_idx].set_target_opponent_policy_name(opponent_policy_name)
 
     # This is modified in order to change the opponent before the env's automatic reseting
     def step_wait(self) -> VecEnvStepReturn:
@@ -142,7 +142,7 @@ def evaluate_policy(
     current_lengths = np.zeros(n_envs, dtype="int")
     env.set_sampled_opponents(sampled_opponents)
     env.set_opponents_indicies(opponents_indicies) # To be used later inside reset()
-    env.set_attr("target_opponent_policy_filename", sampled_opponents, different_values=True, values_indices=opponents_indicies)
+    env.set_attr("target_opponent_policy_name", sampled_opponents, different_values=True, values_indices=opponents_indicies)
     # print(f"Load evaluation models for {n_envs} vectorized env")
     observations = env.reset()
     states = None
@@ -267,7 +267,7 @@ def evaluate_policy_simple(
 
     current_rewards = np.zeros(n_envs)
     current_lengths = np.zeros(n_envs, dtype="int")
-    env.set_target_opponent_policy_filename(sampled_opponents[0])
+    env.set_target_opponent_policy_name(sampled_opponents[0])
 
     # print(f"Load evaluation models for {n_envs} vectorized env")
     # env.seed(3)

@@ -180,13 +180,13 @@ class SelfPlayExp:
 
         self.make_deterministic()
     
-    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None, seed_value=None):
+    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None, seed_value=None, sample_after_reset=False, sampling_parameters=None):
         seed_value = self.seed_value if seed_value is None else seed_value
         agent_configs = self.agents_configs[key]
         agent_name = agent_configs["name"]
         env_class_name = agent_configs["env_class"]
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
-        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
         env._name = name+f"-({agent_name})"
         return env
 
@@ -239,9 +239,14 @@ class SelfPlayTraining(SelfPlayExp):
             agent_name = agent_configs["name"]
             opponent_name = agent_configs["opponent_name"]
             opponent_archive = self.archives[opponent_name]
+            sampling_parameters = {
+                                    "opponent_selection":agent_configs["opponent_selection"],
+                                    "sample_path":os.path.join(self.log_dir, opponent_name),
+                                    "randomly_reseed_sampling": agent_configs.get("randomly_reseed_sampling", False)
+                                  }
 
-            self.envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Training", opponent_archive=opponent_archive)
-            self.eval_envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Evaluation", opponent_archive=opponent_archive)
+            self.envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Training", opponent_archive=opponent_archive, sample_after_reset=agent_configs["sample_after_reset"], sampling_parameters=sampling_parameters)
+            self.eval_envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Evaluation", opponent_archive=opponent_archive, sample_after_reset=False, sampling_parameters=None)
 
     def _init_models(self):
         self.models = {}
@@ -261,7 +266,8 @@ class SelfPlayTraining(SelfPlayExp):
                                                     gamma=agent_configs["gamma"], 
                                                     verbose=2,
                                                     tensorboard_log=os.path.join(self.log_dir,agent_name),
-                                                    n_epochs=agent_configs["n_epochs"]
+                                                    n_epochs=agent_configs["n_epochs"],
+                                                    n_steps=agent_configs.get("n_steps", 2048)
                                                    )
                                              )
     
@@ -286,7 +292,8 @@ class SelfPlayTraining(SelfPlayExp):
                 enable_evaluation_matrix = True
                 # Here the EvalSaveCallback is used the archive to save the model and sample the opponent for evaluation
                 self.evalsave_callbacks[agent_name].append(
-                                                            EvalSaveCallback(eval_env=self.eval_envs[agent_name],
+                                                            EvalSaveCallback(
+                                                                            eval_env=self.eval_envs[agent_name],
                                                                             log_path=agent_path,
                                                                             eval_freq=int(agent_configs["eval_freq"]),
                                                                             n_eval_episodes=agent_configs["num_eval_episodes"],
@@ -302,19 +309,22 @@ class SelfPlayTraining(SelfPlayExp):
                                                                             seed_value=self.seed_value,
                                                                             enable_evaluation_matrix=enable_evaluation_matrix,
                                                                             randomly_reseed_sampling=agent_configs.get("randomly_reseed_sampling", False))
-                                                            )
+                                                                            )
                 self.evalsave_callbacks[agent_name][-1].population_idx = population_num
 
             # Here the TrainingOpponentSelectionCallback is used the archive to sample the opponent for training
             # The name here pred_oppoenent -> the opponent of the predator
             # TODO: extend maybe we can have different opponent selection criteria for each population! Hmmm interesting (I wanna see the results)!
-            self.opponent_selection_callbacks[agent_name] = TrainingOpponentSelectionCallback(sample_path=opponent_sample_path,
-                                                                        env=self.envs[agent_name], 
-                                                                        opponent_selection=agent_configs["opponent_selection"],
-                                                                        sample_after_rollout=agent_configs["sample_after_rollout"],
-                                                                        num_sampled_per_round=agent_configs["num_sampled_opponent_per_round"],
-                                                                        archive=self.archives[opponent_name],
-                                                                        randomly_reseed_sampling=agent_configs.get("randomly_reseed_sampling", False))
+            self.opponent_selection_callbacks[agent_name] = TrainingOpponentSelectionCallback(
+                                                                                                sample_path=opponent_sample_path,
+                                                                                                env=self.envs[agent_name], 
+                                                                                                opponent_selection=agent_configs["opponent_selection"],
+                                                                                                sample_after_rollout=agent_configs["sample_after_rollout"],
+                                                                                                sample_after_reset=agent_configs["sample_after_reset"], # agent_configs.get("sample_after_reset", False)
+                                                                                                num_sampled_per_round=agent_configs["num_sampled_opponent_per_round"],
+                                                                                                archive=self.archives[opponent_name],
+                                                                                                randomly_reseed_sampling=agent_configs.get("randomly_reseed_sampling", False)
+                                                                                             )
             self.wandb_callbacks[agent_name] = WandbCallback()
 
     def _init_training(self, experiment_filename):

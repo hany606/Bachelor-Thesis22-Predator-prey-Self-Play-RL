@@ -6,7 +6,7 @@ from math import sqrt
 
 class Parser:
     @staticmethod
-    def dict_filter(data):
+    def dict_filter(data, shared):
         keys = list(data.keys())
         for k in keys:
             if(isinstance(data[k], str) and data[k].lower() == "none"):
@@ -16,13 +16,19 @@ class Parser:
                 del data[k]
                 continue
 
-            # Put the variables inplace
+            # Put the variables inplace by using the followed of $ as the key ($key)
             if(isinstance(data[k], str) and data[k].startswith("$")):
                 data[k] = data[data[k][1:]]
 
+            # Put the variables inplace by using the followed of ~ as the key is in the "shared" dictionary
+            if(isinstance(data[k], str) and data[k].startswith("~")):
+                if(shared is None):
+                    raise ValueError("shared dictionary is empty in the configuration and there is a reference to the shared")
+                data[k] = shared[data[k][1:]]
+
             # Recursive call to filtering the data dictionary
             if(isinstance(data[k], dict)):
-                Parser.dict_filter(data[k])
+                Parser.dict_filter(data[k], shared)
 
                 
     @staticmethod
@@ -31,7 +37,7 @@ class Parser:
         data = None
         with open(filename, 'r') as f:
             data = json.load(f)
-            Parser.dict_filter(data)
+            Parser.dict_filter(data, data.get("shared", None))
 
         return data
     
@@ -89,4 +95,6 @@ class WandbHeatMapParser(Parser):
         return data_np 
 
 if __name__=="__main__":
-    print(ExperimentParser.load("default.json"))
+    import pprint 
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(ExperimentParser.load("default.json"))

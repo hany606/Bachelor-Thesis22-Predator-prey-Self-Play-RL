@@ -24,6 +24,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
         self.env = kwargs["env"]
         self.opponent_selection = kwargs["opponent_selection"]
         self.sample_after_rollout = kwargs["sample_after_rollout"]
+        self.sample_after_reset = kwargs["sample_after_reset"]
         self.num_sampled_per_round = kwargs["num_sampled_per_round"]
         self.archive = kwargs["archive"]
         self.randomly_reseed_sampling = kwargs["randomly_reseed_sampling"]
@@ -35,6 +36,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
         del kwargs["num_sampled_per_round"]
         del kwargs["sample_after_rollout"]
         del kwargs["randomly_reseed_sampling"]
+        del kwargs["sample_after_reset"]
         # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
@@ -53,17 +55,20 @@ class TrainingOpponentSelectionCallback(EventCallback):
     def _on_training_start(self):
         # if(not self.sampled_per_round):
         print("training started")
-        opponent = None
-        if(not self.OS):
-            # print("Not OS")
-            archive = self.archive.get_sorted(self.opponent_selection)
-            models_names = archive[0]
-            self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True, randomly_reseed=self.randomly_reseed_sampling)
-        if(self.OS):
-            self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_reseed=self.randomly_reseed_sampling)
-        # If it is not updated with every rollout, only updated at the begining
-        if(self.num_sampled_per_round == 1):
-            self.env.set_target_opponent_policy_filename(self.sampled_per_round[0])
+        if(not (self.sample_after_rollout or self.sample_after_reset)):
+            print("Sample opponets for the training round at the start")
+            # Sample opponents for the round
+            if(not self.OS):
+                # print("Not OS")
+                archive = self.archive.get_sorted(self.opponent_selection) # this return [sorted_names, sorted_policies]
+                models_names = archive[0]
+                self.sampled_per_round = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True, randomly_reseed=self.randomly_reseed_sampling)
+            if(self.OS):
+                self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_reseed=self.randomly_reseed_sampling)
+            # If it is specified to have only one sample per round, then load it only once at the training start (now) and do not change it (not load it again)
+            if(self.num_sampled_per_round == 1):
+                print("Set the opponent only once as num_sampled_per_round=1")
+                self.env.set_target_opponent_policy_name(self.sampled_per_round[0])
         super(TrainingOpponentSelectionCallback, self)._on_training_start()
 
     # def _on_training_end(self):
@@ -72,21 +77,29 @@ class TrainingOpponentSelectionCallback(EventCallback):
 
     # With every rollout
     def _on_rollout_start(self):
-        print("Rollout")
-        if(self.sample_after_rollout):
-            opponent = None
-            if(not self.OS):
-                archive = self.archive.get_sorted(self.opponent_selection)
-                models_names = archive[0]
-                opponent = utsmpl.sample_opponents(models_names, self.num_sampled_per_round, selection=self.opponent_selection, sorted=True, randomly_reseed=self.randomly_reseed_sampling)[0]
-            if(self.OS):
-                opponent = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_reseed=self.randomly_reseed_sampling)[0]
-            self.env.set_target_opponent_policy_filename(opponent)
-        
-        if(self.num_sampled_per_round > 1):
-            print("Change sampled agent")
-            self.env.set_target_opponent_policy_filename(self.sampled_per_round[self.sampled_idx % self.num_sampled_per_round]) # as a circular buffer
-            self.sampled_idx += 1
+        print("Start of Rollout")
+        # If sample_after_reset is false -> Use the sampling method with the rollout
+        #       if it is true -> the oppoenent will be sampled from the environment itself
+        if(not self.sample_after_reset):
+            # If sample_after_rollout is true -> sample different opponent after each rollout 
+            if(self.sample_after_rollout):
+                print("Sample opponents again with the start rollout")
+                opponent = None
+                if(not self.OS):
+                    archive = self.archive.get_sorted(self.opponent_selection)
+                    models_names = archive[0]
+                    opponent = utsmpl.sample_opponents(models_names, 1, selection=self.opponent_selection, sorted=True, randomly_reseed=self.randomly_reseed_sampling)[0]
+                if(self.OS):
+                    opponent = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, 1, selection=self.opponent_selection, randomly_reseed=self.randomly_reseed_sampling)[0]
+                print("Change sampled agent")
+                self.env.set_target_opponent_policy_name(opponent)
+            # If sample_after_rollout is fales -> Do not sample anymore and just use the the current bag of samples as a circular buffer
+            else:
+                if(self.num_sampled_per_round > 1): # just condition not for resetting the same agent multiple times if the sampled agent is always the same
+                    print("Change sampled agent")
+                    self.env.set_target_opponent_policy_name(self.sampled_per_round[self.sampled_idx % self.num_sampled_per_round]) # as a circular buffer
+                    self.sampled_idx += 1
+
         super(TrainingOpponentSelectionCallback, self)._on_rollout_start()
 
 
@@ -337,7 +350,7 @@ class EvalSaveCallback(EvalCallback):
 
         # TODO: Make it in one loop (Easy)
         for j in range(round_num+1):
-            print("---------------")
+            print("------------------------------")
             print(f"Round: {i} vs {j}")
             opponent_startswith_keyword = f"{prefix}{j}_"
             sampled_opponent = None
@@ -350,7 +363,8 @@ class EvalSaveCallback(EvalCallback):
             else:
                 # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
                 sampled_opponent = os.path.join(opponents_path, utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword)[0])
-
+            
+            print("---------------")
             print(f"Model {sampled_agent} vs {sampled_opponent}")
             # Run evaluation n_eval_rep for each opponent
             eval_model_list = [sampled_opponent]
@@ -382,7 +396,7 @@ class EvalSaveCallback(EvalCallback):
         eval_model_list = [sampled_opponent]
 
         for i in range(round_num):
-            print("---------------")
+            print("------------------------------")
             print(f"Round: {i} vs {j}")
             startswith_keyword = f"{prefix}{i}_"
             agent_model = None
@@ -400,7 +414,7 @@ class EvalSaveCallback(EvalCallback):
                 # sampled_agent_startswith = utos.get_startswith(self.save_path, startswith=startswith_keyword)
                 sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
                 agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
-
+            print("---------------")
             print(f"Model {sampled_agent} vs {sampled_opponent}")
             # Run evaluation n_eval_rep for each opponent
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
@@ -412,6 +426,7 @@ class EvalSaveCallback(EvalCallback):
             print(f"win rate: {win_rate}")
             
 
+    # TODO: It would be better to fix aggregate evaluation and then use it within here
     # Evaluate the whole matrix
     def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None, freq=1, population_size=1):
         models_names = None
@@ -469,7 +484,7 @@ class EvalSaveCallback(EvalCallback):
                 agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
 
             for ej, j in enumerate(opponent_axis):
-                print("---------------")
+                print("------------------------------")
                 print(f"Round: {i} vs {j}")
                 opponent_startswith_keyword = f"{prefix}{j}_"
                 
@@ -491,7 +506,7 @@ class EvalSaveCallback(EvalCallback):
                         # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
                         sampled_opponent = utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword, population_idx=self.population_idx)[0]
                         sampled_opponent = os.path.join(opponents_path, sampled_opponent)
-
+                    print("---------------")
                     print(f"Model {sampled_agent} vs {sampled_opponent}")
 
                     # Run evaluation n_eval_rep for each opponent

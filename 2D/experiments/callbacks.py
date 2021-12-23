@@ -302,7 +302,10 @@ class EvalSaveCallback(EvalCallback):
         return result
 
     # This doesn't work -> make save_freq=NUM_TIMESTEPS and eval_freq=NUM_TIMESTEPS will work like this
+    # 22.12.2021: Seems that it is working fine! ?
+    # The models are not just stored with 25000 steps factors as it is taking more steps a little bit
     def _on_training_end(self) -> None:
+        print("-------- Training End --------")
         self.checkpoint_num = 0
         if(self.save_freq == 0 and self.eval_freq == 0):
             self.eval_freq = self.n_calls   # There is a problem when I do not set it, thus, I have made this setting (The plots are not being reported in wandb)

@@ -1,4 +1,4 @@
-from SelfPlayExp import SelfPlayTraining
+from SelfPlayTraining import SelfPlayTraining
 
 training = SelfPlayTraining()
 

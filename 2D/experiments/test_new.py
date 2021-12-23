@@ -1,4 +1,4 @@
-from SelfPlayExp import SelfPlayTesting
+from SelfPlayTesting import SelfPlayTesting
 
 testing = SelfPlayTesting()
 

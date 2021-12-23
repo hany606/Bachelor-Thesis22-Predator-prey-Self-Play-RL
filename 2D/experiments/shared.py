@@ -8,6 +8,10 @@ from copy import deepcopy
 import warnings
 from time import sleep
 
+
+def normalize_reward(reward, mn=-1010, mx=1010):
+    return (reward - mn)/(mx-mn)
+    
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/dummy_vec_env.py
 # Only used for evaluation not training envs
 class DummyVecEnvSelfPlay(DummyVecEnv):
@@ -204,15 +208,14 @@ def evaluate_policy(
     if reward_threshold is not None:
         assert mean_reward > reward_threshold, "Mean reward below threshold: " f"{mean_reward:.2f} < {reward_threshold:.2f}"
     if return_episode_rewards:
-        # TODO: Change it later to return the win_rates not the mean here
-        return episode_rewards, episode_lengths, win_rate, std_win_rate, render_ret
+        return episode_rewards, episode_lengths, win_rates, std_win_rate, render_ret
     return mean_reward, std_reward, win_rate, std_win_rate, render_ret
 
 
 def evaluate_policy_simple(
     model: "base_class.BaseAlgorithm",
     env,#: Union[gym.Env, VecEnv],
-    n_eval_episodes: int = 10,
+    n_eval_episodes: int = 1,
     deterministic: bool = True,
     render: bool = False,
     callback: Optional[Callable[[Dict[str, Any], Dict[str, Any]], None]] = None,
@@ -223,6 +226,7 @@ def evaluate_policy_simple(
     render_extra_info = None,
     render_callback = None,
     sleep_time=0.0001,
+    seed=None
     ):
     """
     Runs policy for ``n_eval_episodes`` episodes and returns average reward.
@@ -257,34 +261,37 @@ def evaluate_policy_simple(
         list containing per-episode rewards and second containing per-episode lengths
         (in number of steps).
     """
-    episode_rewards = []
-    episode_lengths = []
+    episodes_reward = []
+    episodes_length = []
     render_ret = None
     vis_speed_status = "\t(Normal visualization speed)"
-    n_envs = 1
     # win_rate = np.zeros(n_envs, dtype="int")
     win_rates = []
 
-    current_rewards = np.zeros(n_envs)
-    current_lengths = np.zeros(n_envs, dtype="int")
     env.set_target_opponent_policy_name(sampled_opponents[0])
 
     # print(f"Load evaluation models for {n_envs} vectorized env")
-    # env.seed(3)
-    observations = env.reset()
-    state = None
-    # print("Evaluation started --------------------")
-    for i in range(n_envs):
+    for i in range(n_eval_episodes):
+        # TODO: add functionality for the seed 
+        # if(seed == "random"):
+            
+        # if(seed is not None):
+        #     env.seed(seed)
+
+        observations = env.reset()
+        state = None
+        # print("Evaluation started --------------------")
         done = False
+        episode_reward = 0.0
+        episode_length = 0
         while not done:
             action, state = model.predict(observations, state=state, deterministic=deterministic)
             # action = env.action_space.sample()
             # print(action)
             observations, reward, done, info = env.step(action)
 
-            # print(observations)
-            episode_rewards.append(reward)
-            episode_lengths.append(1)
+            episode_reward += reward
+            episode_length += 1
 
             if ((isinstance(done, dict) and done["__all__"]) or (isinstance(done, bool) and done)):
                 if(int(info["win"]) > 0):
@@ -292,6 +299,7 @@ def evaluate_policy_simple(
                     win_rates.append(1)
                 else:
                     win_rates.append(0)
+                break
             if render:
                 render_ret = env.render(extra_info=render_extra_info+vis_speed_status)
                 sleep(sleep_time)
@@ -317,14 +325,15 @@ def evaluate_policy_simple(
                     elif(render_ret == -1):
                         win_rates.append(0)
                         done = True 
+        episodes_reward.append(episode_reward)
+        episodes_length.append(episode_length)
 
-    mean_reward = np.mean(episode_rewards)
-    std_reward = np.std(episode_rewards)
+    mean_reward = np.mean(episodes_reward)
+    std_reward = np.std(episodes_length)
     win_rate = np.mean(win_rates)#np.sum(win_rate)/n_eval_episodes
     std_win_rate = np.std(win_rates)
     if reward_threshold is not None:
         assert mean_reward > reward_threshold, "Mean reward below threshold: " f"{mean_reward:.2f} < {reward_threshold:.2f}"
     if return_episode_rewards:
-        # TODO: Change it later to return the win_rates not the mean here
-        return episode_rewards, episode_lengths, win_rate, std_win_rate, render_ret
+        return episodes_reward, episodes_length, win_rates, std_win_rate, render_ret
     return mean_reward, std_reward, win_rate, std_win_rate, render_ret

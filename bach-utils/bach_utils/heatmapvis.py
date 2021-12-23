@@ -44,22 +44,31 @@ class HeatMapVisualizer:
     def visPlotly(heatmap_data,
                  mn_val=0.0,
                  mx_val=1.0,
+                 xrange=None,
+                 yrange=None,
                  labels=["prey", "predator", "win rate", "win rate (heatmap)"],
                  cmap="YlGnBu",
                  ):
         if(isinstance(heatmap_data, list)):
             heatmap_data = np.mean(heatmap_data, axis=0)
+        xrange_cfg = xrange if xrange is not None else [i for i in range(0,heatmap_data.shape[1])]
+        yrange_cfg = yrange if yrange is not None else [i for i in range(0,heatmap_data.shape[0])]
+        
+        xaxis_cfg = dict(type="category", categoryorder="array", categoryarray=xrange_cfg) if xrange is not None else dict()
+        yaxis_cfg = dict(autorange="reversed", type="category", categoryorder="array", categoryarray=yrange_cfg) if yrange is not None else dict(autorange="reversed")
+
         fig = go.Figure(data=go.Heatmap(
                                         z=heatmap_data, 
-                                        x=[i for i in range(0,heatmap_data.shape[1])],
-                                        y=[i for i in range(0,heatmap_data.shape[0])],
+                                        x=xrange_cfg,
+                                        y=yrange_cfg,
                                         type = 'heatmap',
                                         colorscale = cmap.lower(),
                                         # name=dict(x="Predator", y="Prey", color="Winrate"),
                                         )
                         )
         fig.update_layout(
-            yaxis = dict(autorange="reversed"),
+            xaxis=xaxis_cfg,
+            yaxis=yaxis_cfg,
             title=labels[3],
             xaxis_title=labels[0],
             yaxis_title=labels[1],

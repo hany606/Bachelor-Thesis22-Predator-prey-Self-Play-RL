@@ -20,7 +20,11 @@ def alphanum_key(s):
     return [ trynum(c) for c in re.split('([0-9]+)', s) ]
 
 def steps_key(s):
-    return [trynum(c) for c in re.split('(_s_(.*)_p_)', s)][-2]
+    # This try exception has been added because of backward compatibility as some old files do not have population index
+    try:
+        return [trynum(c) for c in re.split('(_s_(.*)_p_)', s)][-2]
+    except:
+        return [trynum(c) for c in re.split('(_s_)', s)][-1]
 
 def population_key(s):
     # print([trynum(c) for c in re.split('(_p_)', s)][-1])

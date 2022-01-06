@@ -11,6 +11,7 @@ from time import sleep
 
 def normalize_reward(reward, mn=-1010, mx=1010):
     return (reward - mn)/(mx-mn)
+    # return reward
     
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/dummy_vec_env.py
 # Only used for evaluation not training envs

@@ -190,7 +190,7 @@ class EvalSaveCallback(EvalCallback):
                               )
 
     def _evaluate_policy_core(self, logger_prefix, n_eval_episodes, deterministic, sampled_opponents, override=False) -> bool:
-        episode_rewards, episode_lengths, win_rate, std_win_rate, _ = self._evaluate(self.model, n_eval_episodes, deterministic, sampled_opponents)
+        episode_rewards, episode_lengths, win_rates, std_win_rate, _ = self._evaluate(self.model, n_eval_episodes, deterministic, sampled_opponents)
 
         if self.log_path is not None:
             self.evaluations_timesteps.append(self.num_timesteps)
@@ -210,7 +210,7 @@ class EvalSaveCallback(EvalCallback):
                 ep_lengths=self.evaluations_length,
                 **kwargs,
             )
-
+        win_rate = np.mean(win_rates)
         mean_reward, std_reward = np.mean(episode_rewards), np.std(episode_rewards)
         self.mean_ep_length, std_ep_length = np.mean(episode_lengths), np.std(episode_lengths)
         self.last_mean_reward = mean_reward
@@ -224,6 +224,7 @@ class EvalSaveCallback(EvalCallback):
         self.logger.record(f"{logger_prefix}/mean_ep_length", self.mean_ep_length)
         self.logger.record(f"{logger_prefix}/record_timesteps", self.num_timesteps)
         if self.verbose > 0:
+            print(f"{win_rate}")
             print(f"Win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}")
         self.logger.record(f"{logger_prefix}/win_rate", win_rate)
 
@@ -235,7 +236,7 @@ class EvalSaveCallback(EvalCallback):
 
         # Dump log so the evaluation results are printed with the correct timestep
         # self.logger.record(f"{logger_prefix}/time/total_timesteps", self.num_timesteps, exclude="tensorboard")
-        # self.logger.dump(self.num_timesteps)
+        self.logger.dump(self.num_timesteps)
         
         if mean_reward > self.best_mean_reward:
             if self.verbose > 0:
@@ -316,7 +317,8 @@ class EvalSaveCallback(EvalCallback):
         super(EvalSaveCallback, self)._on_training_end()
 
     # TODO: Add a feature that it will use the correct sorted from the archive if the metric for the archive is steps!
-    # Deprecated
+    # TODO: It would be better to fix aggregate evaluation and then use it within here
+    # [Deprecated]
     def compute_eval_matrix_aggregate(self, prefix, round_num, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None):
         models_names = None
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
@@ -373,12 +375,13 @@ class EvalSaveCallback(EvalCallback):
             eval_model_list = [sampled_opponent]
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
             # TODO: it is possible to change this agent_model to self.model as they are the same in this loop
-            _, _, win_rate, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+            _, _, win_rates, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
             # Add this matrix to __init__
             # It will be redundent to have 2 matrices but it is fine
+            win_rate = np.mean(win_rates)
             self.evaluation_matrix[i,j] = win_rate
             print(f"win rate: {win_rate}")
 
@@ -421,10 +424,11 @@ class EvalSaveCallback(EvalCallback):
             print(f"Model {sampled_agent} vs {sampled_opponent}")
             # Run evaluation n_eval_rep for each opponent
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-            _, _, win_rate, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+            _, _, win_rates, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
+            win_rate = np.mean(win_rates)
             self.evaluation_matrix[i,j] = win_rate
             print(f"win rate: {win_rate}")
             
@@ -491,7 +495,8 @@ class EvalSaveCallback(EvalCallback):
                 print(f"Round: {i} vs {j}")
                 opponent_startswith_keyword = f"{prefix}{j}_"
                 
-                win_rates = []
+                # win_rates = []
+                scores = []
                 # For each opponent from different population, we evaluate the agent of the specific population against all the populations
                 for ep, population_idx in enumerate(population_axis):
                     # To ensure that each evalaution is determinsitic and not affected by the previous one somehow
@@ -515,16 +520,22 @@ class EvalSaveCallback(EvalCallback):
                     # Run evaluation n_eval_rep for each opponent
                     eval_model_list = [sampled_opponent]
                     # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-                    _, _, win_rate, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+                    episodes_rewards_ret, _, win_rates_ret, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                                     deterministic=deterministic,
                                                     sampled_opponents=eval_model_list)
-                    win_rates.append(win_rate)
+                    # win_rate = np.mean(win_rates_ret)
+                    # win_rates.append(win_rate)
+                    score = np.mean(episodes_rewards_ret)
+                    scores.append(score)
                 # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
                 # Add this matrix to __init__
                 # It will be redundent to have 2 matrices but it is fine
-                mean_win_rate = np.mean(win_rates)
-                self.evaluation_matrix[ei, ej] = mean_win_rate
-                print(f"win rate: {win_rate}")
+                # mean_win_rate = np.mean(win_rates)
+                # self.evaluation_matrix[ei, ej] = mean_win_rate
+                # print(f"win rate: {mean_win_rate}")
+                mean_score = np.mean(scores)
+                self.evaluation_matrix[ei, ej] = mean_score
+                print(f"Mean score (reward): {mean_score}")
 
         return [agent_axis, opponent_axis]
     # This last agent
@@ -550,10 +561,13 @@ class EvalSaveCallback(EvalCallback):
                 eval_model_list = [o for _ in range(n_eval_rep)]
                 # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
                 # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
-                _, _, win_rate, _, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
+                episodes_rewards_ret, _, win_rates, _, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
                                                 deterministic=deterministic,
                                                 sampled_opponents=eval_model_list)
-                evaluation_result = win_rate
+                # win_rate = np.mean(win_rates)
+                # evaluation_result = win_rate
+                score = np.mean(episodes_rewards_ret)
+                evaluation_result = score
                 # wandb.log({f"{self.agent_name}/post_eval/opponent_idx": i})
                 # wandb.log({f"{self.agent_name}/post_eval/win_rate": evaluation_result})
 
@@ -571,6 +585,7 @@ class EvalSaveCallback(EvalCallback):
         self.OS = False
         return np.array(eval_return_list)
 
+    # [Not used]
     def agentVopponentOS(self, agent_path, opponent_path, n_eval_rep=5, deterministic=None, algorithm_class=None):
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
 
@@ -588,7 +603,8 @@ class EvalSaveCallback(EvalCallback):
         self.OS = False
 
         return res
-
+        
+    # [Not used]
     def agentVopponentArchive(self, agent_name, opponent_name, n_eval_rep=5, deterministic=None, algorithm_class=None):
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
 

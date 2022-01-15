@@ -13,3 +13,6 @@
 [submodule "2D/evorobotpy2"]
 	path = 2D/evorobotpy2
 	url = git@github.com:snolfi/evorobotpy2.git
+[submodule "Drones/gym-predprey-drones"]
+	path = Drones/gym-predprey-drones
+	url = git@github.com:hany606/gym-predprey-drones.git

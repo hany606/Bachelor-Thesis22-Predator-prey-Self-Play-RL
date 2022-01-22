@@ -179,8 +179,9 @@ class SelfPlayExp:
         agent_configs = self.agents_configs[key]
         agent_name = agent_configs["name"]
         env_class_name = agent_configs["env_class"]
+        reward_type = agent_configs.get("reward_type", "normal")
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
-        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters, gui=gui)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters, gui=gui, reward_type=reward_type)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
         env._name = name+f"-({agent_name})"
         return env
 

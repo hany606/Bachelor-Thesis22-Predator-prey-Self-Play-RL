@@ -26,6 +26,7 @@
 
 # Note: this script is made only for now for pred and prey (1v1) setting
 
+from email import policy
 import os
 import numpy as np
 
@@ -104,6 +105,9 @@ class SelfPlayTraining(SelfPlayExp):
             self.eval_envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Evaluation", opponent_archive=opponent_archive, sample_after_reset=False, sampling_parameters=None)
 
     def _init_models(self):
+        policy_kwargs = dict(activation_fn=torch.nn.ReLU,
+                             net_arch=[512, 512, dict(vf=[256, 128], pi=[256, 128])]
+                            )
         self.models = {}
         population_size = self.experiment_configs["population_size"]    # population here has a shared archive
         for k in self.agents_configs.keys():
@@ -122,7 +126,8 @@ class SelfPlayTraining(SelfPlayExp):
                                                     verbose=2,
                                                     tensorboard_log=os.path.join(self.log_dir,agent_name),
                                                     n_epochs=agent_configs["n_epochs"],
-                                                    n_steps=agent_configs.get("n_steps", 2048)
+                                                    n_steps=agent_configs.get("n_steps", 2048),
+                                                    policy_kwargs=policy_kwargs
                                                    )
                                              )
     

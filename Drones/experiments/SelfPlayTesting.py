@@ -130,7 +130,7 @@ class SelfPlayTesting(SelfPlayExp):
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
             # env = globals()["SelfPlayPredEnv"](algorithm_class=PPOMod, archive=None, seed_val=3)
-            env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
+            env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None, algorithm_class=PPOMod, gui=True)
             # if not isinstance(env, VecEnv):
             #     env = DummyVecEnv([lambda: env])
 
@@ -171,7 +171,7 @@ class SelfPlayTesting(SelfPlayExp):
         # TODO: debug why if we did not do this (redefine the env again) it does not work properly for the rendering
         # Create environment for each evaluation
         if(env is None and agent_model is None):
-            env = super(SelfPlayTesting, self).create_env(key=agent_conifgs_key, name="Testing", opponent_archive=None, algorithm_class=PPOMod, seed_value=seed_value)
+            env = super(SelfPlayTesting, self).create_env(key=agent_conifgs_key, name="Testing", opponent_archive=None, algorithm_class=PPOMod, seed_value=seed_value, gui=True)
             agent_model = PPOMod.load(sampled_agent, env)
         mean_reward, std_reward, win_rate, std_win_rate, render_ret = evaluate_policy_simple(
                                                                                                 agent_model,
@@ -184,7 +184,7 @@ class SelfPlayTesting(SelfPlayExp):
                                                                                                 callback=None,
                                                                                                 sampled_opponents=sampled_opponents,
                                                                                                 render_extra_info=render_extra_info,
-                                                                                                render_callback=self.render_callback,
+                                                                                                render_callback=None, #self.render_callback,
                                                                                                 sleep_time=self.render_sleep_time, #0.1,
                                                                                             )
 

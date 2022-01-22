@@ -196,7 +196,8 @@ def evaluate_policy(
                         states[i] *= 0
 
         if render:
-            render_ret = env.render(extra_info=render_extra_info)
+            # render_ret = env.render(extra_info=render_extra_info)
+            env.render()
             if(render_callback is not None):
                 render_ret = render_callback(render_ret)
                 if(render_ret == -1):
@@ -287,6 +288,7 @@ def evaluate_policy_simple(
         episode_length = 0
         while not done:
             action, state = model.predict(observations, state=state, deterministic=deterministic)
+            print(action)
             # action = env.action_space.sample()
             # print(action)
             observations, reward, done, info = env.step(action)
@@ -302,7 +304,8 @@ def evaluate_policy_simple(
                     win_rates.append(0)
                 break
             if render:
-                render_ret = env.render(extra_info=render_extra_info+vis_speed_status)
+                # render_ret = env.render(extra_info=render_extra_info+vis_speed_status)
+                env.render()
                 sleep(sleep_time)
                 if(render_callback is not None):
                     render_ret = render_callback(render_ret)

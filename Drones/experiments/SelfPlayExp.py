@@ -42,7 +42,7 @@ from stable_baselines3.common import callbacks, logger
 # from bach_utils.archive import Archive
 from archive import ArchiveSB3 as Archive
 
-import gym_predprey
+import gym_predprey_drones
 import gym
 from gym.envs.registration import register
 # Import all the used environments as they are going to be used from globals()[<env_name>]

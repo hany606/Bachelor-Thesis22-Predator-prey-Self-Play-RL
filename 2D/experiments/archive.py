@@ -1,3 +1,7 @@
+# TODO: integrate the archive with sampling methods
+# TODO: integrate the archive with getting specific round (To be indexable with the number of round or specific id)
+# TODO: integrate the archive to be constructed using a path of files
+
 import bach_utils.sorting as utsrt
 from stable_baselines3.common.utils import check_for_correct_spaces
 from stable_baselines3.common.save_util import recursive_getattr, recursive_setattr, load_from_zip_file, save_to_zip_file

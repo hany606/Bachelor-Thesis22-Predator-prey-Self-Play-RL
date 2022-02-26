@@ -26,6 +26,10 @@
 
 # Note: this script is made only for now for pred and prey (1v1) setting
 
+# Note: player1 -> predator -> agent, player2 -> prey -> opponent
+
+# TODO: make this script extendable with NvM competitive games
+
 import os
 
 from stable_baselines3 import PPO
@@ -62,13 +66,13 @@ class SelfPlayTesting(SelfPlayExp):
         self.deterministic = True
         self.warn = True
         self.render = None # it is being set by the configuration file
-        self.gain_score_flag = None
+        self.crosstest_flag = None
         self.render_sleep_time = render_sleep_time
 
     def _init_testing(self, experiment_filename, logdir, wandb):
         super(SelfPlayTesting, self)._init_exp(experiment_filename, logdir, wandb)
         self.render = self.testing_configs.get("render", True)
-        self.gain_score_flag = self.testing_configs.get("gain_score", False)
+        self.crosstest_flag = self.testing_configs.get("crosstest", False)
         print(f"----- Load testing conditions")
         self._load_testing_conditions(experiment_filename)
         # print(f"----- Initialize environments")
@@ -76,11 +80,13 @@ class SelfPlayTesting(SelfPlayExp):
         # print(f"----- Initialize models")
         # self._init_models()
 
+    # Overloading functions for testing
     def _init_argparse(self):
         super(SelfPlayTesting, self)._init_argparse(description='Self-play experiment testing script', help='The experiemnt configuration file path and name which the experiment should be loaded')
 
     def _generate_log_dir(self):
         super(SelfPlayTesting, self)._generate_log_dir(dir_postfix="test")
+    # --------------------------------------------------------------------------------
 
     def _load_testing_conditions(self, path):
         self.testing_conditions = {}
@@ -100,26 +106,33 @@ class SelfPlayTesting(SelfPlayExp):
             num_rounds = self.experiment_configs["num_rounds"]
 
             if(mode == "limit"):
+                # Use parameters to limit the history of rounds for the agent
                 self.testing_conditions[agent_name]["limits"] = [0, testing_config["gens"], testing_config["freq"]]
             # if the limit is that the start of the tested agents is that index and the end till the end
             elif(mode == "limit_s"):
+                # Use gen parameter to limit the history of rounds for the agent
                 self.testing_conditions[agent_name]["limits"] = [testing_config["gens"], num_rounds-1, testing_config["freq"]]
             
             # if the limit is that the end of the tested agents is that index (including that index: in the for loop we will +1)
             elif(mode == "limit_e"):
+                # Use gen parameter to limit the history of rounds for the agent
                 self.testing_conditions[agent_name]["limits"] = [0, testing_config["gens"], testing_config["freq"]]
 
             elif(mode == "gen"):
+                # Specific generation (round)
                 self.testing_conditions[agent_name]["limits"] = [testing_config["gens"], testing_config["gens"], testing_config["freq"]]
 
             elif(mode == "all"):
+                # Test all the available rounds for the agent (if we have n rounds then we have n*m evaluation rounds such that m is the number of rounds specified in the parameter for the other agent)
                 self.testing_conditions[agent_name]["limits"] = [0, num_rounds-1, testing_config["freq"]]
             
             elif(mode == "random"):
+                # Random generations/rounds
                 self.testing_conditions[agent_name]["limits"] = [None, None, testing_config["freq"]]
 
             elif(mode == "round"):  # The round of pred vs round of prey
-                print(num_rounds)
+                # print(num_rounds)
+                # Test round by round (all the available rounds) (if we have n rounds then we have n rounds of evaluation)
                 self.testing_conditions[agent_name]["limits"] = [0, num_rounds-1, testing_config["freq"]]
             print(self.testing_conditions[agent_name]["limits"])
 
@@ -139,6 +152,11 @@ class SelfPlayTesting(SelfPlayExp):
             
             self.envs[agent_name] = env
     
+    # TODO: create _init_archives() but after the archive is integrated with the sampling and the indexing
+    def _init_archives(self):
+        raise NotImplementedError("_init_archives() not implemented")
+    
+    # Useless now as there is a problem and we have to recreate the model again with each evaluation
     def _init_models(self):
         self.models = {}
 
@@ -164,7 +182,15 @@ class SelfPlayTesting(SelfPlayExp):
         #     return -1
         return ret
 
-    def _run_one_evaluation(self, agent_conifgs_key, sampled_agent, sampled_opponents, n_eval_episodes, render_extra_info, env=None, agent_model=None, seed_value=None):
+    def _run_one_evaluation(self, agent_conifgs_key,
+                                  sampled_agent,
+                                  sampled_opponents,
+                                  n_eval_episodes,
+                                  render_extra_info,
+                                  env=None,
+                                  agent_model=None,
+                                  seed_value=None,
+                                  return_episode_rewards=False):
         print("----------------------------------------")
         print(render_extra_info)
         self.make_deterministic(cuda_check=False)   # This was added as we observed that previous rounds affect the other rounds
@@ -179,7 +205,7 @@ class SelfPlayTesting(SelfPlayExp):
                                                                                                 n_eval_episodes=n_eval_episodes,
                                                                                                 render=self.render,
                                                                                                 deterministic=self.deterministic,
-                                                                                                return_episode_rewards=False,
+                                                                                                return_episode_rewards=return_episode_rewards,
                                                                                                 warn=self.warn,
                                                                                                 callback=None,
                                                                                                 sampled_opponents=sampled_opponents,
@@ -192,6 +218,7 @@ class SelfPlayTesting(SelfPlayExp):
         env.close()
         return mean_reward, std_reward, win_rate, std_win_rate, render_ret
 
+    # Test and evaluate round of agent with the same round of the opponent (round no. (x) predator vs round no. (x) prey)
     def _test_round_by_round(self, key, n_eval_episodes):
         agent_configs = self.agents_configs[key]
         agent_name = agent_configs["name"]
@@ -219,6 +246,8 @@ class SelfPlayTesting(SelfPlayExp):
         agent_configs = self.agents_configs[key]
         agent_name = agent_configs["name"]
         opponent_name = agent_configs["opponent_name"]
+        # The extra for loop
+        # TODO: integrate with _test_round_by_round by creating a smaller function that takes two extra parameters (Round numbers of agent1, agent2) and return the evaluation
         for i in range(self.testing_conditions[agent_name]["limits"][0], self.testing_conditions[agent_name]["limits"][1]+1, self.testing_conditions[agent_name]["limits"][2]):
             agent_startswith_keyword = f"{self.load_prefix}{i}_"
             # 1. fetch the agent
@@ -268,7 +297,9 @@ class SelfPlayTesting(SelfPlayExp):
         # * Evaluate m2 vs m3 (prey1 against predators2)
         gain_list = []
         # TODO: something seems not correct here: check it later
-        # Professor Nolfi: Gain = performance(predators1 against prey1) - performance(predators1 against prey2) + performance(predators1 against prey1) - performance(predators2 against prey1)
+        # Professor Nolfi: Gain = performance(predators1 against prey1) - performance(predators1 against prey2) + performance(prey1 against predators1) - performance(prey1 against predators2)
+        # performance(prey[i] against predator[i]) =  - performance(predator[i] against prey[i]) 
+        # Gain = performance(predators1 against prey1) - performance(predators1 against prey2) - performance(predators1 against prey1) + performance(predators2 against prey1)
         # Max(Gain) = 0.5 - 0 + 0.5 - 0 = 1 -> (0.5: normalized value for 0 reward, 0: normalized value for -1000 reward)
         # Min(Gain) = 0 - 0.5 + 0 - 0.5 = -1 -> (0.5: normalized value for 0 reward (the predator caught the prey directly), 0: normalized value for -1010 reward (the predator could not catch the prey at all))
         
@@ -280,7 +311,9 @@ class SelfPlayTesting(SelfPlayExp):
 
 
         # Only for 1v1
-        allowed_pairs = [(1, 0,0), (-1, 0,1), (1, 0,0), (-1, 1,0)]
+        # allowed_pairs = [(1, 0, "pred", 0, "prey"), (-1, 0, "pred", 1, "prey"), (+1, 0, "prey", 0, "pred"), (-1, 1, "prey", 0, "pred")]
+        # for (factor, agent_idx, agent_type, opponent_idx, opponent_type) in allowed_pairs:
+        allowed_pairs = [(1, 0,0), (-1, 0,1), (-1, 0,0), (+1, 1,0)]
         for (factor, agent_idx, opponent_idx) in allowed_pairs:
             agent_type = "pred"
             opponent_type = "prey"
@@ -292,7 +325,7 @@ class SelfPlayTesting(SelfPlayExp):
             print("###########") 
             print(f"Pair: {(agent_idx, opponent_idx)}")
             mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(agent_type, sampled_agent, sampled_opponents, n_eval_episodes, f"{agent_type}({agent_idx}):{round_num1} vs {opponent_type}({opponent_idx}):{round_num2}", seed_value=seed)
-            score = normalize_reward(mean_reward)
+            score = normalize_reward(mean_reward, mn=-1010, mx=0)
             print(f"Score (Normalized reward): {score}")
             gain = factor*score
             print(f"Gain: {gain}")
@@ -380,7 +413,76 @@ class SelfPlayTesting(SelfPlayExp):
         # TODO: later also visualize the axis of the rounds
         HeatMapVisualizer.visPlotly(gain_matrix, xrange=round_axis, yrange=round_axis)
 
+    # ------------------- TODO --------------------------------
+    # TODO
+    def _get_best_agent(self, agent_num_rounds, opponent_num_rounds, search_radius, agent_path, opponent_path):
+        # TODO: Use the metric that is saved with the name of the model to get the best model
+        best_rewards = None
+        best_agent = None
+        for agent_idx in range(agent_num_rounds-search_radius, agent_num_rounds):
+            agent = None #TODO: get the latest predator with ith round
+            freq = 3     # TODO: parse it from the config file
+            opponents_rounds_idx = [i for i in range(0, opponent_num_rounds, freq)]  # TODO: think to make it as Prof. Nolfi said
+            # for opponent_idx in opponents_selected_rounds:
+            opponents = None    # TODO: get the opponents using opponents_rounds_idx
+            # self._run_one_evaluation(agent_conifgs_key, sampled_agent, sampled_opponents, n_eval_episodes, render_extra_info, env=None, agent_model=None, seed_value=None):
+            reward = None # TODO: evaluate
+            best_rewards.append([agent_idx, reward])
+        best_rewards = np.array(best_rewards)
+        best_agent_idx = np.argmax(best_rewards, axis=0)[0]
+        best_agent = None # Get the best agent using best_agent_idx
+        return best_agent
 
+    def _compute_performance(self, agent, opponent, negative_score_flag=False):
+        def normalize_performance(performance, negative_score_flag):
+            max_val = None # TODO: get from the config file
+            min_val = None # TODO: get from the config file
+            if(negative_score_flag):
+                return max_val - abs(performance) / (max_val - min_val)
+            else:
+                return performance / max_val
+        reward = None # TODO: get the performance reward
+        return normalize_performance(reward, negative_score_flag)
+
+    def crosstest(self, n_eval_episodes, n_seeds):
+        num_rounds1 = None      # TODO
+        num_rounds2 = None      # TODO
+        search_radius = None    # TODO
+        
+        best_agent1     = self._get_best_agent() # TODO
+        best_opponent1  = self._get_best_agent() # TODO
+
+        best_agent2     = self._get_best_agent() # TODO
+        best_opponent2  = self._get_best_agent() # TODO
+
+        # agent1 predator -> performance is related to the reward 
+        perf_agent1_opponent2 = self._compute_performance(self, best_agent1, best_opponent2, negative_score_flag=True)
+        perf_agent1_opponent1 = self._compute_performance(self, best_agent1, best_opponent1, negative_score_flag=True)
+        perf_opponent1_agent2 = self._compute_performance(self, best_opponent1, best_agent2, negative_score_flag=False)
+        perf_opponent1_agent1 = self._compute_performance(self, best_opponent1, best_agent1, negative_score_flag=False)
+
+        perf_agent = perf_agent1_opponent2 - perf_agent1_opponent1
+        perf_opponent = perf_opponent1_agent2 - perf_opponent1_agent1
+        
+        gain = perf_agent + perf_opponent
+
+        if(perf_agent > 0):
+            print(f"Configuration 1 is better {1} to generate predators (agent)") # TODO: print the path of the condition 1 parent directory
+        else:
+            print(f"Configuration 2 is better {2} to generate predators (agent)") # TODO: print the path of the condition 1 parent directory
+
+        if(perf_opponent > 0):
+            print(f"Configuration 1 is better {1} to generate preys") # TODO: print the path of the condition 1 parent directory
+        else:
+            print(f"Configuration 2 is better {2} to generate preys") # TODO: print the path of the condition 1 parent directory
+
+        if(gain > 0):
+            print(f"Configuration 1 is better {1}") # TODO: print the path of the condition 1 parent directory
+            return 1
+        else:
+            print(f"Configuration 2 is better {2}") # TODO: print the path of the condition 1 parent directory
+            return 2
+            
 
     def test(self, experiment_filename=None, logdir=False, wandb=False, n_eval_episodes=1):
         self._init_testing(experiment_filename=experiment_filename, logdir=logdir, wandb=wandb)
@@ -388,9 +490,9 @@ class SelfPlayTesting(SelfPlayExp):
         n_eval_episodes = n_eval_episodes_configs if n_eval_episodes_configs is not None else n_eval_episodes
 
 
-        if(self.gain_score_flag):
+        if(self.crosstest_flag):
             n_seeds = self.testing_configs.get("n_seeds", 1)
-            self._compute_gain_score(n_eval_episodes, n_seeds)
+            # self._compute_gain_score(n_eval_episodes, n_seeds)
         else:
             already_evaluated_agents = []
             # In order to extend it multipe agents, we can make it as a recursive function (list:[models....,, None]) and pass the next element in the list, the termination criteria if the argument is None
@@ -402,6 +504,7 @@ class SelfPlayTesting(SelfPlayExp):
                     continue
 
                 if(self.testing_modes[agent_name] == "round"):
+                    # Do not care about all other parameters just evaluate using agents from the same rounds against each other
                     self._test_round_by_round(k, n_eval_episodes)
                     # break
                 else:

@@ -109,10 +109,12 @@
         "n_seeds":1,
         "crosstest":true,
         "__comment2__": "TODO: Make it general for gain by making the path for pred/prey can be a list of models then we can define that this is a crosstest",
+        "__commentImportant__": "TODO: Merge all the approach cfg into one dictionary or parse them using the experiment configuration file saved in the experiment folder",
         "crosstest_approaches_path":[
             "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22",
             "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50"
         ],
+        "crosstest_populations": [5, 1],
         "crosstest_num_rounds": [50, 50],
         "__comment3__": "TODO: Make it work also for different types of RL algorithms",
         "__comment4__": "TODO: save the configuration file with the experiment, so we can parse the training configs with it",

@@ -416,95 +416,127 @@ class SelfPlayTesting(SelfPlayExp):
 
     # ------------------- TODO --------------------------------
     # TODO
-    def _get_best_agent(self, agent_num_rounds, opponent_num_rounds, search_radius, agent_path, opponent_path, key):
+    def _get_best_agent(self, agent_num_rounds, opponent_num_rounds, search_radius, agent_path, opponent_path, key, min_gamma_val=0.05, n_eval_episodes=1):#, negative_reward_flag=False):
+        print(f"## Getting the best model for {key}")
         # TODO: Use the metric that is saved with the name of the model to get the best model
-        best_rewards = None
-        best_agent = None
+        best_rewards = []
+        freq = self.testing_configs.get("crosstest_freq")
         opponents_rounds_idx = [i for i in range(0, opponent_num_rounds, freq)]  # TODO: think to make it as Prof. Nolfi said
-        for agent_idx in range(agent_num_rounds-search_radius, agent_num_rounds):
+        if(not opponent_num_rounds-1 in opponents_rounds_idx):
+            opponents_rounds_idx.append(opponent_num_rounds-1)
+        gamma = min_gamma_val**(1/len(opponents_rounds_idx))
+        for agent_idx in range(agent_num_rounds-search_radius-1, agent_num_rounds):
             # TODO: refactor the code and make the following 4 lines as a function
             startswith_keyword = f"{self.load_prefix}{agent_idx}_"
             agent_latest = utos.get_latest(agent_path, startswith=startswith_keyword)
             if(len(agent_latest) == 0): # the experiment might have not be completed yet
                 continue
             agent = os.path.join(agent_path, agent_latest[0])  # Join it with the agent path
-            freq = self.testing_configs.get("crosstest_freq")
             # for opponent_idx in opponents_selected_rounds:
-            opponents = []
-            for opponent_idx in opponents_rounds_idx:
+            best_reward = []
+            for i, opponent_idx in enumerate(opponents_rounds_idx):
                 opponent_startswith_keyword = f"{self.load_prefix}{opponent_idx}_"
                 opponent_latest = utos.get_latest(opponent_path, startswith=opponent_startswith_keyword)
                 if(len(opponent_latest) == 0):
                     continue
                 sampled_opponent = os.path.join(opponent_path, opponent_latest[0])  # Join it with the agent path
-                # 4. load the opponent to self.envs._load_opponent
-                opponents.append(sampled_opponent)
-            mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(key, agent, opponents, 1, render=False)
+                mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(key, agent, [sampled_opponent], n_eval_episodes, render=False, render_extra_info=f"{agent_idx} vs {opponent_idx}")
+                discount = (gamma**(len(opponents_rounds_idx)-i))
+                # if(negative_reward_flag):
+                #     discount = (gamma**(i))
+                discounted_reward = discount * mean_reward
+                print(f"Discount: {discount}\tReward: {mean_reward}\tDiscounted Reward: {discounted_reward}")
+                best_reward.append(discounted_reward)
             # TODO: check the mean_reward (it should be a single value)
-            reward = np.mean(mean_reward)
+            reward = np.mean(np.array(best_reward))
             best_rewards.append([agent_idx, reward])
         best_rewards = np.array(best_rewards)
-        best_agent_idx = np.argmax(best_rewards, axis=0)[0]
+        print(best_rewards)
+        best_agent_idx = np.argmax(best_rewards[:,1])
         # Get the best agent using best_agent_idx
-        agent_idx = agent_num_rounds-search_radius + best_agent_idx
+        agent_idx = agent_num_rounds-search_radius-1 + best_agent_idx
         startswith_keyword = f"{self.load_prefix}{agent_idx}_"
         agent_latest = utos.get_latest(agent_path, startswith=startswith_keyword)
         best_agent = os.path.join(agent_path, agent_latest[0])  # Join it with the agent path
         return best_agent
 
-    def _compute_performance(self, agent, opponent, key, negative_score_flag=False):
+    def _compute_performance(self, agent, opponent, key, n_eval_episodes=1, negative_score_flag=False):
         def normalize_performance(min_val, max_val, performance, negative_score_flag):
             if(negative_score_flag):
                 return max_val - abs(performance) / (max_val - min_val)
             else:
                 return performance / max_val
-        mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(key, agent, opponent, 1, render=False)
+        mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(key, agent, [opponent], n_eval_episodes, render=False, render_extra_info=f"{agent} vs {opponent}")
         reward = np.mean(mean_reward) # get the performance reward
         limits = self.testing_configs.get("crosstest_rewards_limits")
         return normalize_performance(*limits, reward, negative_score_flag)
 
     def crosstest(self, n_eval_episodes, n_seeds):
+        print(f"---------------- Running Crosstest ----------------")
         # For now both the approaches have the same number of rounds
         # TODO: save the configuration file with the experiment, so we can parse the training configs with it and the number of round for each approach,
         # TODO: make crosstest as a seperate or a big element in testing 
         # TODO: change opponent with adversery word (maybe)
         # TODO: refactor and make it better and make it for more than 1v1
-        num_rounds = self.testing_configs.get("num_rounds")
+        num_rounds = self.testing_configs.get("crosstest_num_rounds")
         num_rounds1, num_rounds2 = num_rounds[0], num_rounds[1]
         search_radius = self.testing_configs.get("crosstest_search_radius")
-        
+        print(f"Num. rounds: {num_rounds1}, {num_rounds2}")
+
         # def _get_best_agent(self, agent_num_rounds, opponent_num_rounds, search_radius, agent_path, opponent_path):
         approaches_path = self.testing_configs.get("crosstest_approaches_path")
         approach1_path, approach2_path = approaches_path[0], approaches_path[1]
+        print(f"Paths:\n{approach1_path}\n{approach2_path}")
 
         names = [self.agents_configs[k]["name"] for k in self.agents_configs.keys()]
         agent_name, opponent_name = names[0], names[1]
+        print(f"names: {agent_name}, {opponent_name}")
+
         
         agent1_path = os.path.join(approach1_path, agent_name)
         opponent1_path = os.path.join(approach1_path, opponent_name)
-        best_agent1     = self._get_best_agent(num_rounds1, num_rounds1, search_radius, agent1_path, opponent1_path, agent_name)
-        best_opponent1  = self._get_best_agent(num_rounds1, num_rounds1, search_radius, opponent1_path, agent1_path, opponent_name)
-
         agent2_path = os.path.join(approach2_path, agent_name)
         opponent2_path = os.path.join(approach2_path, opponent_name)
-        best_agent2     = self._get_best_agent(num_rounds2, num_rounds2, search_radius, agent2_path, opponent2_path, agent_name)
-        best_opponent2  = self._get_best_agent(num_rounds2, num_rounds2, search_radius, opponent2_path, agent2_path, opponent_name)
+
+        print(f"Agent1 path: {agent1_path}")
+        print(f"Opponenet1 path: {opponent1_path}")
+        print(f"Agent2 path: {agent2_path}")
+        print(f"Opponenet2 path: {opponent2_path}")
+
+
+        best_agent1     = self._get_best_agent(num_rounds1, num_rounds1, search_radius, agent1_path, opponent1_path, agent_name, n_eval_episodes=n_eval_episodes)
+        print(f"Best agent1: {best_agent1}")
+        best_opponent1  = self._get_best_agent(num_rounds1, num_rounds1, search_radius, opponent1_path, agent1_path, opponent_name, n_eval_episodes=n_eval_episodes)
+        print(f"Best opponent1: {best_opponent1}")
+        best_agent2     = self._get_best_agent(num_rounds2, num_rounds2, search_radius, agent2_path, opponent2_path, agent_name, n_eval_episodes=n_eval_episodes)
+        print(f"Best agent2: {best_agent2}")
+        best_opponent2  = self._get_best_agent(num_rounds2, num_rounds2, search_radius, opponent2_path, agent2_path, opponent_name, n_eval_episodes=n_eval_episodes)
+        print(f"Best opponent2: {best_opponent2}")
+
+        print("#############################################################33")
+        print(f"#\tBest agent1: {best_agent1}")
+        print(f"#\tBest opponent1: {best_opponent1}")
+        print(f"#\tBest agent2: {best_agent2}")
+        print(f"#\tBest opponent2: {best_opponent2}")
+        print("#############################################################33")
 
         # agent1 predator -> performance is related to the reward 
-        perf_agent1_opponent2 = self._compute_performance(self, best_agent1, best_opponent2, agent_name, negative_score_flag=True)
-        perf_agent1_opponent1 = self._compute_performance(self, best_agent1, best_opponent1, agent_name, negative_score_flag=True)
-        perf_opponent1_agent2 = self._compute_performance(self, best_opponent1, best_agent2, opponent_name, negative_score_flag=False)
-        perf_opponent1_agent1 = self._compute_performance(self, best_opponent1, best_agent1, opponent_name, negative_score_flag=False)
+        perf_agent1_opponent2 = self._compute_performance(best_agent1, best_opponent2, agent_name, n_eval_episodes=n_eval_episodes, negative_score_flag=True)
+        perf_agent1_opponent1 = self._compute_performance(best_agent1, best_opponent1, agent_name, n_eval_episodes=n_eval_episodes, negative_score_flag=True)
+        perf_opponent1_agent2 = self._compute_performance(best_opponent1, best_agent2, opponent_name, n_eval_episodes=n_eval_episodes, negative_score_flag=False)
+        perf_opponent1_agent1 = self._compute_performance(best_opponent1, best_agent1, opponent_name, n_eval_episodes=n_eval_episodes, negative_score_flag=False)
 
         perf_agent = perf_agent1_opponent2 - perf_agent1_opponent1
         perf_opponent = perf_opponent1_agent2 - perf_opponent1_agent1
         
         gain = perf_agent + perf_opponent
+        print("-----------------------------------------------------------------")
+        print(f"perf_agent: {perf_agent}\tperf_opponent: {perf_opponent}\tgain: {gain}")
 
         if(perf_agent > 0):
-            print(f"Configuration 1 is better {1} to generate predators (agent) (path: {approach1_path})")
+            print(f"Configuration 1 is better {1} to generate predators (path: {approach1_path})")
         else:
-            print(f"Configuration 2 is better {2} to generate predators (agent) (path: {approach2_path})")
+            print(f"Configuration 2 is better {2} to generate predators (path: {approach2_path})")
 
         if(perf_opponent > 0):
             print(f"Configuration 1 is better {1} to generate preys (path: {approach1_path})")
@@ -524,9 +556,9 @@ class SelfPlayTesting(SelfPlayExp):
         n_eval_episodes_configs = self.testing_configs.get("repetition", None)
         n_eval_episodes = n_eval_episodes_configs if n_eval_episodes_configs is not None else n_eval_episodes
 
-
         if(self.crosstest_flag):
             n_seeds = self.testing_configs.get("n_seeds", 1)
+            self.crosstest(n_eval_episodes, n_seeds)
             # self._compute_gain_score(n_eval_episodes, n_seeds)
         else:
             already_evaluated_agents = []

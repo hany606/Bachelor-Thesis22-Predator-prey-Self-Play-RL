@@ -51,6 +51,8 @@ from copy import deepcopy
 from bach_utils.shared import *
 from SelfPlayExp import SelfPlayExp
 
+# TODO: save the experimenet file in the training folder
+
 # TODO: Should I do different classes?
 # Here the class is for the whole experiment (train, evaluation(heatmaps, plots, ...etc), test (rendering))
 class SelfPlayTraining(SelfPlayExp):

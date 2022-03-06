@@ -105,7 +105,7 @@
         "__comment1__": "Here it is the names of the agents not the keys",
         "render":true,
 
-        "repetition":1,
+        "repetition":3,
         "n_seeds":1,
         "crosstest":true,
         "__comment2__": "TODO: Make it general for gain by making the path for pred/prey can be a list of models then we can define that this is a crosstest",
@@ -114,13 +114,13 @@
             "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22",
             "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50"
         ],
-        "crosstest_populations": [5, 1],
+        "crosstest_populations": [1, 1],
         "crosstest_num_rounds": [50, 50],
         "__comment3__": "TODO: Make it work also for different types of RL algorithms",
         "__comment4__": "TODO: save the configuration file with the experiment, so we can parse the training configs with it",
         "__comment5__": "TODO: make crosstest as a seperate or a big element in testing",
         "crosstest_search_radius":10,
-        "crosstest_freq":20,
+        "crosstest_freq":5,
         "crosstest_rewards_limits": [-1010, 1010],
 
         "pred":{

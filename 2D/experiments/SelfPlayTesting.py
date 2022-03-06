@@ -414,63 +414,89 @@ class SelfPlayTesting(SelfPlayExp):
         # TODO: later also visualize the axis of the rounds
         HeatMapVisualizer.visPlotly(gain_matrix, xrange=round_axis, yrange=round_axis)
 
-    # ------------------- TODO --------------------------------
-    # TODO
-    def _get_best_agent(self, agent_num_rounds, opponent_num_rounds, search_radius, agent_path, opponent_path, key, min_gamma_val=0.05, n_eval_episodes=1):#, negative_reward_flag=False):
+
+    def get_latest_agent_path(self, idx, path, population_idx):
+        agent_startswith_keyword = f"{self.load_prefix}{idx}_"
+        agent_latest = utos.get_latest(path, startswith=agent_startswith_keyword, population_idx=population_idx)
+        ret = True
+        if(len(agent_latest) == 0):
+            ret = False
+        latest_agent = os.path.join(path, agent_latest[0])  # Join it with the agent path
+        return ret, latest_agent
+
+    def _compute_performance(self, agent, opponent, key, n_eval_episodes=1, n_seeds=1, negative_score_flag=False, render=False, render_extra_info=None):
+        def normalize_performance(min_val, max_val, performance, negative_score_flag):
+            if(negative_score_flag):
+                performance = min(0, performance) # to bound it in case the agent caught it directly (never happens) -> performance = +10 
+                # -1010 ->  0, 0 -> 1
+                return (max_val - abs(performance)) / max_val
+            else:
+                performance = max(0, performance) # to bound it in case the agent caught it directly (never happens) -> performance = -10 
+                # 1010 ->  1, 0 -> 0
+                return performance / max_val
+        # for i in range(n_seeds):
+            # random_seed = datetime.now().microsecond//1000
+            # random.seed(random_seed)
+        mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(key, agent, [opponent], n_eval_episodes, render=render, render_extra_info=f"{agent} vs {opponent}" if render_extra_info is None else render_extra_info)
+        reward = np.mean(mean_reward) # get the performance reward
+        limits = self.testing_configs.get("crosstest_rewards_limits")
+        normalized_reward = normalize_performance(*limits, reward, negative_score_flag)
+        print(f"Nomralized: {normalized_reward}, {reward}")
+        return normalized_reward
+
+    def _get_best_agent(self, num_rounds, search_radius, paths, key, num_population, min_gamma_val=0.05, n_eval_episodes=1, n_seeds=1, render=False, negative_score_flag=False):#, negative_reward_flag=False):
+        agent_num_rounds, opponent_num_rounds = num_rounds[:]
+        agent_path, opponent_path = paths[:]
         print(f"## Getting the best model for {key}")
         # TODO: Use the metric that is saved with the name of the model to get the best model
         best_rewards = []
         freq = self.testing_configs.get("crosstest_freq")
+        # Create the list of opponenets that will 
         opponents_rounds_idx = [i for i in range(0, opponent_num_rounds, freq)]  # TODO: think to make it as Prof. Nolfi said
         if(not opponent_num_rounds-1 in opponents_rounds_idx):
             opponents_rounds_idx.append(opponent_num_rounds-1)
+
         gamma = min_gamma_val**(1/len(opponents_rounds_idx))
-        for agent_idx in range(agent_num_rounds-search_radius-1, agent_num_rounds):
-            # TODO: refactor the code and make the following 4 lines as a function
-            startswith_keyword = f"{self.load_prefix}{agent_idx}_"
-            agent_latest = utos.get_latest(agent_path, startswith=startswith_keyword)
-            if(len(agent_latest) == 0): # the experiment might have not be completed yet
-                continue
-            agent = os.path.join(agent_path, agent_latest[0])  # Join it with the agent path
-            # for opponent_idx in opponents_selected_rounds:
-            best_reward = []
-            for i, opponent_idx in enumerate(opponents_rounds_idx):
-                opponent_startswith_keyword = f"{self.load_prefix}{opponent_idx}_"
-                opponent_latest = utos.get_latest(opponent_path, startswith=opponent_startswith_keyword)
-                if(len(opponent_latest) == 0):
+
+        # Test each agent in each population against an evaluation set (opponenets from all the populations)
+        for agent_population_idx in range(num_population):
+            for agent_idx in range(agent_num_rounds-search_radius-1, agent_num_rounds):
+                # TODO: refactor the code and make the following 4 lines as a function
+                ret, agent = self.get_latest_agent_path(agent_idx, agent_path, agent_population_idx)
+                if(not ret):
                     continue
-                sampled_opponent = os.path.join(opponent_path, opponent_latest[0])  # Join it with the agent path
-                mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(key, agent, [sampled_opponent], n_eval_episodes, render=False, render_extra_info=f"{agent_idx} vs {opponent_idx}")
-                discount = (gamma**(len(opponents_rounds_idx)-i))
-                # if(negative_reward_flag):
-                #     discount = (gamma**(i))
-                discounted_reward = discount * mean_reward
-                print(f"Discount: {discount}\tReward: {mean_reward}\tDiscounted Reward: {discounted_reward}")
-                best_reward.append(discounted_reward)
-            # TODO: check the mean_reward (it should be a single value)
-            reward = np.mean(np.array(best_reward))
-            best_rewards.append([agent_idx, reward])
+                rewards = []
+                for opponent_population_idx in range(num_population):
+                    print(f"POP: {agent_population_idx}, {opponent_population_idx}")
+                    for i, opponent_idx in enumerate(opponents_rounds_idx):
+                        ret, sampled_opponent = self.get_latest_agent_path(opponent_idx, opponent_path, opponent_population_idx)
+                        if(not ret):
+                            continue
+                        # mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(key, agent, [sampled_opponent], n_eval_episodes, render=False, render_extra_info=f"{agent_idx}({agent_population_idx}) vs {opponent_idx} ({opponent_population_idx})")
+                        mean_reward = self._compute_performance(agent, sampled_opponent, key, n_eval_episodes, n_seeds, negative_score_flag, render, render_extra_info=f"{agent_idx}({agent_population_idx}) vs {opponent_idx} ({opponent_population_idx})")
+                        weight = (gamma**(len(opponents_rounds_idx)-i))
+                        # if(negative_reward_flag):
+                        #     discount = (gamma**(i))
+                        weighted_reward = weight * mean_reward
+                        print(f"Weight: {weight}\tReward: {mean_reward}\tWeighted Reward: {weighted_reward}")
+                        rewards.append(weighted_reward)
+                mean_reward = np.mean(np.array(rewards))
+                best_rewards.append([agent_population_idx, agent_idx, mean_reward])
         best_rewards = np.array(best_rewards)
         print(best_rewards)
-        best_agent_idx = np.argmax(best_rewards[:,1])
+        best_agent_idx = np.argmax(best_rewards[:,2])
         # Get the best agent using best_agent_idx
-        agent_idx = agent_num_rounds-search_radius-1 + best_agent_idx
+        agent_idx = int(best_rewards[best_agent_idx,1]) #agent_num_rounds-search_radius-1 + (best_agent_idx%)
+        agent_population_idx = int(best_rewards[best_agent_idx,0])
+        print(f"Best agent: idx {agent_idx}, population {agent_population_idx}")
         startswith_keyword = f"{self.load_prefix}{agent_idx}_"
-        agent_latest = utos.get_latest(agent_path, startswith=startswith_keyword)
+        agent_latest = utos.get_latest(agent_path, startswith=startswith_keyword, population_idx=agent_population_idx)
         best_agent = os.path.join(agent_path, agent_latest[0])  # Join it with the agent path
         return best_agent
 
-    def _compute_performance(self, agent, opponent, key, n_eval_episodes=1, negative_score_flag=False):
-        def normalize_performance(min_val, max_val, performance, negative_score_flag):
-            if(negative_score_flag):
-                return max_val - abs(performance) / (max_val - min_val)
-            else:
-                return performance / max_val
-        mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(key, agent, [opponent], n_eval_episodes, render=False, render_extra_info=f"{agent} vs {opponent}")
-        reward = np.mean(mean_reward) # get the performance reward
-        limits = self.testing_configs.get("crosstest_rewards_limits")
-        return normalize_performance(*limits, reward, negative_score_flag)
 
+    # TODO: this code need to be parallel
+    # TODO: need to speed up the code by not running one evaluation and then delete the environment
     def crosstest(self, n_eval_episodes, n_seeds):
         print(f"---------------- Running Crosstest ----------------")
         # For now both the approaches have the same number of rounds
@@ -503,28 +529,61 @@ class SelfPlayTesting(SelfPlayExp):
         print(f"Agent2 path: {agent2_path}")
         print(f"Opponenet2 path: {opponent2_path}")
 
+        num_population1, num_population2 = self.testing_configs.get("crosstest_populations")
+        print(f"Num. populations: {num_population1}, {num_population2}")
 
-        best_agent1     = self._get_best_agent(num_rounds1, num_rounds1, search_radius, agent1_path, opponent1_path, agent_name, n_eval_episodes=n_eval_episodes)
+        # O(num_pop * search_radius * num_pop * (opponent_num_rounds//freq) * 4 * n_eval * n_seeds) 
+        # 5*10*5*10*4 *1*1 = 10000 (num_pop = 5, search_radius = 10, freq = 5, opponent_num_rounds = 50) -> very expensive operations
+        # 10k * 5sec / (3600) = 13.8888889 hours !!!!
+        best_agent1     = self._get_best_agent([num_rounds1, num_rounds1], search_radius, [agent1_path, opponent1_path], agent_name, num_population1, n_eval_episodes=1, negative_score_flag=True, n_seeds=n_seeds)
         print(f"Best agent1: {best_agent1}")
-        best_opponent1  = self._get_best_agent(num_rounds1, num_rounds1, search_radius, opponent1_path, agent1_path, opponent_name, n_eval_episodes=n_eval_episodes)
+        best_opponent1  = self._get_best_agent([num_rounds1, num_rounds1], search_radius, [opponent1_path, agent1_path], opponent_name, num_population1, n_eval_episodes=1, negative_score_flag=False, n_seeds=n_seeds)
         print(f"Best opponent1: {best_opponent1}")
-        best_agent2     = self._get_best_agent(num_rounds2, num_rounds2, search_radius, agent2_path, opponent2_path, agent_name, n_eval_episodes=n_eval_episodes)
+        best_agent2     = self._get_best_agent([num_rounds2, num_rounds2], search_radius, [agent2_path, opponent2_path], agent_name, num_population2, n_eval_episodes=1, negative_score_flag=True, n_seeds=n_seeds)
         print(f"Best agent2: {best_agent2}")
-        best_opponent2  = self._get_best_agent(num_rounds2, num_rounds2, search_radius, opponent2_path, agent2_path, opponent_name, n_eval_episodes=n_eval_episodes)
+        best_opponent2  = self._get_best_agent([num_rounds2, num_rounds2], search_radius, [opponent2_path, agent2_path], opponent_name, num_population2, n_eval_episodes=1, negative_score_flag=False, n_seeds=n_seeds)
         print(f"Best opponent2: {best_opponent2}")
 
-        print("#############################################################33")
-        print(f"#\tBest agent1: {best_agent1}")
-        print(f"#\tBest opponent1: {best_opponent1}")
-        print(f"#\tBest agent2: {best_agent2}")
-        print(f"#\tBest opponent2: {best_opponent2}")
-        print("#############################################################33")
+        print("###############################################################")
+        print(f"# Best agent1: {best_agent1}")
+        print(f"# Best opponent1: {best_opponent1}")
+        print(f"# Best agent2: {best_agent2}")
+        print(f"# Best opponent2: {best_opponent2}")
+        print("###############################################################")
+
+        # Multi-population -> 0.0
+        #############################################################33
+        #	Best agent1: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22/pred/history_46_winrate_m_0.4_s_1250000_p_1
+        #	Best opponent1: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22/prey/history_44_winrate_m_1.0_s_1175000_p_0
+        #	Best agent2: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50/pred/history_49_winrate_m_0.8_s_1325000_p_0
+        #	Best opponent2: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50/prey/history_45_winrate_m_1.0_s_1200000_p_0
+        #############################################################33
+
+        # Single-populations -> 0.0
+        ###############################################################
+        # Best agent1: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22/pred/history_46_winrate_m_0.4_s_1250000_p_0
+        # Best opponent1: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22/prey/history_44_winrate_m_1.0_s_1175000_p_0
+        # Best agent2: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50/pred/history_49_winrate_m_0.8_s_1325000_p_0
+        # Best opponent2: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50/prey/history_45_winrate_m_1.0_s_1200000_p_0
+        ###############################################################
+
+        # Single-population but increased search radius and decrease the freq & increased the repetitions for evaluation -> gain: 0.32112211221122117
+        ###############################################################
+        # Best agent1: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22/pred/history_47_winrate_m_0.4_s_1275000_p_0
+        # Best opponent1: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22/prey/history_39_winrate_m_1.0_s_1050000_p_0
+        # Best agent2: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50/pred/history_49_winrate_m_0.8_s_1325000_p_0
+        # Best opponent2: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50/prey/history_45_winrate_m_1.0_s_1200000_p_0
+        ###############################################################
+
+
+
+
 
         # agent1 predator -> performance is related to the reward 
-        perf_agent1_opponent2 = self._compute_performance(best_agent1, best_opponent2, agent_name, n_eval_episodes=n_eval_episodes, negative_score_flag=True)
-        perf_agent1_opponent1 = self._compute_performance(best_agent1, best_opponent1, agent_name, n_eval_episodes=n_eval_episodes, negative_score_flag=True)
-        perf_opponent1_agent2 = self._compute_performance(best_opponent1, best_agent2, opponent_name, n_eval_episodes=n_eval_episodes, negative_score_flag=False)
-        perf_opponent1_agent1 = self._compute_performance(best_opponent1, best_agent1, opponent_name, n_eval_episodes=n_eval_episodes, negative_score_flag=False)
+        perf_agent1_opponent2 = self._compute_performance(best_agent1, best_opponent2, agent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=True, render=True)
+        perf_agent1_opponent1 = self._compute_performance(best_agent1, best_opponent1, agent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=True, render=True)
+        perf_opponent1_agent2 = self._compute_performance(best_opponent1, best_agent2, opponent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=False, render=True)
+        perf_opponent1_agent1 = self._compute_performance(best_opponent1, best_agent1, opponent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=False, render=True)
 
         perf_agent = perf_agent1_opponent2 - perf_agent1_opponent1
         perf_opponent = perf_opponent1_agent2 - perf_opponent1_agent1
@@ -533,19 +592,26 @@ class SelfPlayTesting(SelfPlayExp):
         print("-----------------------------------------------------------------")
         print(f"perf_agent: {perf_agent}\tperf_opponent: {perf_opponent}\tgain: {gain}")
 
+        eps = 1e-3
         if(perf_agent > 0):
             print(f"Configuration 1 is better {1} to generate predators (path: {approach1_path})")
+        elif(-eps <= perf_agent <= eps):
+            print(f"Configuration 1 & 2 are close to each other to generate predators")
         else:
             print(f"Configuration 2 is better {2} to generate predators (path: {approach2_path})")
 
         if(perf_opponent > 0):
             print(f"Configuration 1 is better {1} to generate preys (path: {approach1_path})")
+        elif(-eps <= perf_opponent <= eps):
+            print(f"Configuration 1 & 2 are close to each other to generate prey")
         else:
             print(f"Configuration 2 is better {2} to generate preys (path: {approach2_path})")
 
         if(gain > 0):
             print(f"Configuration 1 is better {1} (path: {approach1_path})")
             return 1
+        elif(-eps <= gain <= eps):
+            print(f"Configuration 1 & 2 are close to each other")
         else:
             print(f"Configuration 2 is better {2} (path: {approach2_path})")
             return 2

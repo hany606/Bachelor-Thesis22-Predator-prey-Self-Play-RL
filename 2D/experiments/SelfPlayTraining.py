@@ -66,6 +66,7 @@ class SelfPlayTraining(SelfPlayExp):
         self.opponent_selection_callbacks = None
         self.wandb_callbacks = None
         self.seed_value = seed_value
+        self.deterministic = False
 
     def _init_argparse(self):
         super(SelfPlayTraining, self)._init_argparse(description='Self-play experiment training script', help='The experiemnt configuration file path and name which the experiment should be loaded')
@@ -154,7 +155,7 @@ class SelfPlayTraining(SelfPlayExp):
                                                                             log_path=agent_path,
                                                                             eval_freq=int(agent_configs["eval_freq"]),
                                                                             n_eval_episodes=agent_configs["num_eval_episodes"],
-                                                                            deterministic=True,
+                                                                            deterministic=self.deterministic,
                                                                             save_path=agent_path,
                                                                             eval_metric=agent_configs["eval_metric"],
                                                                             eval_opponent_selection=agent_configs["eval_opponent_selection"],

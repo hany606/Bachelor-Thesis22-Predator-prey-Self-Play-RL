@@ -30,6 +30,9 @@
 
 # TODO: make this script extendable with NvM competitive games
 
+# Done: Seed fixing -> enable n_seeds -> enable random reseeding inside the env if the seed is passed with None -> done in _create_env -> just specify "random"
+# TODO: test prey model with fixed predator
+
 import os
 
 from stable_baselines3 import PPO
@@ -63,7 +66,7 @@ class SelfPlayTesting(SelfPlayExp):
         super(SelfPlayTesting, self).__init__()
         self.seed_value = seed_value
         self.load_prefix = "history_"
-        self.deterministic = True
+        self.deterministic = False
         self.warn = True
         self.render = None # it is being set by the configuration file
         self.crosstest_flag = None
@@ -478,7 +481,7 @@ class SelfPlayTesting(SelfPlayExp):
                         # if(negative_reward_flag):
                         #     discount = (gamma**(i))
                         weighted_reward = weight * mean_reward
-                        print(f"Weight: {weight}\tReward: {mean_reward}\tWeighted Reward: {weighted_reward}")
+                        print(f"Weight: {weight}\tPerformance: {mean_reward}\tWeighted Performance: {weighted_reward}")
                         rewards.append(weighted_reward)
                 mean_reward = np.mean(np.array(rewards))
                 best_rewards.append([agent_population_idx, agent_idx, mean_reward])
@@ -580,18 +583,35 @@ class SelfPlayTesting(SelfPlayExp):
 
 
         # agent1 predator -> performance is related to the reward 
+        print(f"################# Agent1 vs Opponent2 #################")
         perf_agent1_opponent2 = self._compute_performance(best_agent1, best_opponent2, agent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=True, render=True)
+        print(f"################# Agent1 vs Opponent1 #################")
         perf_agent1_opponent1 = self._compute_performance(best_agent1, best_opponent1, agent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=True, render=True)
+
+        print(f"################# Agent2 vs Opponent2 #################")
+        perf_agent2_opponent2 = self._compute_performance(best_agent2, best_opponent2, agent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=True, render=True)
+        print(f"################# Agent2 vs Opponent1 #################")
+        perf_agent2_opponent1 = self._compute_performance(best_agent2, best_opponent1, agent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=True, render=True)
+
+        print(f"################# Opponent1 vs Agent2 #################")
         perf_opponent1_agent2 = self._compute_performance(best_opponent1, best_agent2, opponent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=False, render=True)
+        print(f"################# Opponent1 vs Agent1 #################")
         perf_opponent1_agent1 = self._compute_performance(best_opponent1, best_agent1, opponent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=False, render=True)
 
-        perf_agent = perf_agent1_opponent2 - perf_agent1_opponent1
-        perf_opponent = perf_opponent1_agent2 - perf_opponent1_agent1
+        print(f"################# Opponent1 vs Agent2 #################")
+        perf_opponent2_agent2 = self._compute_performance(best_opponent2, best_agent2, opponent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=False, render=True)
+        print(f"################# Opponent2 vs Agent1 #################")
+        perf_opponent2_agent1 = self._compute_performance(best_opponent2, best_agent1, opponent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=False, render=True)
+
+
+        perf_agent = perf_agent1_opponent2 - perf_agent1_opponent1 + perf_agent2_opponent2 - perf_agent2_opponent1
+        perf_opponent = perf_opponent1_agent2 - perf_opponent1_agent1 + perf_opponent2_agent2 - perf_opponent2_agent1
         
         gain = perf_agent + perf_opponent
         print("-----------------------------------------------------------------")
         print(f"perf_agent: {perf_agent}\tperf_opponent: {perf_opponent}\tgain: {gain}")
 
+        # perf_agent: 0.32112211221122117	perf_opponent: 0.9633663366336633	gain: 1.2844884488448844
         eps = 1e-3
         if(perf_agent > 0):
             print(f"Configuration 1 is better {1} to generate predators (path: {approach1_path})")

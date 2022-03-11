@@ -1,0 +1,6 @@
+from gym_pz_predprey.envs.PZPredPrey import PZPredPrey
+from gym_pz_predprey.envs.PZPredPrey import PZPredPreyPred
+from gym_pz_predprey.envs.PZPredPrey import PZPredPreyPrey
+
+from gym_pz_predprey.envs.SelfPlayPZPredPrey import SelfPlayPZPredEnv
+from gym_pz_predprey.envs.SelfPlayPZPredPrey import SelfPlayPZPreyEnv

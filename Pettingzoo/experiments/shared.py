@@ -196,7 +196,7 @@ def evaluate_policy(
                         states[i] *= 0
 
         if render:
-            render_ret = env.render(extra_info=render_extra_info)
+            render_ret = env.render()
             if(render_callback is not None):
                 render_ret = render_callback(render_ret)
                 if(render_ret == -1):
@@ -302,7 +302,7 @@ def evaluate_policy_simple(
                     win_rates.append(0)
                 break
             if render:
-                render_ret = env.render(extra_info=render_extra_info+vis_speed_status)
+                render_ret = env.render()
                 sleep(sleep_time)
                 if(render_callback is not None):
                     render_ret = render_callback(render_ret)
@@ -315,12 +315,12 @@ def evaluate_policy_simple(
                     elif(render_ret == 8):
                         status = "\t(Visaulization is stopped)"
                         while True:
-                            render_ret = env.render(extra_info=render_extra_info+status)
+                            render_ret = env.render()
                             if(render_ret == 8):
                                 break
                     elif(render_ret == 1):
                         vis_speed_status = "\t(Skipping)"
-                        env.render(extra_info=render_extra_info+vis_speed_status)
+                        env.render()
                         sleep(0.25)
                         done = True
                     elif(render_ret == -1):

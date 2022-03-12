@@ -62,7 +62,7 @@ class PPOMod(PPO):
         return PPO.load(model_path, env, custom_objects=custom_objects)
 
 class SelfPlayTesting(SelfPlayExp):
-    def __init__(self, seed_value=None, render_sleep_time=0.01):
+    def __init__(self, seed_value=None, render_sleep_time=0):#0.01):
         super(SelfPlayTesting, self).__init__()
         self.seed_value = seed_value
         self.load_prefix = "history_"

@@ -170,7 +170,7 @@ class PZPredPrey(gym.Env):
 
         # Actions are amplified
         ac = [a for a in ac]
-        action_dict = {self.agent_keys[i]:np.array(ac[self.noutputs*i:self.noutputs*(i+1)]) for i in range(self.nrobots)}
+        action_dict = {self.agent_keys[i]:np.array(ac[self.noutputs*i:self.noutputs*(i+1)], dtype=np.float32) for i in range(self.nrobots)}
         return action_dict
         
     def _process_observation(self, obs):
@@ -227,20 +227,35 @@ class PZPredPrey(gym.Env):
     #     return False
 
     def _process_reward(self, obs, action, reward_dict):
-        prey_reward, predator_reward = None, None
-        # Survival rewards
-        prey_reward = 1
-        predator_reward = -1
+        # To take the advantage of the bound reward that is already implemented
+        prey_reward, predator_reward = reward_dict["agent_0"], reward_dict["adversary_0"]
+        # # Survival rewards
+        # prey_reward += 1
+        # predator_reward += -1
 
-        if(self.caught):   # if the predator caught the prey before finishing the time
-            prey_reward = -10
-            predator_reward = 10
+        # if(self.caught):   # if the predator caught the prey before finishing the time
+        #     prey_reward = -10
+        #     predator_reward = 10
         if(self.steps_done):
             prey_reward = 10
             predator_reward = -10
 
         self._pred_reward, self._prey_reward = predator_reward, prey_reward # to be used for the info
         return predator_reward, prey_reward
+        # prey_reward, predator_reward = None, None
+        # # Survival rewards
+        # prey_reward = 1
+        # predator_reward = -1
+
+        # if(self.caught):   # if the predator caught the prey before finishing the time
+        #     prey_reward = -10
+        #     predator_reward = 10
+        # if(self.steps_done):
+        #     prey_reward = 10
+        #     predator_reward = -10
+
+        # self._pred_reward, self._prey_reward = predator_reward, prey_reward # to be used for the info
+        # return predator_reward, prey_reward
 
     def _process_done(self, obs, done_dict, reward_dict):
         # As I am not sure about what is their termination criteria as it seems it only related with time
@@ -296,7 +311,7 @@ class PZPredPreyPred(PZPredPrey):
         if(self.prey_behavior is None and self.prey_policy is None):
             raise ValueError("prey_behavior or prey_policy should be specified")
 
-        action = np.array([action, [0 for _ in range(self.noutputs)]]).flatten()
+        action = np.array([action, [0 for _ in range(self.noutputs)]], dtype=np.float32).flatten()
         return PZPredPrey._process_action(self, action, observation)
 
     def _process_observation(self, observation):
@@ -340,7 +355,6 @@ class PZPredPreyPrey(PZPredPrey):
     def _process_action(self, action, observation):
         if(self.pred_behavior is None and self.pred_policy is None):
             raise ValueError("pred_behavior or pred_policy should be specified")
-
         action = np.array([[0 for _ in range(self.noutputs)], action]).flatten()
         return PZPredPrey._process_action(self, action, observation)
 
@@ -424,7 +438,7 @@ if __name__ == '__main__':
 
     observation = env.reset()
     print(observation.shape)
-    exit()
+    # exit()
     done = False
 
     while not done:
@@ -438,7 +452,8 @@ if __name__ == '__main__':
         # action[2] = 1
         # action[3] = 1
         observation, reward, done, info = env.step(action)
-        print(observation.shape)
+        # print(observation.shape)
+        print(info)
         # print(reward, info, done)
         env.render()
         # sleep(0.01)

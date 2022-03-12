@@ -229,13 +229,13 @@ class PZPredPrey(gym.Env):
     def _process_reward(self, obs, action, reward_dict):
         # To take the advantage of the bound reward that is already implemented
         prey_reward, predator_reward = reward_dict["agent_0"], reward_dict["adversary_0"]
-        # # Survival rewards
-        # prey_reward += 1
-        # predator_reward += -1
+        # Survival rewards
+        prey_reward += 1
+        predator_reward += -1
 
-        # if(self.caught):   # if the predator caught the prey before finishing the time
-        #     prey_reward = -10
-        #     predator_reward = 10
+        if(self.caught):   # if the predator caught the prey before finishing the time
+            prey_reward = -10
+            predator_reward = 10
         if(self.steps_done):
             prey_reward = 10
             predator_reward = -10

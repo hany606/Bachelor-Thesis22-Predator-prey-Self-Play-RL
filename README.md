@@ -124,3 +124,5 @@ For example:
 3. Pull with the newest changes in submodules
 
 ```git pull --recurse-submodules```
+
+4. To remove submodules: Check [https://stackoverflow.com/questions/1260748/how-do-i-remove-a-submodule](https://stackoverflow.com/questions/1260748/how-do-i-remove-a-submodule)

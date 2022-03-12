@@ -16,7 +16,4 @@
 [submodule "Drones/gym-predprey-drones"]
 	path = Drones/gym-predprey-drones
 	url = git@github.com:hany606/gym-predprey-drones.git
-        branch = main
-[submodule "Pettingzoo/PettingZoo"]
-	path = Pettingzoo/PettingZoo
-	url = https://github.com/hany606/PettingZoo.git
+	branch = main

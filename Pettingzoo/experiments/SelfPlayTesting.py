@@ -62,7 +62,7 @@ class PPOMod(PPO):
         return PPO.load(model_path, env, custom_objects=custom_objects)
 
 class SelfPlayTesting(SelfPlayExp):
-    def __init__(self, seed_value=None, render_sleep_time=0):#0.01):
+    def __init__(self, seed_value=None, render_sleep_time=0.0):#0.01):
         super(SelfPlayTesting, self).__init__()
         self.seed_value = seed_value
         self.load_prefix = "history_"
@@ -78,6 +78,7 @@ class SelfPlayTesting(SelfPlayExp):
         self.crosstest_flag = self.testing_configs.get("crosstest", False)
         print(f"----- Load testing conditions")
         self._load_testing_conditions(experiment_filename)
+        self.render_sleep_time = self.testing_configs.get("render_sleep_time", self.render_sleep_time)
         # print(f"----- Initialize environments")
         # self._init_envs()
         # print(f"----- Initialize models")

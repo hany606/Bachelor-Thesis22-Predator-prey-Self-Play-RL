@@ -8,6 +8,11 @@ import bach_utils.list as utlst
 import bach_utils.sorting as utsrt
 import bach_utils.sampling as utsmpl
 
+# This code base only works if the observation spaces for the both agents are equal as when we load the opponent we add the env=self
+# TODO: Refactor this code completely and think in a better way to integrate the environment and infering together
+#       the opponent will be just the PPO.load with env=None "env: can be None if you only need prediction from a trained model"
+#       - Easy fix but will change a lot in the base code, but will be easier to use and modify
+
 # These envs are wrappers for the original environments to be able to train one agent while another agent in the environment is following a specific policy
 
 # Explanation for usage of these environments:

@@ -245,7 +245,7 @@ class SelfPlayTraining(SelfPlayExp):
                                                                                 self.opponent_selection_callbacks[agent_name], 
                                                                                 self.evalsave_callbacks[agent_name][population_num],
                                                                                 self.wandb_callbacks[agent_name]
-                                                                             ], 
+                                                                             ],
                                                                     reset_num_timesteps=False)
                 self.new_archives[agent_name] = deepcopy(self.archives[agent_name]) # Save the resulted archive for each agent to be stored after the training process for all the agents
                 # wandb.log({f"round_num": round_num})

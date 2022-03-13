@@ -170,7 +170,7 @@ class SelfPlayExp:
 
         self.make_deterministic()
     
-    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None, seed_value=None, sample_after_reset=False, sampling_parameters=None):
+    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None, seed_value=None, sample_after_reset=False, sampling_parameters=None, ret_seed=False):
         # Key is just used to get the environment class_name for intialization of the environment
         if(seed_value == "random"):
             seed_value = datetime.now().microsecond//1000
@@ -179,10 +179,13 @@ class SelfPlayExp:
         agent_configs = self.agents_configs[key]
         agent_name = agent_configs["name"]
         env_class_name = agent_configs["env_class"]
+        # print(f"Create Env: {env_class_name}, Algorithm: {algorithm_class}, seed: {seed_value}")
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
         env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
         env._name = name+f"-({agent_name})"
-        return env
+        if(not ret_seed):
+            return env
+        return env, seed_value
 
     def _init_env(self):
         raise NotImplementedError("Initialization for environment is not implemented")

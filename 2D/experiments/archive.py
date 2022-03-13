@@ -13,6 +13,8 @@ def random_no_sort(l, e):
     l.append(e)
     return l
 
+# TODO: create Class called Entity/Version that have: model policy, model name, frequency, elo-score and others -> archive_dict as dictionary
+
 # Approximatly the model will be ~ 0.000190734863 GB in the memory which means it will fit only for ~ 62915 model in 10GB RAM
 
 # In this Archive class, there are the following archives (dict or lists datastructers):

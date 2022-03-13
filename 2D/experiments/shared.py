@@ -7,6 +7,8 @@ from stable_baselines3.common import base_class
 from copy import deepcopy
 import warnings
 from time import sleep
+from bach_utils.shared import make_deterministic
+from datetime import datetime
 
 
 def normalize_reward(reward, mn=-1010, mx=1010):
@@ -278,6 +280,10 @@ def evaluate_policy_simple(
             
         # if(seed is not None):
         #     env.seed(seed)
+        seed = datetime.now().microsecond//1000
+
+        env.seed(seed)
+        # make_deterministic(seed, cuda_check=False)
 
         observations = env.reset()
         state = None

@@ -99,25 +99,29 @@
 
     "evaluation":{
     },
-
     "testing":{
         "__comment__": "TODO: Think about make it more general",
         "__comment1__": "Here it is the names of the agents not the keys",
-        "rep":2,
+        "repetition":1,
+        "crosstest":false,
+        "render":true,
+        "__comment2(old model)__":"save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46",
         "pred":{
-            "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46/pred",
-            "gens": 49,
+            "dirname":"pred",
+            "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Preylast version of configurations for train_selfplay_baselines.py-v0-03.12.2022_15.49.43",
             "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
-            "__comment2__": "round parameter does not care about the gens parameter",
-            "mode": "gen",
+            "mode": "round",
+            "__comment2__": "Only gen mode care about the gens parameter in order to specify specific generation",
+            "gens": 49,
             "freq": 1
         },
         "prey":{
-            "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46/prey",
-            "gens": 0,
+            "dirname":"prey",
+            "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Preylast version of configurations for train_selfplay_baselines.py-v0-03.12.2022_15.49.43",
             "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
-            "mode": "round",
-            "freq": 7
+            "mode": "gen",
+            "gens": 0,
+            "freq": 5
         }
     }
 }

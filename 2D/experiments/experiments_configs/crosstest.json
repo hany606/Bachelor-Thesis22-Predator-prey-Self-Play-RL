@@ -100,21 +100,57 @@
     "evaluation":{
     },
 
+    "shared":{
+        "standard1":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03",
+        "standard2":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard2-01.11.2022_16.31.10",
+        "standard3":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard3-01.13.2022_21.11.10",
+        "standard4":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard4-01.11.2022_10.51.40",
+        "standard5":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard5-12.21.2021_02.39.50",
+        "standard6":"",
+
+        "standard1_100":"",
+        "standard2_100":"",
+        "standard3_100":"",
+
+
+        "standard1_300":"",
+        "standard2_300":"",
+        "standard3_300":"",
+
+        "population1":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/pop1-01.13.2022_21.13.50",
+        "population2":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/pop2-12.21.2021_02.40.22",
+        "population3":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/pop3-12.19.2021_21.44.10",
+        "population4":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/pop4-01.09.2022_18.03.58",
+        "population5":"",
+        "population6":"",
+        "population7":"",
+
+
+        "population1_100":"/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/pop1_100-01.09.2022_18.04.05"
+    },
+
     "testing":{
         "__comment__": "TODO: Think about make it more general",
         "__comment1__": "Here it is the names of the agents not the keys",
-        "render":true,
+        "render":false,
 
         "repetition":3,
+        "n_eval_episodes_best_agent":2,
         "n_seeds":1,
         "crosstest":true,
         "__comment2__": "TODO: Make it general for gain by making the path for pred/prey can be a list of models then we can define that this is a crosstest",
         "__commentImportant__": "TODO: Merge all the approach cfg into one dictionary or parse them using the experiment configuration file saved in the experiment folder",
         "crosstest_approaches_path":[
+            "~standard1",
+            "~population2"
+        ],        
+
+        "__COMMENT:crosstest_approaches_path__":[
             "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22",
             "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50"
         ],
-        "crosstest_populations": [1, 1],
+        
+        "crosstest_populations": [1, 5],
         "crosstest_num_rounds": [50, 50],
         "__comment3__": "TODO: Make it work also for different types of RL algorithms",
         "__comment4__": "TODO: save the configuration file with the experiment, so we can parse the training configs with it",

@@ -16,6 +16,7 @@ def sample_set(source_list, num):
     return sample
 
 # Return names of the sampled models
+# TODO: add the arhive in the parameters to be used to extract the model information via its name
 def sample_opponents(files_list, num_sampled_opponents, selection, sorted=False, randomly_reseed=True):
     if(randomly_reseed):
         random_seed = datetime.now().microsecond//1000

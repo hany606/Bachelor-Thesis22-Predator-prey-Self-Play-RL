@@ -18,6 +18,7 @@ def check_cuda():
 # When it is called it set the random seed
 def make_deterministic(seed_value, cuda_check=False):
     seed = seed_value
+    print(f"Make deterministic seed: {seed_value}")
     np.random.seed(seed)
     torch.manual_seed(seed)
     random.seed(seed)

@@ -25,6 +25,14 @@ class Parser:
                 if(shared is None):
                     raise ValueError("shared dictionary is empty in the configuration and there is a reference to the shared")
                 data[k] = shared[data[k][1:]]
+            
+            if(isinstance(data[k], list)):
+                for i,e in enumerate(data[k]):
+                    if(isinstance(e, str) and e.startswith("~")):
+                        if(shared is None):
+                            raise ValueError("shared dictionary is empty in the configuration and there is a reference to the shared")
+                        data[k][i] = shared[e[1:]]
+
 
             # Recursive call to filtering the data dictionary
             if(isinstance(data[k], dict)):

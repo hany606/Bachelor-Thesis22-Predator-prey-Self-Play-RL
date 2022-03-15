@@ -40,6 +40,8 @@ def get_first(source_list, return_count=False):
     return [source_list_sorted[0]]
 
 def get_random_from(full_list, seed=1):
+    # random.randint is uniform
+    # https://stackoverflow.com/questions/41100287/randint-doesnt-always-follow-uniform-distribution
     random_idx = random.randint(0, len(full_list)-1)
     return [full_list[random_idx]]
 

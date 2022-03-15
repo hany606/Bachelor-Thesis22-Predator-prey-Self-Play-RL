@@ -253,8 +253,8 @@ class EvalSaveCallback(EvalCallback):
     def _evaluate_policy(self, force_evaluation=False) -> bool:
         if (force_evaluation or (self.eval_freq > 0 and self.n_calls % self.eval_freq == 0)):
             sampled_opponents = None
+            print("Sample models for evaluation")
             if(not self.OS):
-                # print("Sample models for evaluation")
                 # print(self.opponent_archive.archive_dict.keys())
                 archive = self.opponent_archive.get_sorted(self.eval_opponent_selection)
                 models_names = archive[0]

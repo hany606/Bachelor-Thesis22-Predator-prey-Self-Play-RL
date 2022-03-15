@@ -17,7 +17,7 @@ def sample_set(source_list, num):
 
 # Return names of the sampled models
 # TODO: add the arhive in the parameters to be used to extract the model information via its name
-def sample_opponents(files_list, num_sampled_opponents, selection, sorted=False, randomly_reseed=True):
+def sample_opponents(files_list, num_sampled_opponents, selection, sorted=False, randomly_reseed=True, delta=0):
     if(randomly_reseed):
         random_seed = datetime.now().microsecond//1000
         random.seed(random_seed)
@@ -39,9 +39,23 @@ def sample_opponents(files_list, num_sampled_opponents, selection, sorted=False,
             latest = files_list[-1]
             sampled_opponents_filenames = [latest for _ in range(num_sampled_opponents)]
 
-        elif(selection == "latest-set"):
+        elif(selection == "delta-latest"):
+            # The list is not sorted by its nature -> 
+            # We add to the archive list less frequent than we sample, thus it is more optimized if we sort after adding to the archive not with each sampling
+            # However, take into consideration that we may sample with different metrics in the training and the evaluation, thus we need to pass the correct sorted archive
+            # We may only sort the keys for the dictionary not the whole dictionary
             if(not sorted):
                 files_list = utsrt.sort_steps(files_list)
+            delta_latest = files_list[-delta:] # get the latest delta models
+            # print("--------------- Debug ---------------")
+            # print(files_list)
+            # print(delta_latest)
+            # print("-------------------------------------")
+            sampled_opponents_filenames = [utlst.get_random_from(delta_latest)[0] for _ in range(num_sampled_opponents)]  # TODO: Take care about pigonhole principle -> if the set is too small, then the likelihood for selection each element in the list will be relatively large
+            
+        elif(selection == "latest-set"):
+            if(not sorted):
+                files_list = utsrt.sort_metric(files_list)
             reversed_files_list = deepcopy(files_list)
             reversed_files_list.reverse()
             sampled_opponents_filenames = sample_set(reversed_files_list, num_sampled_opponents)

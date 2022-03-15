@@ -21,7 +21,7 @@ def random_no_sort(l, e):
 # - archive_dict -> Ditionary such that the key is the name of the policy (indictes the round, step, metric) and the policy itself
 # - sorted_archive_keys_dict: Dictionary that has sorted lists according to the required sorting metrics
 class ArchiveSB3:
-    def __init__(self, sorting_keys=["random"], sorting=True, moving_least_freq_flag=False, save_path=None):
+    def __init__(self, sorting_keys=["random"], sorting=True, moving_least_freq_flag=False, save_path=None, delta=0):
         self.archive_dict = {}  # Store the names as keys and policies as values for the dictionary
         self.sorting_flag = sorting
         # Dictionary to store the functions for the sorting related with the keys
@@ -32,6 +32,7 @@ class ArchiveSB3:
                                   "highest-set": ["sort_metric", utsrt.insertion_sorted_metric],
                                   "lowest": ["sort_metric", utsrt.insertion_sorted_metric],
                                   "lowest-set": ["sort_metric", utsrt.insertion_sorted_metric],
+                                  "delta-latest": ["sort_metric", utsrt.insertion_sorted_steps]
                                   }
         self.sorting_keys = list(set(sorting_keys))
         for sk in self.sorting_keys:
@@ -50,7 +51,21 @@ class ArchiveSB3:
         self.save_path = save_path  # This is used in order to save the least frequent from RAM to disk
         self.moving_threshold = 500
         self.random_id = randint(1,100000000000)
+        self.delta = delta
+        self.freq = {}
     
+
+    def add_freq(self, name, num):
+        if(not (name in self.freq.keys())):
+            self.freq[name] = 0
+        self.freq[name] += num
+    
+    def get_freq(self, name=None):
+        if(name is not None):
+            return name, self.freq[name]
+        else:
+            return self.freq.keys(), self.freq.values()
+
     # Based on: https://github.com/DLR-RM/stable-baselines3/blob/f3a35aa786ee41ffff599b99fa1607c067e89074/stable_baselines3/common/base_class.py#L728
     def _get_model_parameters(self, model):
         # Copy parameter list so we don't mutate the original dict

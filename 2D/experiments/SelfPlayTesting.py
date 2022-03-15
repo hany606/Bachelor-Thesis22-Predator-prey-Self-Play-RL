@@ -10,7 +10,9 @@
 # TODO: test prey model with fixed predator
 
 
-# TODO: Fix that the evaluation is not asymetic
+# Fix that the evaluation is not asymetic (Fixed with appropriate seeding to the env )
+
+# TODO: make the cmd args force on json parameters
 
 import os
 
@@ -199,8 +201,13 @@ class SelfPlayTesting(SelfPlayExp):
                                                                                                 sleep_time=self.render_sleep_time, #0.1,
                                                                                                 seed=seed_value
                                                                                             )
-
-        print(f"{render_extra_info} -> win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}\trewards: {mean_reward:.2f} +/- {std_reward:.2f}")
+        mean_reward_, std_reward_, win_rate_, std_win_rate_ = mean_reward, std_reward, win_rate, std_win_rate
+        if(return_episode_rewards):
+            # return episodes_reward, episodes_length, win_rates, std_win_rate, render_ret
+            mean_reward_  = np.mean(mean_reward)
+            std_reward_   = np.std(mean_reward) 
+            win_rate_     = np.mean(win_rate)
+        print(f"{render_extra_info} -> win rate: {100 * win_rate_:.2f}% +/- {std_win_rate_:.2f}\trewards: {mean_reward_:.2f} +/- {std_reward_:.2f}")
         env.close()
         return mean_reward, std_reward, win_rate, std_win_rate, render_ret
 
@@ -274,6 +281,13 @@ class SelfPlayTesting(SelfPlayExp):
         # for i in range(n_seeds):
             # random_seed = datetime.now().microsecond//1000
             # random.seed(random_seed)
+        episodes_reward, episodes_length, win_rates, std_win_rate, render_ret = self._run_one_evaluation(key, agent, [opponent], n_eval_episodes, render=render, render_extra_info=f"{agent} vs {opponent}" if render_extra_info is None else render_extra_info, return_episode_rewards=True)
+        length = np.mean(episodes_length)
+        limits = [0,1000] # maximum number of steps
+        normalized_length = normalize_performance(*limits, length, negative_score_flag)
+        print(f"Nomralized: {normalized_length}, {length}")
+        return normalized_length
+
         mean_reward, std_reward, win_rate, std_win_rate, render_ret = self._run_one_evaluation(key, agent, [opponent], n_eval_episodes, render=render, render_extra_info=f"{agent} vs {opponent}" if render_extra_info is None else render_extra_info)
         reward = np.mean(mean_reward) # get the performance reward
         limits = self.testing_configs.get("crosstest_rewards_limits")
@@ -375,6 +389,7 @@ class SelfPlayTesting(SelfPlayExp):
         # O(num_pop * search_radius * num_pop * (opponent_num_rounds//freq) * 4 * n_eval * n_seeds) 
         # 5*10*5*10*4 *1*1 = 10000 (num_pop = 5, search_radius = 10, freq = 5, opponent_num_rounds = 50) -> very expensive operations
         # 10k * 5sec / (3600) = 13.8888889 hours !!!!
+        # TODO: add threading here: https://realpython.com/intro-to-python-threading/
         n_eval_episodes_best_agent = self.testing_configs.get("n_eval_episodes_best_agent", 1)
         best_agent1     = self._get_best_agent([num_rounds1, num_rounds1], search_radius, [agent1_path, opponent1_path], agent_name, num_population1, n_eval_episodes=n_eval_episodes_best_agent, negative_score_flag=True, n_seeds=n_seeds)
         print(f"Best agent1: {best_agent1}")
@@ -415,6 +430,7 @@ class SelfPlayTesting(SelfPlayExp):
         perf_opponent2_agent1 = self._compute_performance(best_opponent2, best_agent1, opponent_name, n_eval_episodes=n_eval_episodes, n_seeds=n_seeds, negative_score_flag=False, render=render)
 
 
+        # Performance against agent1
         perf_agent1 = perf_agent1_opponent2 - perf_agent1_opponent1 
         perf_agent2 = perf_agent2_opponent2 - perf_agent2_opponent1
         perf_opponent1 = perf_opponent1_agent2 - perf_opponent1_agent1 
@@ -436,18 +452,18 @@ class SelfPlayTesting(SelfPlayExp):
             print(f" ----- Part {i+1} ----- ")
             eps = 1e-3
             if(perf_agent[i] > 0):
-                print(f"Configuration 1 is better {1} to generate predators (path: {approach1_path})")
+                print(f"Configuration 1 is better {1} to generate preys (path: {approach1_path})")
             elif(-eps <= perf_agent[i] <= eps):
+                print(f"Configuration 1 & 2 are close to each other to generate preys")
+            else:
+                print(f"Configuration 2 is better {2} to generate preys (path: {approach2_path})")
+
+            if(perf_opponent[i] > 0):
+                print(f"Configuration 1 is better {1} to generate predators (path: {approach1_path})")
+            elif(-eps <= perf_opponent[i] <= eps):
                 print(f"Configuration 1 & 2 are close to each other to generate predators")
             else:
                 print(f"Configuration 2 is better {2} to generate predators (path: {approach2_path})")
-
-            if(perf_opponent[i] > 0):
-                print(f"Configuration 1 is better {1} to generate preys (path: {approach1_path})")
-            elif(-eps <= perf_opponent[i] <= eps):
-                print(f"Configuration 1 & 2 are close to each other to generate prey")
-            else:
-                print(f"Configuration 2 is better {2} to generate preys (path: {approach2_path})")
 
             if(gain[i] > 0):
                 print(f"Configuration 1 is better {1} (path: {approach1_path})")

@@ -336,7 +336,7 @@ def evaluate_policy_simple(
         episodes_length.append(episode_length)
 
     mean_reward = np.mean(episodes_reward)
-    std_reward = np.std(episodes_length)
+    std_reward = np.std(episodes_reward)
     win_rate = np.mean(win_rates)#np.sum(win_rate)/n_eval_episodes
     std_win_rate = np.std(win_rates)
     if reward_threshold is not None:

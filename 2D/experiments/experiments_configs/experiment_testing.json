@@ -15,7 +15,7 @@
         "env": "SelfPlay1v1-Pred_Prey-v0",
         "num_workers": 1,
         "num_rounds": 5,
-        "population_size": 3,
+        "population_size": 1,
         "parallel_alternate_training": true,
         "seed_value": 3,
         "framework": "stable_baselines3",
@@ -28,9 +28,11 @@
     "shared":{
         "sample_after_rollout": false,
         "sample_after_reset": true,
-        "___comment___": "random, delta-latest",
+        "__comment__": "random, delta-latest",
         "opponent_selection": "delta-latest",
-        "delta_latest":2
+        "delta_latest":2,
+        "__comment1__": "reward, win_rate, length",
+        "eval_matrix_method": "length"
     },
 
     "agent0":{
@@ -50,6 +52,7 @@
         "heatmap_log_freq":3,
         "aggregate_eval_matrix":false,
         "eval_matrix_testing_freq":3,
+        "eval_matrix_method":"~eval_matrix_method",
 
 
         "delta_latest":"~delta_latest",
@@ -78,7 +81,7 @@
     },
 
     "agent1":{
-        "id": 0,
+        "id": 1,
         "name": "prey",
         "env_class": "SelfPlayPreyEnv",
         "opponent_name":"pred",
@@ -94,6 +97,8 @@
         "heatmap_log_freq":3,
         "aggregate_eval_matrix":false,
         "eval_matrix_testing_freq":3,
+        "eval_matrix_method":"~eval_matrix_method",
+        
 
         "delta_latest":"~delta_latest",
 

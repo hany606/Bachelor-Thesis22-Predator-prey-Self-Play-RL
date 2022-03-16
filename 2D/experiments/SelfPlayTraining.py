@@ -51,6 +51,8 @@ from copy import deepcopy
 from bach_utils.shared import *
 from bach_utils.sorting import population_key, round_key
 from SelfPlayExp import SelfPlayExp
+from bach_utils.json_parser import ExperimentParser
+
 
 # TODO: save the experimenet file in the training folder
 
@@ -177,8 +179,10 @@ class SelfPlayTraining(SelfPlayExp):
                                                                             num_rounds=self.experiment_configs["num_rounds"],
                                                                             seed_value=self.seed_value,
                                                                             enable_evaluation_matrix=enable_evaluation_matrix,
-                                                                            randomly_reseed_sampling=agent_configs.get("randomly_reseed_sampling", False))
+                                                                            randomly_reseed_sampling=agent_configs.get("randomly_reseed_sampling", False),
+                                                                            eval_matrix_method=agent_configs.get("eval_matrix_method", "reward"),
                                                                             )
+                                                            )
                 self.evalsave_callbacks[agent_name][-1].population_idx = population_num
 
                 # Here the TrainingOpponentSelectionCallback is used the archive to sample the opponent for training
@@ -343,6 +347,9 @@ class SelfPlayTraining(SelfPlayExp):
 
 
 
+        self.evaluation_configs["log_dir"] = self.log_dir
+        self.evaluation_configs["log_main_dir"] = self.log_main_dir
+
         for j,agent_name in enumerate(agents_names_list):
             agent_config = self.agents_configs[agent_name]
             aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
@@ -351,14 +358,23 @@ class SelfPlayTraining(SelfPlayExp):
                 opponent_name = agent_config["opponent_name"]
                 num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
                 eval_matrix_testing_freq = agent_config["eval_matrix_testing_freq"]
+                negative_reward_indicator = bool((j+1)%2) if agent_config.get("eval_matrix_method", "reward") == "reward" else False
 
                 evaluation_matrices = []
+                best_agents_population = {}
                 for population_num in range(population_size):
                     print(f"Full evaluation matrix for {agent_name} (population: {population_num})")
-                    axis = self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq, population_size=population_size)
+                    axis, agent_names = self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq, population_size=population_size)
                     evaluation_matrix = self.evalsave_callbacks[agent_name][population_num].evaluation_matrix
                     evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
                     evaluation_matrices.append(evaluation_matrix)
+                    # If it is specified to be reward -> signed value (note: winrate is not signed it is either 0 or 1 from evaluate_policy(.))
+                    best_agent_name, best_agent_score = get_best_agent_from_eval_mat(evaluation_matrix, agent_names, axis=j, negative=negative_reward_indicator)
+                    best_agents_population[best_agent_name] = best_agent_score
+                
+                best_agent_name, best_agent_score = get_best_agent_from_vector(list(best_agents_population.values()), list(best_agents_population.keys()), negative=negative_reward_indicator)
+                self.evaluation_configs[agent_name] = {"best_agent_name":best_agent_name, "best_agent_score":best_agent_score}
+
                 mean_evaluation_matrix = np.mean(evaluation_matrices, axis=0)
                 std_evaluation_matrix = np.std(evaluation_matrices, axis=0)
                 # One with text and other without (I kept the name in wandb just not to be a problem with previous experiments)
@@ -369,6 +385,11 @@ class SelfPlayTraining(SelfPlayExp):
                 np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), mean_evaluation_matrix)
                 wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix")+".npy")
             
+            print("Save experiment configuration with ")
+            log_file = os.path.join(self.log_dir, "experiment_config.json")
+            ExperimentParser.save(log_file, self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs) 
+            wandb.save(log_file)
+
             # TODO: should I do it for all the agents or not or just one?
             # Now it is made for all the agents and takes the mean and the standard deviation
             post_eval_list = []
@@ -389,3 +410,5 @@ class SelfPlayTraining(SelfPlayExp):
             wandb.log({f"{agent_name}/post_eval/table": wandb.plot.line(table, "opponent idx", "win-rate", title=f"Post evaluation {agent_name}")})
             wandb.log({f"{agent_name}/post_eval/std_table": wandb.plot.line(std_table, "opponent idx", "win-rate", title=f"Std Post evaluation {agent_name}")})
 
+        # TODO: parse back the evaluation information (locs of evaluation matrix, best agents names, ....etc)
+        # TODO: save the json back to the location of the experiemnt and send it to wand as well

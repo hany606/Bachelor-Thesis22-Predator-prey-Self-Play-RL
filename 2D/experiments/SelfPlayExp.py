@@ -80,6 +80,7 @@ class SelfPlayExp:
 
     def _init_argparse(self, description, help):
         parser = argparse.ArgumentParser(description=description)
+        # TODO: Force different seed from argparse if it exists against the one in the json file
         parser.add_argument('--exp', type=str, help=help, metavar='')
         self.args = parser.parse_args()
 
@@ -106,7 +107,8 @@ class SelfPlayExp:
         prefix = self.experiment_configs["experiment_log_prefix"] # ""
         env_name = self.experiment_configs["env"]
         # log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results/{prefix}save-' + ENV + '-' + ALGO + '-' + OBS + '-' + ACT + '-' + experiment_id
-        log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results-{dir_postfix}/{prefix}save-' + env_name + '-' + self.experiment_id
+        self.log_main_dir =  f'{prefix}save-'+ env_name + '-' + self.experiment_id
+        log_dir = os.path.dirname(os.path.abspath(__file__)) + f'/selfplay-results-{dir_postfix}/{self.log_main_dir}'
         return log_dir
 
     def _init_log_files(self):
@@ -139,7 +141,7 @@ class SelfPlayExp:
         )
 
         experiment_name = self.experiment_configs["experiment_name"]
-        wandb.run.name = wandb.run.name + experiment_name + "-" + self.experiment_id
+        wandb.run.name = f"[Seed: {self.experiment_configs.get('seed_value', None)}] " + wandb.run.name + experiment_name + "-" + self.experiment_id
         wandb.run.save()
         wandb.save(self.experiment_filename)
         wandb.save("SelfPlayExp.py")

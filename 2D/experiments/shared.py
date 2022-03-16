@@ -76,6 +76,7 @@ def evaluate_policy(
     sampled_opponents = None,
     render_extra_info = None,
     render_callback = None,
+    seed_value=None,
     ):
     """
     Runs policy for ``n_eval_episodes`` episodes and returns average reward.
@@ -150,6 +151,8 @@ def evaluate_policy(
     env.set_sampled_opponents(sampled_opponents)
     env.set_opponents_indicies(opponents_indicies) # To be used later inside reset()
     env.set_attr("target_opponent_policy_name", sampled_opponents, different_values=True, values_indices=opponents_indicies)
+    seed_value = datetime.now().microsecond//1000 if seed_value is None else seed_value
+    env.seed(seed_value)
     # print(f"Load evaluation models for {n_envs} vectorized env")
     observations = env.reset()
     states = None
@@ -229,7 +232,7 @@ def evaluate_policy_simple(
     render_extra_info = None,
     render_callback = None,
     sleep_time=0.0001,
-    seed=None
+    seed_value=None
     ):
     """
     Runs policy for ``n_eval_episodes`` episodes and returns average reward.
@@ -274,16 +277,16 @@ def evaluate_policy_simple(
     env.set_target_opponent_policy_name(sampled_opponents[0])
 
     # print(f"Load evaluation models for {n_envs} vectorized env")
+    seed_value = datetime.now().microsecond//1000 if seed_value is None else seed_value
     for i in range(n_eval_episodes):
         # TODO: add functionality for the seed 
         # if(seed == "random"):
             
         # if(seed is not None):
         #     env.seed(seed)
-        seed = datetime.now().microsecond//1000
-
-        env.seed(seed)
-        # make_deterministic(seed, cuda_check=False)
+        env.seed(seed_value)
+        seed_value += 1
+        # make_deterministic(seed_value, cuda_check=False)
 
         observations = env.reset()
         state = None
@@ -344,3 +347,20 @@ def evaluate_policy_simple(
     if return_episode_rewards:
         return episodes_reward, episodes_length, win_rates, std_win_rate, render_ret
     return mean_reward, std_reward, win_rate, std_win_rate, render_ret
+
+
+def get_best_agent_from_eval_mat(evaluation_matrix, agent_names, axis, negative=False):
+    score_vector = np.mean(evaluation_matrix.T, axis=axis)
+    return get_best_agent_from_vector(score_vector, agent_names, negative)
+
+def get_best_agent_from_vector(score_vector, agent_names, negative=False):
+    best_score_idx = None
+    if(bool(negative)):
+        best_score_idx = np.argmin(score_vector)
+    else:
+        best_score_idx = np.argmax(score_vector)
+    best_score_agent_name = agent_names[best_score_idx]
+    best_score = score_vector[best_score_idx]
+
+    return best_score_agent_name, best_score
+

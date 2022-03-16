@@ -119,6 +119,7 @@ class EvalSaveCallback(EvalCallback):
         self.seed_value = kwargs["seed_value"]
         self.enable_evaluation_matrix = kwargs["enable_evaluation_matrix"]
         self.randomly_reseed_sampling = kwargs["randomly_reseed_sampling"]
+        self.eval_matrix_method = kwargs["eval_matrix_method"]
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
@@ -139,6 +140,7 @@ class EvalSaveCallback(EvalCallback):
         del kwargs["seed_value"]
         del kwargs["enable_evaluation_matrix"]
         del kwargs["randomly_reseed_sampling"]
+        del kwargs["eval_matrix_method"]
         # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
@@ -168,7 +170,7 @@ class EvalSaveCallback(EvalCallback):
         self.name_prefix = name_prefix
 
 
-    def _evaluate(self, model, n_eval_episodes, deterministic, sampled_opponents):
+    def _evaluate(self, model, n_eval_episodes, deterministic, sampled_opponents, return_episode_rewards=True):
         # Sync training and eval env if there is VecNormalize
         sync_envs_normalization(self.training_env, self.eval_env)
         # This is made in order to prevent making different generatations evaluations affect the others
@@ -183,10 +185,11 @@ class EvalSaveCallback(EvalCallback):
                                 n_eval_episodes=n_eval_episodes,
                                 render=self.render,
                                 deterministic=deterministic,
-                                return_episode_rewards=True,
+                                return_episode_rewards=return_episode_rewards,
                                 warn=self.warn,
                                 callback=self._log_success_callback,
-                                sampled_opponents=sampled_opponents
+                                sampled_opponents=sampled_opponents,
+                                seed_value=self.seed_value,
                               )
 
     def _evaluate_policy_core(self, logger_prefix, n_eval_episodes, deterministic, sampled_opponents, override=False) -> bool:
@@ -317,7 +320,7 @@ class EvalSaveCallback(EvalCallback):
         super(EvalSaveCallback, self)._on_training_end()
 
     # TODO: Add a feature that it will use the correct sorted from the archive if the metric for the archive is steps!
-    # TODO: It would be better to fix aggregate evaluation and then use it within here
+    # TODO: It would be better to update the aggregate evaluation and then use it within here
     # [Deprecated]
     def compute_eval_matrix_aggregate(self, prefix, round_num, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None):
         models_names = None
@@ -433,7 +436,7 @@ class EvalSaveCallback(EvalCallback):
             print(f"win rate: {win_rate}")
             
 
-    # TODO: It would be better to fix aggregate evaluation and then use it within here
+    # TODO: It would be better to update the aggregate evaluation and then use it within here as a sub function
     # Evaluate the whole matrix
     def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None, freq=1, population_size=1):
         models_names = None
@@ -458,6 +461,7 @@ class EvalSaveCallback(EvalCallback):
 
         # dim = num_rounds//freq+1
         agent_axis = [i for i in range(0, num_rounds, freq)]
+        agent_names = []
         opponent_axis = [i for i in range(0, num_rounds, freq)]
         population_axis = [i for i in range(0, population_size)]
         # Enforce doing evaluation for the last generation
@@ -487,9 +491,10 @@ class EvalSaveCallback(EvalCallback):
                 # sampled_agent_startswith = utos.get_startswith(self.save_path, startswith=startswith_keyword)
                 # sampled_agent = utos.get_latest(self.save_path, startswith=startswith_keyword)[0]
                 sampled_agent = utos.get_latest(sampled_agent_startswith, population_idx=self.population_idx)[0]
-                sampled_agent = os.path.join(agents_path, sampled_agent)  # Join it with the agent path
-                agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
+                sampled_agent_path = os.path.join(agents_path, sampled_agent)  # Join it with the agent path
+                agent_model = algorithm_class.load(sampled_agent_path, env=self.eval_env)
 
+            agent_names.append(sampled_agent)
             for ej, j in enumerate(opponent_axis):
                 print("------------------------------")
                 print(f"Round: {i} vs {j}")
@@ -520,12 +525,22 @@ class EvalSaveCallback(EvalCallback):
                     # Run evaluation n_eval_rep for each opponent
                     eval_model_list = [sampled_opponent]
                     # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-                    episodes_rewards_ret, _, win_rates_ret, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
-                                                    deterministic=deterministic,
-                                                    sampled_opponents=eval_model_list)
+                    episodes_rewards_ret, episode_lengths_if_eval_method, win_rates_ret, _, _ = self._evaluate(  agent_model,
+                                                                                                                 n_eval_episodes=n_eval_rep,
+                                                                                                                 deterministic=deterministic,
+                                                                                                                 sampled_opponents=eval_model_list,
+                                                                                                                 return_episode_rewards=True if self.eval_matrix_method == "length" else False
+                                                                                                              )
                     # win_rate = np.mean(win_rates_ret)
                     # win_rates.append(win_rate)
-                    score = np.mean(episodes_rewards_ret)
+                    score = None
+                    if(self.eval_matrix_method == "reward"):
+                        score = np.mean(episodes_rewards_ret)
+                    elif(self.eval_matrix_method == "win_rate"):
+                        score = np.mean(win_rates_ret)
+                    elif(self.eval_matrix_method == "length"):
+                        # episode_lengths_means = np.mean(episode_lengths_if_eval_method)
+                        score = np.mean(episode_lengths_if_eval_method)
                     scores.append(score)
                 # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
                 # Add this matrix to __init__
@@ -535,9 +550,9 @@ class EvalSaveCallback(EvalCallback):
                 # print(f"win rate: {mean_win_rate}")
                 mean_score = np.mean(scores)
                 self.evaluation_matrix[ei, ej] = mean_score
-                print(f"Mean score (reward): {mean_score}")
+                print(f"Mean score ({self.eval_matrix_method}): {mean_score}")
+        return [agent_axis, opponent_axis], agent_names
 
-        return [agent_axis, opponent_axis]
     # This last agent
     # Post evaluate the model against all the opponents from opponents_path
     # TODO: enable retrieving the agents from the archive

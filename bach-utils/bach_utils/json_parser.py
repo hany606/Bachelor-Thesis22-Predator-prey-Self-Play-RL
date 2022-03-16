@@ -53,13 +53,15 @@ class Parser:
     def save(filename, data):
         filename = filename if filename.endswith('.json') else filename+'.json'
         with open(filename, 'w') as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=2)
 
 
 class ExperimentParser(Parser):
     @staticmethod
-    def load(filename):
+    def load(filename, full=False):
         data = super(ExperimentParser, ExperimentParser).load(filename)
+        if(full):
+            return data
         experiment = data["experiment"]
         evaluation = data.get("evaluation", {})
         testing = data.get("testing", {})
@@ -70,10 +72,11 @@ class ExperimentParser(Parser):
         return experiment, agents, evaluation, testing
 
     @staticmethod
-    def save(filename, experiment, agents, evaluation):
+    def save(filename, experiment, agents, evaluation, testing):
         data = {}
         data["experiment"] = experiment
         data["evaluation"] = evaluation
+        data["testing"] = testing
         for k in agents.keys():
             data[f"agent{agents[k]['id']}"] = agents[k]
         super(ExperimentParser, ExperimentParser).save(filename, data)

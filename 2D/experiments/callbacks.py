@@ -549,6 +549,8 @@ class EvalSaveCallback(EvalCallback):
                 # self.evaluation_matrix[ei, ej] = mean_win_rate
                 # print(f"win rate: {mean_win_rate}")
                 mean_score = np.mean(scores)
+                if(self.eval_matrix_method == "length"):
+                    mean_score = self.eval_env.get_attr("max_num_steps",0)[0] - mean_score
                 self.evaluation_matrix[ei, ej] = mean_score
                 print(f"Mean score ({self.eval_matrix_method}): {mean_score}")
         return [agent_axis, opponent_axis], agent_names

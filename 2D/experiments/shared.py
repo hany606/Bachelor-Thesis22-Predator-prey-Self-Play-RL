@@ -349,16 +349,16 @@ def evaluate_policy_simple(
     return mean_reward, std_reward, win_rate, std_win_rate, render_ret
 
 
-def get_best_agent_from_eval_mat(evaluation_matrix, agent_names, axis, negative=False):
+def get_best_agent_from_eval_mat(evaluation_matrix, agent_names, axis, maximize=False):
     score_vector = np.mean(evaluation_matrix.T, axis=axis)
-    return get_best_agent_from_vector(score_vector, agent_names, negative)
+    return get_best_agent_from_vector(score_vector, agent_names, maximize)
 
-def get_best_agent_from_vector(score_vector, agent_names, negative=False):
+def get_best_agent_from_vector(score_vector, agent_names, maximize=False):
     best_score_idx = None
-    if(bool(negative)):
-        best_score_idx = np.argmin(score_vector)
-    else:
+    if(bool(maximize)):
         best_score_idx = np.argmax(score_vector)
+    else:
+        best_score_idx = np.argmin(score_vector)
     best_score_agent_name = agent_names[best_score_idx]
     best_score = score_vector[best_score_idx]
 

@@ -142,7 +142,7 @@
         "__commentImportant__": "TODO: Merge all the approach cfg into one dictionary or parse them using the experiment configuration file saved in the experiment folder",
         "crosstest_approaches_path":[
             "~standard1",
-            "~population2"
+            "~population3"
         ],        
 
         "__COMMENT:crosstest_approaches_path__":[

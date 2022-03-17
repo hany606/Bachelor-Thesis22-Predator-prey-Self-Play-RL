@@ -358,7 +358,7 @@ class SelfPlayTraining(SelfPlayExp):
                 opponent_name = agent_config["opponent_name"]
                 num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
                 eval_matrix_testing_freq = agent_config["eval_matrix_testing_freq"]
-                negative_reward_indicator = bool((j+1)%2) if agent_config.get("eval_matrix_method", "reward") == "reward" else False
+                maximize_indicator = bool((j)%2) if agent_config.get("eval_matrix_method", "reward") in ["length"] else False
 
                 evaluation_matrices = []
                 best_agents_population = {}
@@ -369,11 +369,11 @@ class SelfPlayTraining(SelfPlayExp):
                     evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
                     evaluation_matrices.append(evaluation_matrix)
                     # If it is specified to be reward -> signed value (note: winrate is not signed it is either 0 or 1 from evaluate_policy(.))
-                    best_agent_name, best_agent_score = get_best_agent_from_eval_mat(evaluation_matrix, agent_names, axis=j, negative=negative_reward_indicator)
+                    best_agent_name, best_agent_score = get_best_agent_from_eval_mat(evaluation_matrix, agent_names, axis=j, maximize=maximize_indicator)
                     best_agents_population[best_agent_name] = best_agent_score
                 
-                best_agent_name, best_agent_score = get_best_agent_from_vector(list(best_agents_population.values()), list(best_agents_population.keys()), negative=negative_reward_indicator)
-                self.evaluation_configs[agent_name] = {"best_agent_name":best_agent_name, "best_agent_score":best_agent_score}
+                best_agent_name, best_agent_score = get_best_agent_from_vector(list(best_agents_population.values()), list(best_agents_population.keys()), maximize=maximize_indicator)
+                self.evaluation_configs[agent_name] = {"best_agent_name":best_agent_name, "best_agent_score":best_agent_score, "best_agent_method":agent_config.get("eval_matrix_method", "reward")}
 
                 mean_evaluation_matrix = np.mean(evaluation_matrices, axis=0)
                 std_evaluation_matrix = np.std(evaluation_matrices, axis=0)

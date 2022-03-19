@@ -32,7 +32,10 @@ class ArchiveSB3:
                                   "highest-set": ["sort_metric", utsrt.insertion_sorted_metric],
                                   "lowest": ["sort_metric", utsrt.insertion_sorted_metric],
                                   "lowest-set": ["sort_metric", utsrt.insertion_sorted_metric],
-                                  "delta-latest": ["sort_metric", utsrt.insertion_sorted_steps]
+                                  "delta-latest": ["sort_metric", utsrt.insertion_sorted_steps],
+                                  "cyclic": ["sort_metric", utsrt.insertion_sorted_steps],
+                                  "reverse-cyclic": ["sort_metric", utsrt.insertion_sorted_steps]
+
                                   }
         self.sorting_keys = list(set(sorting_keys))
         for sk in self.sorting_keys:

@@ -53,6 +53,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
 
     # Only once the training starts of the round
     def _on_training_start(self):
+        self.env.reset_counter = 0
         # if(not self.sampled_per_round):
         print("training started")
         if(not (self.sample_after_rollout or self.sample_after_reset)):
@@ -170,11 +171,12 @@ class EvalSaveCallback(EvalCallback):
         self.name_prefix = name_prefix
 
 
-    def _evaluate(self, model, n_eval_episodes, deterministic, sampled_opponents, return_episode_rewards=True):
+    def _evaluate(self, model, n_eval_episodes, deterministic, sampled_opponents, return_episode_rewards=True, make_deterministic_flag=False):
         # Sync training and eval env if there is VecNormalize
         sync_envs_normalization(self.training_env, self.eval_env)
         # This is made in order to prevent making different generatations evaluations affect the others
-        make_deterministic(seed_value=self.seed_value, cuda_check=False)
+        if(make_deterministic_flag):
+            make_deterministic(seed_value=self.seed_value, cuda_check=False)
 
 
         # Reset success rate buffer
@@ -529,7 +531,8 @@ class EvalSaveCallback(EvalCallback):
                                                                                                                  n_eval_episodes=n_eval_rep,
                                                                                                                  deterministic=deterministic,
                                                                                                                  sampled_opponents=eval_model_list,
-                                                                                                                 return_episode_rewards=True if self.eval_matrix_method == "length" else False
+                                                                                                                 return_episode_rewards=True if self.eval_matrix_method == "length" else False,
+                                                                                                                 make_deterministic_flag=True
                                                                                                               )
                     # win_rate = np.mean(win_rates_ret)
                     # win_rates.append(win_rate)
@@ -582,7 +585,8 @@ class EvalSaveCallback(EvalCallback):
                 # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
                 episodes_rewards_ret, _, win_rates, _, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
                                                 deterministic=deterministic,
-                                                sampled_opponents=eval_model_list)
+                                                sampled_opponents=eval_model_list,
+                                                make_deterministic_flag=True)
                 # win_rate = np.mean(win_rates)
                 # evaluation_result = win_rate
                 score = np.mean(episodes_rewards_ret)

@@ -2,6 +2,11 @@ import random
 from copy import deepcopy
 import bach_utils.sorting as utsrt
 from bach_utils.filtering import filter_population 
+import numpy as np
+
+from gym.utils import seeding
+seed_value = 3
+np_random, seed_value = seeding.np_random(seed_value)
 
 # TODO: Check whether do we still need return_count or not?
 
@@ -42,7 +47,8 @@ def get_first(source_list, return_count=False):
 def get_random_from(full_list, seed=1):
     # random.randint is uniform
     # https://stackoverflow.com/questions/41100287/randint-doesnt-always-follow-uniform-distribution
-    random_idx = random.randint(0, len(full_list)-1)
+    random_idx = np_random.randint(0, len(full_list))#random.randint(0, len(full_list)-1) #np.random.randint(0, len(full_list))#
+    # print(random_idx, len(full_list))
     return [full_list[random_idx]]
 
 def get_random(source_list, seed=1, return_count=False):

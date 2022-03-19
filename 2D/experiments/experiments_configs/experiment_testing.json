@@ -14,7 +14,7 @@
 
         "env": "SelfPlay1v1-Pred_Prey-v0",
         "num_workers": 1,
-        "num_rounds": 5,
+        "num_rounds": 30,
         "population_size": 1,
         "parallel_alternate_training": true,
         "seed_value": 3,
@@ -28,11 +28,12 @@
     "shared":{
         "sample_after_rollout": false,
         "sample_after_reset": true,
-        "__comment__": "random, delta-latest",
-        "opponent_selection": "delta-latest",
+        "__comment__": "random, delta-latest, cyclic, reverse-cyclic, latest",
+        "opponent_selection": "reverse-cyclic",
         "delta_latest":2,
         "__comment1__": "reward, win_rate, length",
-        "eval_matrix_method": "length"
+        "eval_matrix_method": "length",
+        "randomly_reseed_sampling":false
     },
 
     "agent0":{
@@ -67,7 +68,7 @@
         "sample_after_rollout": "~sample_after_rollout",
         "sample_after_reset": "~sample_after_reset",
 
-        "randomly_reseed_sampling": false,
+        "randomly_reseed_sampling": "~randomly_reseed_sampling",
 
         "rl_algorithm": "PPO",
         "policy": "MlpPolicy",
@@ -113,7 +114,7 @@
         "sample_after_rollout": "~sample_after_rollout",
         "sample_after_reset": "~sample_after_reset",
 
-        "randomly_reseed_sampling": false,
+        "randomly_reseed_sampling": "~randomly_reseed_sampling",
 
         "rl_algorithm": "PPO",
         "policy": "MlpPolicy",

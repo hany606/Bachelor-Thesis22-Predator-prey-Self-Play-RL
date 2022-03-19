@@ -355,6 +355,7 @@ def get_best_agent_from_eval_mat(evaluation_matrix, agent_names, axis, maximize=
 
 def get_best_agent_from_vector(score_vector, agent_names, maximize=False):
     best_score_idx = None
+    # print(dict(zip(score_vector, agent_names)))
     if(bool(maximize)):
         best_score_idx = np.argmax(score_vector)
     else:

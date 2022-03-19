@@ -147,7 +147,7 @@ class SelfPlayTraining(SelfPlayExp):
         self.wandb_callbacks = {}
         population_size = self.experiment_configs["population_size"]    # population here has a shared archive
         # self.evalsave_callbacks_master_idx = population_size - 1
-
+        self.eval_matrix_method = {}
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
@@ -155,6 +155,8 @@ class SelfPlayTraining(SelfPlayExp):
 
             opponent_sample_path = os.path.join(self.log_dir, opponent_name)
             agent_path = os.path.join(self.log_dir, agent_name)
+
+            self.eval_matrix_method[agent_name] = agent_configs.get("eval_matrix_method", "reward")
             
             self.evalsave_callbacks[agent_name] = []
             self.opponent_selection_callbacks[agent_name] = []
@@ -180,7 +182,7 @@ class SelfPlayTraining(SelfPlayExp):
                                                                             seed_value=self.seed_value,
                                                                             enable_evaluation_matrix=enable_evaluation_matrix,
                                                                             randomly_reseed_sampling=agent_configs.get("randomly_reseed_sampling", False),
-                                                                            eval_matrix_method=agent_configs.get("eval_matrix_method", "reward"),
+                                                                            eval_matrix_method=self.eval_matrix_method[agent_name],
                                                                             )
                                                             )
                 self.evalsave_callbacks[agent_name][-1].population_idx = population_num
@@ -351,6 +353,9 @@ class SelfPlayTraining(SelfPlayExp):
         self.evaluation_configs["log_main_dir"] = self.log_main_dir
 
         for j,agent_name in enumerate(agents_names_list):
+            print(f" ----------- Evaluation for {agent_name} -----------")
+            if((j+1)%2):
+                print("Note the score is inversed for length, it is not length but time elapsed")
             agent_config = self.agents_configs[agent_name]
             aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
 
@@ -358,13 +363,13 @@ class SelfPlayTraining(SelfPlayExp):
                 opponent_name = agent_config["opponent_name"]
                 num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
                 eval_matrix_testing_freq = agent_config["eval_matrix_testing_freq"]
-                maximize_indicator = bool((j)%2) if agent_config.get("eval_matrix_method", "reward") in ["length"] else False
+                maximize_indicator = True#bool((j)%2) if self.eval_matrix_method[agent_name] == "length" else False
 
                 evaluation_matrices = []
                 best_agents_population = {}
                 for population_num in range(population_size):
                     print(f"Full evaluation matrix for {agent_name} (population: {population_num})")
-                    axis, agent_names = self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq, population_size=population_size)
+                    axis, agent_names = self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq, population_size=population_size, negative_indicator=(j+1)%2)
                     evaluation_matrix = self.evalsave_callbacks[agent_name][population_num].evaluation_matrix
                     evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
                     evaluation_matrices.append(evaluation_matrix)
@@ -373,8 +378,8 @@ class SelfPlayTraining(SelfPlayExp):
                     best_agents_population[best_agent_name] = best_agent_score
                 
                 best_agent_name, best_agent_score = get_best_agent_from_vector(list(best_agents_population.values()), list(best_agents_population.keys()), maximize=maximize_indicator)
-                self.evaluation_configs[agent_name] = {"best_agent_name":best_agent_name, "best_agent_score":best_agent_score, "best_agent_method":agent_config.get("eval_matrix_method", "reward")}
-
+                self.evaluation_configs[agent_name] = {"best_agent_name":best_agent_name, "best_agent_score":best_agent_score, "best_agent_method":self.eval_matrix_method[agent_name]}
+                print(f"Best agent for {agent_name} -> {best_agent_name}, score: {best_agent_score}")
                 mean_evaluation_matrix = np.mean(evaluation_matrices, axis=0)
                 std_evaluation_matrix = np.std(evaluation_matrices, axis=0)
                 # One with text and other without (I kept the name in wandb just not to be a problem with previous experiments)

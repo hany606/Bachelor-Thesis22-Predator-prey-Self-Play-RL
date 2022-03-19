@@ -438,7 +438,7 @@ class EvalSaveCallback(EvalCallback):
 
     # TODO: It would be better to update the aggregate evaluation and then use it within here as a sub function
     # Evaluate the whole matrix
-    def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None, freq=1, population_size=1):
+    def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None, freq=1, population_size=1, negative_indicator=False):
         models_names = None
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
         if(self.OS and (opponents_path is None or agents_path is None)):
@@ -534,6 +534,7 @@ class EvalSaveCallback(EvalCallback):
                     # win_rate = np.mean(win_rates_ret)
                     # win_rates.append(win_rate)
                     score = None
+                    print(self.eval_matrix_method)
                     if(self.eval_matrix_method == "reward"):
                         score = np.mean(episodes_rewards_ret)
                     elif(self.eval_matrix_method == "win_rate"):
@@ -549,7 +550,8 @@ class EvalSaveCallback(EvalCallback):
                 # self.evaluation_matrix[ei, ej] = mean_win_rate
                 # print(f"win rate: {mean_win_rate}")
                 mean_score = np.mean(scores)
-                if(self.eval_matrix_method == "length"):
+                # This already done
+                if(self.eval_matrix_method == "length" and negative_indicator):
                     mean_score = self.eval_env.get_attr("max_num_steps",0)[0] - mean_score
                 self.evaluation_matrix[ei, ej] = mean_score
                 print(f"Mean score ({self.eval_matrix_method}): {mean_score}")

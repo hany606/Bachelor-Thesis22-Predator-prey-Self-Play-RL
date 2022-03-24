@@ -1,0 +1,13 @@
+{
+    "shared":{
+        "sample_after_rollout": false,
+        "sample_after_reset": true,
+        "__comment__": "random, delta-latest, cyclic, reverse-cyclic, latest",
+        "opponent_selection": "reverse-cyclic",
+        "delta_latest":2,
+        "__comment1__": "reward, win_rate, length",
+        "eval_matrix_method": "length",
+        "randomly_reseed_sampling":false,
+        "best_agent_search_radius":5
+    }
+}

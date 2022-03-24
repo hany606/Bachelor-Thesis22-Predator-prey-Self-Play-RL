@@ -8,6 +8,7 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 from torch import seed
+import time
 
 class Behavior: # For only prey for now, we need to make it configured for the predator also :TODO:
     def __init__(self, **kwargs):
@@ -297,8 +298,13 @@ class PZPredPrey(gym.Env):
             print(info)
         return obs, reward, done, info
 
-    def render(self, mode='human'):
-        self.env.render()
+    def render(self, mode='human', extra_info=None):
+        extra_info = f"{self.num_steps}" if(extra_info is None) else f"{self.num_steps}, "+extra_info
+        self.env.render(mode, extra_info)
+
+    def close(self):
+        time.sleep(0.3)
+        self.env.close()
 
 # Single-agent environment for the predator
 class PZPredPreyPred(PZPredPrey):
@@ -445,9 +451,9 @@ if __name__ == '__main__':
     env.reinit(pred_behavior=behavior.fixed_pred)
 
     observation = env.reset()
-    print(env.observation_space.shape)
-    print(observation.shape)
-    exit()
+    # print(env.observation_space.shape)
+    # print(observation.shape)
+    # exit()
     done = False
 
     while not done:
@@ -455,7 +461,7 @@ if __name__ == '__main__':
         action = env.action_space.sample()
         # action = [0,0,1]
         # action = [-observation[0]+observation[6],-observation[1]+observation[7],-observation[2]+observation[8]]
-        print(f"Actions: {action}")
+        # print(f"Actions: {action}")
         # action[0] = [0,0]
         # action[1] = 1
         # action[2] = 1
@@ -464,7 +470,7 @@ if __name__ == '__main__':
         # print(observation.shape)
         print(info)
         # print(reward, info, done)
-        env.render()
+        env.render(extra_info="test")
         # sleep(0.01)
         # print(done)
         # if ((isinstance(done, dict) and done["__all__"]) or (isinstance(done, bool) and done)):

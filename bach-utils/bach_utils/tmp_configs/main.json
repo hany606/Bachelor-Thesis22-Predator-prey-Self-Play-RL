@@ -1,0 +1,8 @@
+{
+    "header": "tmp_configs/header.json",
+    "shared": "tmp_configs/shared.json",
+    "env_agents": "tmp_configs/env_agents.json",
+    "outer_opt": "tmp_configs/outer_opt.json",
+    "inner_opt": "tmp_configs/inner_opt.json",
+    "testing": "tmp_configs/testing.json"
+}

@@ -1,0 +1,28 @@
+{
+    "experiment":{
+        "experiment_id": "1",
+        "experiment_name": "-debug-v5",
+        "experiment_log_prefix": "test-",
+
+        "__comment1__": "wandb_enable flag -> not working for now",
+        "wandb_enable":true,
+        
+        "wandb_project": "Behavioral-Learning-Thesis",
+        "wandb_group": "self-play",
+        "wandb_entity": "None",
+        "wandb_notes": "Debugging why the graphs are not appearing",
+
+        "env": "SelfPlay1v1-Pred_Prey-v0",
+        "log_env_dir_name":"Evorobotpy2",
+        "num_workers": 1,
+        "num_rounds": 5,
+        "population_size": 1,
+        "parallel_alternate_training": true,
+        "seed_value": 3,
+        "framework": "stable_baselines3",
+
+        "hierarchy":"2D:evorobotpy2:predprey:1v1",
+
+        "agents_order": {"0":"pred", "1":"prey"}
+    }
+}

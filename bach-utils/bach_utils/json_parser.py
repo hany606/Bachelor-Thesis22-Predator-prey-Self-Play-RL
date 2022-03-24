@@ -4,8 +4,50 @@ import json
 import numpy as np
 from math import sqrt
 
+import pprint 
+pp = pprint.PrettyPrinter(indent=4)
+
 class Parser:
+
     @staticmethod
+    def merger(data):
+        def merge_1lvl(base, extra):
+            new = {}
+            for k in base.keys():
+                new[k] = dict(base[k], **extra[k])
+            return new
+        header_filename = data["header"]
+        shared_filename = data["shared"]
+        env_agents_filename = data["env_agents"]
+        inner_filename = data["inner_opt"]
+        outer_filename = data["outer_opt"]
+        testing_filename = data["testing"]
+
+        print(header_filename, shared_filename)
+        shared = Parser.load(shared_filename)["shared"]
+        header = Parser.load(header_filename)["experiment"]
+        # header = Parser.load(header_filename, shared)
+
+        env_agents = Parser.load(env_agents_filename, shared=False)
+        # env_agents = Parser.load(env_agents_filename, shared)
+        inner = Parser.load(inner_filename, shared=False)
+        env_agents = merge_1lvl(env_agents, inner)
+        outer = Parser.load(outer_filename, shared=False)
+        env_agents = merge_1lvl(env_agents, outer)
+
+        testing = Parser.load(testing_filename)["testing"]
+        # print(env_agents)
+        # pp.pprint(shared)
+        # pp.pprint(header)
+        # pp.pprint(env_agents)
+        # pp.pprint(inner)
+        # pp.pprint(outer)
+        # new_data = {"experiment": header}
+        new_data = {"experiment": header, "shared": shared, "testing": testing}
+        new_data = dict(new_data, **env_agents)
+        return new_data
+
+    @staticmethod   
     def dict_filter(data, shared):
         keys = list(data.keys())
         for k in keys:
@@ -40,12 +82,13 @@ class Parser:
 
                 
     @staticmethod
-    def load(filename):
+    def load(filename, shared=None):
         filename = filename if filename.endswith('.json') else filename+'.json'
         data = None
         with open(filename, 'r') as f:
             data = json.load(f)
-            Parser.dict_filter(data, data.get("shared", None))
+            if(shared != False):
+                Parser.dict_filter(data, data.get("shared", shared))
 
         return data
     
@@ -60,8 +103,13 @@ class ExperimentParser(Parser):
     @staticmethod
     def load(filename, full=False):
         data = super(ExperimentParser, ExperimentParser).load(filename)
+        data_combined = data
         if(full):
             return data
+        if(data.get("header", None) is not None):   # to make it compatible with the old configs
+            data_combined = super(ExperimentParser, ExperimentParser).merger(data)
+            super(ExperimentParser, ExperimentParser).dict_filter(data_combined, data_combined.get("shared", None))
+            data = data_combined
         experiment = data["experiment"]
         evaluation = data.get("evaluation", {})
         testing = data.get("testing", {})
@@ -69,7 +117,7 @@ class ExperimentParser(Parser):
         for k in data.keys():
             if(k.startswith("agent")):
                 agents[data[k]["name"]] = data[k]
-        return experiment, agents, evaluation, testing
+        return experiment, agents, evaluation, testing, data_combined
 
     @staticmethod
     def save(filename, experiment, agents, evaluation, testing):
@@ -79,6 +127,10 @@ class ExperimentParser(Parser):
         data["testing"] = testing
         for k in agents.keys():
             data[f"agent{agents[k]['id']}"] = agents[k]
+        ExperimentParser.save(filename, data)
+        
+    @staticmethod
+    def save_combined(filename, data):
         super(ExperimentParser, ExperimentParser).save(filename, data)
 
 
@@ -108,4 +160,5 @@ class WandbHeatMapParser(Parser):
 if __name__=="__main__":
     import pprint 
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(ExperimentParser.load("default.json"))
+    # pp.pprint(ExperimentParser.load("default.json"))
+    pp.pprint(ExperimentParser.load("tmp_configs/main.json", full=False))

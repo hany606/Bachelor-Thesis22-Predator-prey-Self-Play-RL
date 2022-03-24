@@ -1,1 +1,0 @@
-Logging to selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-PPO-full-vel-07.30.2021_03.02.33

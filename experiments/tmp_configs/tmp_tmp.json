@@ -1,0 +1,94 @@
+{
+    "agent0":{
+        "id": 0,
+        "name": "pred",
+        "env_class": "SelfPlayPredEnv",
+        "opponent_name":"prey",
+        "obs": "full",
+        "act": "vel",
+
+        "num_eval_episodes": 2,
+        "num_heatmap_eval_episodes": 2,
+        "num_timesteps": 2e3,
+        "eval_freq": 0,
+        "save_freq": 0,
+        "final_save_freq": 3,
+        "heatmap_log_freq":3,
+        "aggregate_eval_matrix":false,
+        "eval_matrix_testing_freq":3,
+        "eval_matrix_method":"~eval_matrix_method",
+        "best_agent_search_radius":"~best_agent_search_radius",
+
+
+        "delta_latest":"~delta_latest",
+        
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "eval_metric": "lastreward",
+        "eval_opponent_selection": "random",
+        "opponent_selection": "~opponent_selection",
+        "training_agent_selection": "latest",
+
+        "num_sampled_opponent_per_round": 10,
+        "sample_after_rollout": "~sample_after_rollout",
+        "sample_after_reset": "~sample_after_reset",
+
+        "randomly_reseed_sampling": "~randomly_reseed_sampling",
+
+        "rl_algorithm": "PPO",
+        "policy": "MlpPolicy",
+        "clip_range": 0.2,
+        "ent_coef": 0.0,
+        "batch_size":64,
+        "gamma":0.99,
+        "lr": 3e-4,
+        "n_epochs": 10,
+        "n_steps":2048
+    },
+
+    "agent1":{
+        "id": 1,
+        "name": "prey",
+        "env_class": "SelfPlayPreyEnv",
+        "opponent_name":"pred",
+        "obs": "full",
+        "act": "vel",
+
+        "num_eval_episodes": 2,
+        "num_heatmap_eval_episodes": 2,
+        "num_timesteps": 2e3,
+        "eval_freq": 0,
+        "save_freq": 0,
+        "final_save_freq": 3,
+        "heatmap_log_freq":3,
+        "aggregate_eval_matrix":false,
+        "eval_matrix_testing_freq":3,
+        "eval_matrix_method":"~eval_matrix_method",
+        "best_agent_search_radius":"~best_agent_search_radius",
+
+
+        "delta_latest":"~delta_latest",
+
+        
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "eval_metric": "lastreward",
+        "eval_opponent_selection": "random",
+        "opponent_selection": "~opponent_selection",
+        "training_agent_selection": "latest",
+
+        "num_sampled_opponent_per_round": 10,
+        "sample_after_rollout": "~sample_after_rollout",
+        "sample_after_reset": "~sample_after_reset",
+
+        "randomly_reseed_sampling": "~randomly_reseed_sampling",
+
+        "rl_algorithm": "PPO",
+        "policy": "MlpPolicy",
+        "clip_range": 0.2,
+        "ent_coef": 0.0,
+        "batch_size":64,
+        "gamma":0.99,
+        "lr": 3e-4,
+        "n_epochs": 10,
+        "n_steps":2048
+    }
+}

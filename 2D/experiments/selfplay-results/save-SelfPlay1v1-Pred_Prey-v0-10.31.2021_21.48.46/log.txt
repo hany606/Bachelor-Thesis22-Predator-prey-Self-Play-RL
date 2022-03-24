@@ -1,1 +1,0 @@
-Logging to /home/hany606/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46

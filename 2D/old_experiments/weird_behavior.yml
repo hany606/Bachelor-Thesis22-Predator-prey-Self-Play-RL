@@ -1,0 +1,113 @@
+# Weird behavior:
+# two models exactly, when you switch the environment, they have completely different outcomes
+# Nomralized: 0.9633663366336633, -37.0
+# Nomralized: 1.0, 1010.0
+# 
+###############################################################
+# Best agent1: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+# Best opponent1: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+# Best agent2: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+# Best opponent2: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+###############################################################
+----------------------------------------
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Seed: 3
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 -> win rate: 100.00% +/- 0.00	rewards: -37.00 +/- 1.41
+Nomralized: 0.9633663366336633, -37.0
+----------------------------------------
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Seed: 3
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 -> win rate: 100.00% +/- 0.00	rewards: -37.00 +/- 1.41
+Nomralized: 0.9633663366336633, -37.0
+----------------------------------------
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Seed: 3
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 -> win rate: 100.00% +/- 0.00	rewards: -37.00 +/- 1.41
+Nomralized: 0.9633663366336633, -37.0
+----------------------------------------
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Seed: 3
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+Reset, env name: Testing-(pred), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 -> win rate: 100.00% +/- 0.00	rewards: -37.00 +/- 1.41
+Nomralized: 0.9633663366336633, -37.0
+----------------------------------------
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Seed: 3
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 -> win rate: 100.00% +/- 0.00	rewards: 1010.00 +/- 0.00
+Nomralized: 1.0, 1010.0
+----------------------------------------
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Seed: 3
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+key 65513 16
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 -> win rate: 100.00% +/- 0.00	rewards: 1010.00 +/- 0.00
+Nomralized: 1.0, 1010.0
+----------------------------------------
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Seed: 3
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 -> win rate: 100.00% +/- 0.00	rewards: 1010.00 +/- 0.00
+Nomralized: 1.0, 1010.0
+----------------------------------------
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Seed: 3
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+Reset, env name: Testing-(prey), OS, target_policy: /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0
+/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/prey/history_47_lastreward_m_802.6_s_1277952_p_0 vs /home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-crosstest-models/standard1-01.11.2022_21.57.03/pred/history_46_lastreward_m_-230.2_s_1251328_p_0 -> win rate: 100.00% +/- 0.00	rewards: 1010.00 +/- 0.00
+Nomralized: 1.0, 1010.0
+-----------------------------------------------------------------
+perf_agent: 0.0	perf_opponent: 0.0	gain: 0.0
+Configuration 1 & 2 are close to each other to generate predators
+Configuration 1 & 2 are close to each other to generate prey
+Configuration 1 & 2 are close to each other

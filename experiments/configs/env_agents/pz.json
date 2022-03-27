@@ -1,5 +1,6 @@
 {
     "experiment":{
+        "wandb_group": "self-play-2D-PettingZoo",
         "env": "SelfPlay1v1-Pred_Prey-v0",
         "hierarchy":"2D:pettingzoo:predprey:1v1",
         "log_env_dir_name":"PettingZoo"

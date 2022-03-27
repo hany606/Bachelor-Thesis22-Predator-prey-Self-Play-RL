@@ -1,5 +1,6 @@
 {
     "experiment":{
+        "wandb_group": "self-play-2D",
         "env": "SelfPlay1v1-Pred_Prey-v0",
         "hierarchy":"2D:evorobotpy2:predprey:1v1",
         "log_env_dir_name":"Evorobotpy2"

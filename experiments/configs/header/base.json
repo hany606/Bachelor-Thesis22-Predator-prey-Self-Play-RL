@@ -5,7 +5,6 @@
         "experiment_log_prefix": "",
 
         "wandb_project": "Behavioral-Learning",
-        "wandb_group": "self-play-2D",
         "wandb_entity": "iu_mas",
         "wandb_notes": "(sample-after-rollout) Base config, based on last version of configurations for train_selfplay_baselines.py",
         "__comment1__": "wandb_enable flag -> not working for now",

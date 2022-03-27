@@ -1,0 +1,22 @@
+{
+    "experiment":{
+        "experiment_id": "1",
+        "experiment_name": "-debug-v5",
+        "experiment_log_prefix": "test-",
+        
+        "wandb_project": "Behavioral-Learning-Thesis",
+        "wandb_group": "self-play",
+        "wandb_entity": "None",
+        "wandb_notes": "Debugging why the graphs are not appearing",
+        "__comment1__": "wandb_enable flag -> not working for now",
+        "wandb_enable":true,
+        
+        "num_workers": 1,
+        "num_rounds": 10,
+        "parallel_alternate_training": false,
+        "seed_value": 10,
+        "framework": "stable_baselines3",
+
+        "agents_order": {"0":"pred", "1":"prey"}
+    }
+}

@@ -23,28 +23,55 @@ class Parser:
         outer_filename = data["outer_opt"]
         testing_filename = data["testing"]
 
-        print(header_filename, shared_filename)
+        # print(header_filename, shared_filename)
         shared = Parser.load(shared_filename)["shared"]
-        header = Parser.load(header_filename)["experiment"]
+        print("==============SHARED==============")
+        header = Parser.load(header_filename)
         # header = Parser.load(header_filename, shared)
+        print("=============HEADER===============")
+
 
         env_agents = Parser.load(env_agents_filename, shared=False)
         # env_agents = Parser.load(env_agents_filename, shared)
-        inner = Parser.load(inner_filename, shared=False)
-        env_agents = merge_1lvl(env_agents, inner)
-        outer = Parser.load(outer_filename, shared=False)
-        env_agents = merge_1lvl(env_agents, outer)
-
-        testing = Parser.load(testing_filename)["testing"]
-        # print(env_agents)
-        # pp.pprint(shared)
+        print("=============ENV_agents===============")
+        # print(env_agents["experiment"])
+        # print("============================")
+        # print(header)
+        # print("============================")
+        header = merge_1lvl(header, env_agents)
+        del env_agents["experiment"]
+        print("============HEADER+ENV_AGENTS================")
         # pp.pprint(header)
+        # print("============================")
+        inner = Parser.load(inner_filename, shared=False)
+        print("=============Inner===============")
+        env_agents = merge_1lvl(env_agents, inner)
+        print("==============ENV_AGENTS+INNER==============")
+        outer = Parser.load(outer_filename, shared=False)
+        print("==============OUTER==============")
+        header = merge_1lvl(header, outer)
+        del outer["experiment"]
+        print("=============HEADER+OUTER===============")
+        env_agents = merge_1lvl(env_agents, outer)
+        print("=============ENV_AGENTS+OUTER===============")
+        header = header["experiment"]
+
+        testing = Parser.load(testing_filename)
+        pp.pprint(header)
+        print("========================")
+        pp.pprint(env_agents)
+        print("========================")
+        pp.pprint(shared)
+        print("========================")
+        
         # pp.pprint(env_agents)
         # pp.pprint(inner)
         # pp.pprint(outer)
         # new_data = {"experiment": header}
         new_data = {"experiment": header, "shared": shared, "testing": testing}
         new_data = dict(new_data, **env_agents)
+        pp.pprint(new_data)
+        print("========================")
         return new_data
 
     @staticmethod   
@@ -108,6 +135,10 @@ class ExperimentParser(Parser):
             return data
         if(data.get("header", None) is not None):   # to make it compatible with the old configs
             data_combined = super(ExperimentParser, ExperimentParser).merger(data)
+            print("=========-------------------===============")
+            pp.pprint(data_combined)
+            print("=========-------------------===============")
+
             super(ExperimentParser, ExperimentParser).dict_filter(data_combined, data_combined.get("shared", None))
             data = data_combined
         experiment = data["experiment"]
@@ -127,7 +158,7 @@ class ExperimentParser(Parser):
         data["testing"] = testing
         for k in agents.keys():
             data[f"agent{agents[k]['id']}"] = agents[k]
-        ExperimentParser.save(filename, data)
+        ExperimentParser.save_combined(filename, data)
         
     @staticmethod
     def save_combined(filename, data):
@@ -161,4 +192,6 @@ if __name__=="__main__":
     import pprint 
     pp = pprint.PrettyPrinter(indent=4)
     # pp.pprint(ExperimentParser.load("default.json"))
-    pp.pprint(ExperimentParser.load("tmp_configs/main.json", full=False))
+    gen = ExperimentParser.load("tmp_configs/main.json", full=False)
+    pp.pprint(gen[4])
+    ExperimentParser.save_combined("tmp_configs/tmp_gen.json", gen[4])

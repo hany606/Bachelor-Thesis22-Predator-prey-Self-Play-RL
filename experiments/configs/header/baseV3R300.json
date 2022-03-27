@@ -1,0 +1,22 @@
+{
+    "experiment":{
+        "experiment_id": "basev3_round300",
+        "experiment_name": "-base3-round300",
+        "experiment_log_prefix": "",
+
+        "wandb_project": "Behavioral-Learning",
+        "wandb_group": "self-play-2D",
+        "wandb_entity": "iu_mas",
+        "wandb_notes": "Base V3 -> Sample with each reset",
+        "__comment1__": "wandb_enable flag -> not working for now",
+        "wandb_enable":true,
+
+        "num_workers": 1,
+        "num_rounds": 300,
+        "parallel_alternate_training": false,
+        "seed_value": 10,
+        "framework": "stable_baselines3",
+
+        "agents_order": {"0":"pred", "1":"prey"}
+    }
+}

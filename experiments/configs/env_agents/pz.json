@@ -1,24 +1,25 @@
 {
     "experiment":{
         "env": "SelfPlay1v1-Pred_Prey-v0",
-        "hierarchy":"2D:evorobotpy2:predprey:1v1",
-        "log_env_dir_name":"Evorobotpy2"
+        "hierarchy":"2D:pettingzoo:predprey:1v1",
+        "log_env_dir_name":"PettingZoo"
     },
+
     "agent0":{
         "id": 0,
         "name": "pred",
-        "env_class": "SelfPlayPredEnv",
+        "env_class": "SelfPlayPZPredEnv",
         "opponent_name":"prey",
         "obs": "full",
         "act": "vel",
 
         "aggregate_eval_matrix":false,
-        "num_heatmap_eval_episodes": 2,
-        "heatmap_log_freq":3,
+        "num_heatmap_eval_episodes": 5,
+        "heatmap_log_freq":5,
         "eval_matrix_testing_freq":3,
         "eval_matrix_method":"~eval_matrix_method",
 
-        "final_save_freq": 3,
+        "final_save_freq": 5,
 
         "best_agent_search_radius":"~best_agent_search_radius"
 
@@ -27,18 +28,18 @@
     "agent1":{
         "id": 1,
         "name": "prey",
-        "env_class": "SelfPlayPreyEnv",
+        "env_class": "SelfPlayPZPreyEnv",
         "opponent_name":"pred",
         "obs": "full",
         "act": "vel",
 
         "aggregate_eval_matrix":false,
-        "num_heatmap_eval_episodes": 2,
-        "heatmap_log_freq":3,
+        "num_heatmap_eval_episodes": 5,
+        "heatmap_log_freq":5,
         "eval_matrix_testing_freq":3,
         "eval_matrix_method":"~eval_matrix_method",
 
-        "final_save_freq": 3,
+        "final_save_freq": 5,
 
         "best_agent_search_radius":"~best_agent_search_radius"
     }

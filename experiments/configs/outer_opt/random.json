@@ -6,11 +6,10 @@
     "agent0":{
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
-        "opponent_selection": "~opponent_selection",
+        "opponent_selection": "random",
         "training_agent_selection": "latest",
 
-
-        "delta_latest":"~delta_latest",
+        "delta_latest":0,
 
         "num_sampled_opponent_per_round": 10,
         "sample_after_rollout": "~sample_after_rollout",
@@ -23,11 +22,10 @@
     "agent1":{
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
-        "opponent_selection": "~opponent_selection",
+        "opponent_selection": "random",
         "training_agent_selection": "latest",
 
-
-        "delta_latest":"~delta_latest",
+        "delta_latest":0,
 
         "num_sampled_opponent_per_round": 10,
         "sample_after_rollout": "~sample_after_rollout",

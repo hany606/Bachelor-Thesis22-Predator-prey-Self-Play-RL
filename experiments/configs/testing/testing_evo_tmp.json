@@ -1,0 +1,25 @@
+{
+    "__comment__": "TODO: Think about make it more general",
+    "__comment1__": "Here it is the names of the agents not the keys",
+    "repetition":1,
+    "crosstest":false,
+    "render":true,
+    "__comment2(old good model)__":"save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46",
+    "pred":{
+        "dirname":"pred",
+        "path": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-results/Evorobotpy2/save-SelfPlay1v1-Pred_Prey-v0-03.23.2022_20.56.08",
+        "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
+        "mode": "round",
+        "__comment2__": "Only gen mode care about the gens parameter in order to specify specific generation",
+        "gens": 49,
+        "freq": 3
+    },
+    "prey":{
+        "dirname":"prey",
+        "path": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-results/Evorobotpy2/save-SelfPlay1v1-Pred_Prey-v0-03.23.2022_20.56.08",
+        "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
+        "mode": "round",
+        "gens": 30,
+        "freq": 3
+    }
+}

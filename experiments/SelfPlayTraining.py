@@ -427,8 +427,8 @@ class SelfPlayTraining(SelfPlayExp):
             table = wandb.Table(data=data, columns = ["opponent idx", "win-rate"])
             std_data = [[x, y] for (x, y) in zip([i for i in range(len(std_post_eval))], std_post_eval)]
             std_table = wandb.Table(data=std_data, columns = ["opponent idx", "win-rate"])
-            wandb.log({f"{agent_name}/post_eval/table": wandb.plots.line(table, "opponent idx", "win-rate", title=f"Post evaluation {agent_name}")})
-            wandb.log({f"{agent_name}/post_eval/std_table": wandb.plots.line(std_table, "opponent idx", "win-rate", title=f"Std Post evaluation {agent_name}")})
+            wandb.log({f"{agent_name}/post_eval/table": wandb.plot.line(table, "opponent idx", "win-rate", title=f"Post evaluation {agent_name}")})
+            wandb.log({f"{agent_name}/post_eval/std_table": wandb.plot.line(std_table, "opponent idx", "win-rate", title=f"Std Post evaluation {agent_name}")})
 
         # TODO: parse back the evaluation information (locs of evaluation matrix, best agents names, ....etc)
         # TODO: save the json back to the location of the experiemnt and send it to wand as well

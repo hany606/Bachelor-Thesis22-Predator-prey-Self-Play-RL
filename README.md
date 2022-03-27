@@ -39,9 +39,9 @@ cd Drones-PEG-Bachelor-Thesis-2022/2D/gym-predprey
 cd predpreylib
 # Edit setupErPredprey.py
 # include_gsl_dir, lib_gsl_dir
-python3 setupErPredPrey.py build_ext --inplace  
+python3 setupErPredprey.py build_ext --inplace  
 cd ..
-cd gym-predprey/gym_predprey/envs/
+#cd gym_predprey/envs/
 # Edit 6th line in PredPrey1v1.py
 # sys.path.append('/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/2D/gym-predprey/predpreylib')
 pip3 install -e .

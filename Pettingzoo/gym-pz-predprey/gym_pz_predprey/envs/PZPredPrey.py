@@ -175,7 +175,7 @@ class PZPredPrey(gym.Env):
         action_dict = {self.agent_keys[i]:np.array(ac[self.noutputs*i:self.noutputs*(i+1)], dtype=np.float32) for i in range(self.nrobots)}
         # Divide the speed of the adversary (predator) by 2 -> to slow it down
         for i in range(len(action_dict[self.agent_keys[0]])):
-            action_dict[self.agent_keys[0]][i] /= 3
+            action_dict[self.agent_keys[0]][i] /= 2
         return action_dict
         
     def _process_observation(self, obs):

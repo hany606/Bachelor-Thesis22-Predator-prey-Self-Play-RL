@@ -135,10 +135,6 @@ class ExperimentParser(Parser):
             return data
         if(data.get("header", None) is not None):   # to make it compatible with the old configs
             data_combined = super(ExperimentParser, ExperimentParser).merger(data)
-            # print("=========-------------------===============")
-            # pp.pprint(data_combined)
-            # print("=========-------------------===============")
-
             super(ExperimentParser, ExperimentParser).dict_filter(data_combined, data_combined.get("shared", None))
             data = data_combined
         experiment = data["experiment"]

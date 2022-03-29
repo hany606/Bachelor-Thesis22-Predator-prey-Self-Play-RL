@@ -58,11 +58,11 @@ class Parser:
 
         testing = Parser.load(testing_filename)
         pp.pprint(header)
-        print("========================")
-        pp.pprint(env_agents)
-        print("========================")
-        pp.pprint(shared)
-        print("========================")
+        # print("========================")
+        # pp.pprint(env_agents)
+        # print("========================")
+        # pp.pprint(shared)
+        # print("========================")
         
         # pp.pprint(env_agents)
         # pp.pprint(inner)
@@ -70,8 +70,8 @@ class Parser:
         # new_data = {"experiment": header}
         new_data = {"experiment": header, "shared": shared, "testing": testing}
         new_data = dict(new_data, **env_agents)
-        pp.pprint(new_data)
-        print("========================")
+        # pp.pprint(new_data)
+        # print("========================")
         return new_data
 
     @staticmethod   
@@ -135,9 +135,9 @@ class ExperimentParser(Parser):
             return data
         if(data.get("header", None) is not None):   # to make it compatible with the old configs
             data_combined = super(ExperimentParser, ExperimentParser).merger(data)
-            print("=========-------------------===============")
-            pp.pprint(data_combined)
-            print("=========-------------------===============")
+            # print("=========-------------------===============")
+            # pp.pprint(data_combined)
+            # print("=========-------------------===============")
 
             super(ExperimentParser, ExperimentParser).dict_filter(data_combined, data_combined.get("shared", None))
             data = data_combined

@@ -84,11 +84,14 @@ class SelfPlayExp:
         parser = argparse.ArgumentParser(description=description)
         # TODO: Force different seed from argparse if it exists against the one in the json file
         parser.add_argument('--exp', type=str, help=help, metavar='')
+        parser.add_argument('--seed', type=int, help=help, default=-1)
         self.args = parser.parse_args()
 
     def _load_configs(self, filename):        
         self.experiment_filename = self.args.exp if filename is None else filename
         self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs, self.merged_config = ExperimentParser.load(self.experiment_filename)
+        self.experiment_configs["seed_value"] = self.experiment_configs["seed_value"] if self.args.seed == -1 else self.args.seed
+        self.merged_config["experiment"]["seed_value"] = self.merged_config["experiment"]["seed_value"] if self.args.seed == -1 else self.args.seed
         self.seed_value = self.experiment_configs["seed_value"] if self.seed_value is None else self.seed_value
 
     def log_configs(self):

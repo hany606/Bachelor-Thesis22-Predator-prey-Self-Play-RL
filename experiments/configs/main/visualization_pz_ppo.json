@@ -1,0 +1,9 @@
+{
+    "__comment__": "Paths are relative to the python script runner",
+    "header": "configs/header/baseV3.json",
+    "shared": "configs/shared/shared.json",
+    "env_agents": "configs/env_agents/pz.json",
+    "outer_opt": "configs/outer_opt/random.json",
+    "inner_opt": "configs/inner_opt/inner_opt_ppo1.json",
+    "testing": "configs/testing/testing_pz_tmp.json"
+}

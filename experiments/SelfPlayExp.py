@@ -50,6 +50,8 @@ from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPredEnv
 from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPreyEnv
 from gym_pz_predprey.envs.SelfPlayPZPredPrey import SelfPlayPZPredEnv
 from gym_pz_predprey.envs.SelfPlayPZPredPrey import SelfPlayPZPreyEnv
+from gym_predprey_drones.envs.SelfPlayPredPreyDrones1v1 import SelfPlayPredDroneEnv
+from gym_predprey_drones.envs.SelfPlayPredPreyDrones1v1 import SelfPlayPreyDroneEnv
 
 from callbacks import *
 
@@ -183,7 +185,8 @@ class SelfPlayExp:
 
         self.make_deterministic()
     
-    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None, seed_value=None, sample_after_reset=False, sampling_parameters=None, ret_seed=False):
+    def create_env(self, key, name, algorithm_class=PPO, opponent_archive=None, seed_value=None, sample_after_reset=False, sampling_parameters=None, ret_seed=False, gui=False):
+        # TODO: add support for gui and reward_type as in drones environment
         # Key is just used to get the environment class_name for intialization of the environment
         if(seed_value == "random"):
             seed_value = datetime.now().microsecond//1000
@@ -194,7 +197,12 @@ class SelfPlayExp:
         env_class_name = agent_configs["env_class"]
         # print(f"Create Env: {env_class_name}, Algorithm: {algorithm_class}, seed: {seed_value}")
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
-        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+        reward_type = agent_configs.get("reward_type", None)
+        params = dict(algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters, gui=gui, reward_type=reward_type)
+        # env = None
+        # if(reward_type is not None):
+        #     params["reward_type"] = reward_type
+        env = globals()[env_class_name](**params)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
         env._name = name+f"-({agent_name})"
         if(not ret_seed):
             return env

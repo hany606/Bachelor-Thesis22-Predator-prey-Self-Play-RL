@@ -47,6 +47,8 @@ from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPredEnv
 from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPreyEnv
 from gym_pz_predprey.envs.SelfPlayPZPredPrey import SelfPlayPZPredEnv
 from gym_pz_predprey.envs.SelfPlayPZPredPrey import SelfPlayPZPreyEnv
+from gym_predprey_drones.envs.SelfPlayPredPreyDrones1v1 import SelfPlayPredDroneEnv
+from gym_predprey_drones.envs.SelfPlayPredPreyDrones1v1 import SelfPlayPreyDroneEnv
 
 
 from PolicyNetworks import get_policy_arch

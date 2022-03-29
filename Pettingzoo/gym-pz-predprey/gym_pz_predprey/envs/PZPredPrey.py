@@ -46,8 +46,9 @@ class PZPredPrey(gym.Env):
                         pred_policy=None, 
                         prey_policy=None, 
                         seed_val=3, 
-                        reward_type="normal",
-                        caught_distance=0.001):
+                        reward_type=None,
+                        caught_distance=0.001,
+                        gui=False):
         # adversary_0 -> predator, "agent_0" -> prey
         self.agent_keys = ["adversary_0", "agent_0"]
         self.nrobots = len(self.agent_keys)
@@ -88,7 +89,7 @@ class PZPredPrey(gym.Env):
         self.prey_behavior = prey_behavior
         self.pred_policy = pred_policy #-> it is actually "self"
         self.prey_policy = prey_policy
-        self.reward_type = reward_type
+        self.reward_type = "normal" if reward_type is None else reward_type
         self._set_env_parameters()
         self.caught = False
         self.steps_done = False

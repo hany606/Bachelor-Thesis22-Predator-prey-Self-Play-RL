@@ -77,7 +77,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
 
     # With every rollout
     def _on_rollout_start(self):
-        print("Start of Rollout")
+        # print("Start of Rollout")
         # If sample_after_reset is false -> Use the sampling method with the rollout
         #       if it is true -> the oppoenent will be sampled from the environment itself
         if(not self.sample_after_reset):
@@ -190,7 +190,7 @@ class EvalSaveCallback(EvalCallback):
                               )
 
     def _evaluate_policy_core(self, logger_prefix, n_eval_episodes, deterministic, sampled_opponents, override=False) -> bool:
-        episode_rewards, episode_lengths, win_rates, std_win_rate, _ = self._evaluate(self.model, n_eval_episodes, deterministic, sampled_opponents)
+        episode_rewards, episode_lengths, win_rates, std_win_rate, _, crashes_info = self._evaluate(self.model, n_eval_episodes, deterministic, sampled_opponents)
 
         if self.log_path is not None:
             self.evaluations_timesteps.append(self.num_timesteps)
@@ -223,6 +223,8 @@ class EvalSaveCallback(EvalCallback):
         self.logger.record(f"{logger_prefix}/mean_reward", float(mean_reward))
         self.logger.record(f"{logger_prefix}/mean_ep_length", self.mean_ep_length)
         self.logger.record(f"{logger_prefix}/record_timesteps", self.num_timesteps)
+        self.logger.record(f"{logger_prefix}/crashed", crashes_info)
+        
         if self.verbose > 0:
             print(f"{win_rate}")
             print(f"Win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}")
@@ -375,7 +377,7 @@ class EvalSaveCallback(EvalCallback):
             eval_model_list = [sampled_opponent]
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
             # TODO: it is possible to change this agent_model to self.model as they are the same in this loop
-            _, _, win_rates, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+            _, _, win_rates, _, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
@@ -424,7 +426,7 @@ class EvalSaveCallback(EvalCallback):
             print(f"Model {sampled_agent} vs {sampled_opponent}")
             # Run evaluation n_eval_rep for each opponent
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-            _, _, win_rates, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+            _, _, win_rates, _, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                             deterministic=deterministic,
                                             sampled_opponents=eval_model_list)
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
@@ -520,7 +522,7 @@ class EvalSaveCallback(EvalCallback):
                     # Run evaluation n_eval_rep for each opponent
                     eval_model_list = [sampled_opponent]
                     # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-                    episodes_rewards_ret, _, win_rates_ret, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
+                    episodes_rewards_ret, _, win_rates_ret, _, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
                                                     deterministic=deterministic,
                                                     sampled_opponents=eval_model_list)
                     # win_rate = np.mean(win_rates_ret)
@@ -561,7 +563,7 @@ class EvalSaveCallback(EvalCallback):
                 eval_model_list = [o for _ in range(n_eval_rep)]
                 # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
                 # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
-                episodes_rewards_ret, _, win_rates, _, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
+                episodes_rewards_ret, _, win_rates, _, _, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
                                                 deterministic=deterministic,
                                                 sampled_opponents=eval_model_list)
                 # win_rate = np.mean(win_rates)

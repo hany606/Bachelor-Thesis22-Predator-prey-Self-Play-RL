@@ -30,6 +30,8 @@ import os
 import numpy as np
 
 from stable_baselines3 import PPO
+from stable_baselines3 import SAC
+
 
 # from bach_utils.archive import Archive
 from archive import ArchiveSB3 as Archive
@@ -92,14 +94,15 @@ class SelfPlayTraining(SelfPlayExp):
                                     "sample_path":os.path.join(self.log_dir, opponent_name),
                                     "randomly_reseed_sampling": agent_configs.get("randomly_reseed_sampling", False)
                                   }
-
-            self.envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Training", opponent_archive=opponent_archive, sample_after_reset=agent_configs["sample_after_reset"], sampling_parameters=sampling_parameters)
-            self.eval_envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Evaluation", opponent_archive=opponent_archive, sample_after_reset=False, sampling_parameters=None)
+            algorithm_class = None
+            if(agent_configs["rl_algorithm"] == "PPO"):
+                algorithm_class = PPO
+            elif(agent_configs["rl_algorithm"] == "SAC"):
+                algorithm_class = SAC
+            self.envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Training", opponent_archive=opponent_archive, sample_after_reset=agent_configs["sample_after_reset"], sampling_parameters=sampling_parameters, algorithm_class=algorithm_class)
+            self.eval_envs[agent_name] = super(SelfPlayTraining, self).create_env(key=k, name="Evaluation", opponent_archive=opponent_archive, sample_after_reset=False, sampling_parameters=None, algorithm_class=algorithm_class)
 
     def _init_models(self):
-        policy_kwargs = dict(activation_fn=torch.nn.ReLU,
-                             net_arch=[512, 512, dict(vf=[256, 128], pi=[256, 128])]
-                            )
         self.models = {}
         population_size = self.experiment_configs["population_size"]    # population here has a shared archive
         for k in self.agents_configs.keys():
@@ -108,20 +111,35 @@ class SelfPlayTraining(SelfPlayExp):
             self.models[agent_name] = []
 
             for population_num in range(population_size):
-                self.models[agent_name].append( PPO(agent_configs["policy"], 
-                                                    self.envs[agent_name],
-                                                    clip_range=agent_configs["clip_range"], 
-                                                    ent_coef=agent_configs["ent_coef"],
-                                                    learning_rate=agent_configs["lr"], 
-                                                    batch_size=agent_configs["batch_size"],
-                                                    gamma=agent_configs["gamma"], 
-                                                    verbose=2,
-                                                    tensorboard_log=os.path.join(self.log_dir,agent_name),
-                                                    n_epochs=agent_configs["n_epochs"],
-                                                    n_steps=agent_configs.get("n_steps", 2048),
-                                                    policy_kwargs=policy_kwargs
-                                                   )
-                                             )
+                policy = None
+                if(agent_configs["rl_algorithm"] == "PPO"):
+                    policy_kwargs = dict(activation_fn=torch.nn.ReLU,
+                                         net_arch=[512, 512, dict(vf=[256, 128], pi=[256, 128])]
+                                        )
+                    policy = PPO(   agent_configs["policy"], 
+                                    self.envs[agent_name],
+                                    clip_range=agent_configs["clip_range"], 
+                                    ent_coef=agent_configs["ent_coef"],
+                                    learning_rate=agent_configs["lr"], 
+                                    batch_size=agent_configs["batch_size"],
+                                    gamma=agent_configs["gamma"], 
+                                    verbose=2,
+                                    tensorboard_log=os.path.join(self.log_dir,agent_name),
+                                    n_epochs=agent_configs["n_epochs"],
+                                    n_steps=agent_configs.get("n_steps", 2048),
+                                    policy_kwargs=policy_kwargs
+                                )
+                elif(agent_configs["rl_algorithm"] == "SAC"):
+                    policy_kwargs = dict(activation_fn=torch.nn.ReLU,
+                                         net_arch=[512, 512, 256, 128]
+                                        ) # or None # or dict(net_arch=dict(qf=[256, 128, 64, 32], pi=[256, 128, 64, 32]))
+                    policy = SAC(   agent_configs["policy"], 
+                                    self.envs[agent_name],
+                                    verbose=2,
+                                    tensorboard_log=os.path.join(self.log_dir,agent_name),
+                                    policy_kwargs=policy_kwargs
+                                )
+                self.models[agent_name].append(policy)
     
     def _init_callbacks(self):
         self.opponent_selection_callbacks = {}
@@ -265,9 +283,13 @@ class SelfPlayTraining(SelfPlayExp):
         
                     # Now, we will calculate the evaluation matrix (Tournment table) for each population and then take the average at the end
                     for population_num in range(population_size):
-                        self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
+                        algorithm_class = None
+                        if(agent_config["rl_algorithm"] == "PPO"):
+                            algorithm_class = PPO
+                        elif(agent_config["rl_algorithm"] == "SAC"):
+                            algorithm_class = SAC
+                        self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=algorithm_class, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
                         
-                
                 # Log intermediate results for the heatmap
                 if(aggregate_eval_matrix and (round_num%heatmap_log_freq == 0 or round_num==num_rounds-1)): # The logging frequency or the last round
                     evaluation_matrices = []
@@ -309,7 +331,12 @@ class SelfPlayTraining(SelfPlayExp):
                 evaluation_matrices = []
                 for population_num in range(population_size):
                     print(f"Full evaluation matrix for {agent_name} (population: {population_num})")
-                    axis = self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq, population_size=population_size)
+                    algorithm_class = None
+                    if(agent_config["rl_algorithm"] == "PPO"):
+                        algorithm_class = PPO
+                    elif(agent_config["rl_algorithm"] == "SAC"):
+                        algorithm_class = SAC
+                    axis = self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=algorithm_class, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq, population_size=population_size)
                     evaluation_matrix = self.evalsave_callbacks[agent_name][population_num].evaluation_matrix
                     evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
                     evaluation_matrices.append(evaluation_matrix)

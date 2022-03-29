@@ -8,7 +8,7 @@
         "wandb_entity": "iu_mas",
         "wandb_notes": "Base config, based on last version of configurations for train_selfplay_baselines.py",
 
-        "env": "SelfPlay1v1-Pred_Prey-v0",
+        "env": "SelfPlay1v1-Pred_Prey-Drones-v0",
         "num_workers": 1,
         "num_rounds": 50,
         "population_size": 1,
@@ -16,7 +16,7 @@
         "seed_value": 3,
         "framework": "stable_baselines3",
 
-        "hierarchy":"2D:evorobotpy2:predprey:1v1",
+        "hierarchy":"Drones:predprey:1v1",
 
         "agents_order": {"0":"pred", "1":"prey"}
     },
@@ -24,7 +24,7 @@
     "agent0":{
         "id": 0,
         "name": "pred",
-        "env_class": "SelfPlayPredEnv",
+        "env_class": "SelfPlayPredDroneEnv",
         "opponent_name":"prey",
         "obs": "full",
         "act": "vel",
@@ -62,7 +62,7 @@
     "agent1":{
         "id": 0,
         "name": "prey",
-        "env_class": "SelfPlayPreyEnv",
+        "env_class": "SelfPlayPreyDroneEnv",
         "opponent_name":"pred",
         "obs": "full",
         "act": "vel",
@@ -107,30 +107,24 @@
 
         "repetition":1,
         "n_seeds":1,
-        "gain_score":true,
-        "__comment2__": "TODO: Make it general for gain",
-        "gain_evaluation_models":[
-            "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.40.22",
-            "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-12.21.2021_02.39.50"
-        ],
-        "gain_score_freq":20,
+        "gain_score":false,
 
         "pred":{
             "dirname":"pred",
-            "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46",
-            "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
-            "mode": "gen",
-            "__comment2__": "Only gen mode care about the gens parameter in order to specify specific generation",
+            "path": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/Drones/experiments/selfplay-results-train/save-SelfPlay1v1-Pred_Prey-Drones-v0-02.02.2022_15.02.36",
             "gens": 49,
-            "freq": 1
+            "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
+            "__comment2__": "round parameter does not care about the gens parameter",
+            "mode": "all",
+            "freq": 5
         },
         "prey":{
             "dirname":"prey",
-            "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46",
+            "path": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/Drones/experiments/selfplay-results-train/save-SelfPlay1v1-Pred_Prey-Drones-v0-02.02.2022_15.02.36",
+            "gens": 49,
             "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
-            "mode": "round",
-            "gens": 0,
-            "freq": 7
+            "mode": "all",
+            "freq": 5
         }
     }
 }

@@ -135,6 +135,7 @@ def evaluate_policy(
     render_ret = None
     # win_rate = np.zeros(n_envs, dtype="int")
     win_rates = []
+    crashes = []
 
     episode_counts = np.zeros(n_envs, dtype="int")
     # Divides episodes among different sub environments in the vector as evenly as possible
@@ -174,6 +175,12 @@ def evaluate_policy(
                         win_rates.append(1)
                     else:
                         win_rates.append(0)
+                    # Binary decoded crashed information
+                    if(isinstance(info["crash"], list)):
+                        crashes.append(int(info["crash"][0])+int(info["crash"][1])*2)
+                    else:
+                        crashes.append(int(info["crash"]))
+                    # print(crashes[-1])
                     if is_monitor_wrapped:
                         # Atari wrapper can send a "done" signal when
                         # the agent loses a life, but it does not correspond
@@ -207,11 +214,12 @@ def evaluate_policy(
     std_reward = np.std(episode_rewards)
     win_rate = np.mean(win_rates)#np.sum(win_rate)/n_eval_episodes
     std_win_rate = np.std(win_rates)
+    crash_mean = np.mean(crashes)
     if reward_threshold is not None:
         assert mean_reward > reward_threshold, "Mean reward below threshold: " f"{mean_reward:.2f} < {reward_threshold:.2f}"
     if return_episode_rewards:
-        return episode_rewards, episode_lengths, win_rates, std_win_rate, render_ret
-    return mean_reward, std_reward, win_rate, std_win_rate, render_ret
+        return episode_rewards, episode_lengths, win_rates, std_win_rate, render_ret, crash_mean
+    return mean_reward, std_reward, win_rate, std_win_rate, render_ret, crash_mean
 
 
 def evaluate_policy_simple(
@@ -269,6 +277,7 @@ def evaluate_policy_simple(
     vis_speed_status = "\t(Normal visualization speed)"
     # win_rate = np.zeros(n_envs, dtype="int")
     win_rates = []
+    print(env)
 
     env.set_target_opponent_policy_name(sampled_opponents[0])
 
@@ -288,10 +297,16 @@ def evaluate_policy_simple(
         episode_length = 0
         while not done:
             action, state = model.predict(observations, state=state, deterministic=deterministic)
-            print(action)
             # action = env.action_space.sample()
+            # action = [-observations[0]+observations[6],-observations[1]+observations[7],-observations[2]+observations[8]]
+            # action = [3*a for a in action]
             # print(action)
             observations, reward, done, info = env.step(action)
+            # print(info)
+            # print(action)
+            # print(observations[:6])
+            # print(observations[6:])
+            # print("=================================")
 
             episode_reward += reward
             episode_length += 1
@@ -305,8 +320,8 @@ def evaluate_policy_simple(
                 break
             if render:
                 # render_ret = env.render(extra_info=render_extra_info+vis_speed_status)
-                env.render()
-                sleep(sleep_time)
+                # env.render()
+                # sleep(sleep_time)
                 if(render_callback is not None):
                     render_ret = render_callback(render_ret)
                     if(render_ret == 2):

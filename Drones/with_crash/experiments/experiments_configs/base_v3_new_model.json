@@ -1,53 +1,72 @@
 {
     "experiment":{
-        "experiment_id": "basev1",
-        "experiment_name": "-base",
+        "experiment_id": "basev3_newModel",
+        "experiment_name": "-base3-newModel",
         "experiment_log_prefix": "",
         "wandb_project": "Behavioral-Learning",
-        "wandb_group": "self-play-2D",
+        "wandb_group": "self-play-Drones",
         "wandb_entity": "iu_mas",
-        "wandb_notes": "Base config, based on last version of configurations for train_selfplay_baselines.py",
+        "wandb_notes": "(Nothing changed in the experiment file till now (Based on base_v3)",
 
-        "env": "SelfPlay1v1-Pred_Prey-v0",
+        "__comment1__": "Try first the new model without adding new observations (just remove unnecessary observations) and adding crashing ",
+        "__comment2__": "Then try the new model with the distance reward",
+        "__comment3__": "Then try the new model with the new observations",
+
+
+        "env": "SelfPlay1v1-Pred_Prey-Drones-v0",
         "num_workers": 1,
         "num_rounds": 50,
         "population_size": 1,
         "parallel_alternate_training": false,
-        "seed_value": 3,
+        "seed_value": 10,
         "framework": "stable_baselines3",
 
-        "hierarchy":"2D:evorobotpy2:predprey:1v1",
+        "hierarchy":"Drones:predprey:1v1",
 
         "agents_order": {"0":"pred", "1":"prey"}
+    },
+    
+    "shared":{
+        "sample_after_rollout": false,
+        "sample_after_reset": true,
+        "randomly_reseed_sampling": true,
+        "num_sampled_opponent_per_round": 1,
+        "eval_metric": "lastreward"
     },
 
     "agent0":{
         "id": 0,
         "name": "pred",
-        "env_class": "SelfPlayPredEnv",
+        "env_class": "SelfPlayPredDroneEnv",
         "opponent_name":"prey",
         "obs": "full",
         "act": "vel",
 
         "num_eval_episodes": 5,  
         "num_heatmap_eval_episodes": 5,  
-        "num_timesteps": 25e3,
-        "eval_freq": "$num_timesteps",
-        "save_freq": "$num_timesteps",
-        "final_save_freq": 3,
-        "heatmap_log_freq":3,
-        "aggregate_eval_matrix":false,
+        
+        "num_timesteps": 50e3,
+
+        "eval_freq": 0,
+        "save_freq": 0,
+        "final_save_freq": 5,
+
         "eval_matrix_testing_freq":3,
 
+        "aggregate_eval_matrix":false,
+        "heatmap_log_freq":5,
+        
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
-        "eval_metric": "winrate",
+        "eval_metric": "~eval_metric",
         "eval_opponent_selection": "random",
         "opponent_selection": "random",
         "training_agent_selection": "latest",
 
-        "num_sampled_opponent_per_round": 50,
-        "sample_after_rollout": true,
+        "num_sampled_opponent_per_round": "~num_sampled_opponent_per_round",
+        "sample_after_rollout": "~sample_after_rollout",
+        "sample_after_reset": "~sample_after_reset",
+        "randomly_reseed_sampling": "~randomly_reseed_sampling",
 
         "rl_algorithm": "PPO",
         "policy": "MlpPolicy",
@@ -56,36 +75,43 @@
         "batch_size":64,
         "gamma":0.99,
         "lr": 3e-4,
-        "n_epochs": 10
+        "n_epochs": 15
     },
 
     "agent1":{
         "id": 0,
         "name": "prey",
-        "env_class": "SelfPlayPreyEnv",
+        "env_class": "SelfPlayPreyDroneEnv",
         "opponent_name":"pred",
         "obs": "full",
         "act": "vel",
 
-        "num_eval_episodes": 5,
-        "num_heatmap_eval_episodes": 5,
-        "num_timesteps": 25e3,
-        "eval_freq": "$num_timesteps",
-        "save_freq": "$num_timesteps",
-        "final_save_freq": 3,
-        "heatmap_log_freq":3,
-        "aggregate_eval_matrix":false,
+
+        "num_eval_episodes": 5,  
+        "num_heatmap_eval_episodes": 5,  
+        
+        "num_timesteps": 50e3,
+
+        "eval_freq": 0,
+        "save_freq": 0,
+        "final_save_freq": 5,
+
         "eval_matrix_testing_freq":3,
 
+        "aggregate_eval_matrix":false,
+        "heatmap_log_freq":5,
+        
         
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
-        "eval_metric": "winrate",
+        "eval_metric": "~eval_metric",
         "eval_opponent_selection": "random",
         "opponent_selection": "random",
         "training_agent_selection": "latest",
 
-        "num_sampled_opponent_per_round": 50,
-        "sample_after_rollout": true,
+        "num_sampled_opponent_per_round": "~num_sampled_opponent_per_round",
+        "sample_after_rollout": "~sample_after_rollout",
+        "sample_after_reset": "~sample_after_reset",
+        "randomly_reseed_sampling": "~randomly_reseed_sampling",
 
         "rl_algorithm": "PPO",
         "policy": "MlpPolicy",
@@ -94,7 +120,7 @@
         "batch_size":64,
         "gamma":0.99,
         "lr": 3e-4,
-        "n_epochs": 10
+        "n_epochs": 15
     },
 
     "evaluation":{
@@ -103,13 +129,12 @@
     "testing":{
         "__comment__": "TODO: Think about make it more general",
         "__comment1__": "Here it is the names of the agents not the keys",
-        "rep":2,
         "pred":{
             "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46/pred",
-            "gens": 49,
+            "gens": 0,
             "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
             "__comment2__": "round parameter does not care about the gens parameter",
-            "mode": "gen",
+            "mode": "round",
             "freq": 1
         },
         "prey":{
@@ -117,7 +142,7 @@
             "gens": 0,
             "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
             "mode": "round",
-            "freq": 7
+            "freq": 1
         }
     }
 }

@@ -2,6 +2,12 @@
 This repository is created for my thesis during the bachelor degree at Innopolis University. The topic for research is the realization of Pursuit and Evasion Games (PEG) using drones and learning the collective/cooperative behavior using RL and EA algorithms and trying to transfer from simulation to reality (Sim2Real)
 
 
+## Packages to install:
+
+- [ ] gym-predprey
+- [ ] bach-utils
+- [ ] submodule PettingZoo
+
 ## TODO:
 
 - [ ] Create setup script to setup everything

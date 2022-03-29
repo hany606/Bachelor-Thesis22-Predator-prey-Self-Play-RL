@@ -174,8 +174,8 @@ class PZPredPrey(gym.Env):
         ac = [a for a in ac]
         action_dict = {self.agent_keys[i]:np.array(ac[self.noutputs*i:self.noutputs*(i+1)], dtype=np.float32) for i in range(self.nrobots)}
         # Divide the speed of the adversary (predator) by 2 -> to slow it down
-        for i in range(len(action_dict[self.agent_keys[0]])):
-            action_dict[self.agent_keys[0]][i] /= 2
+        # for i in range(len(action_dict[self.agent_keys[0]])):
+        #     action_dict[self.agent_keys[0]][i] /= 2
         return action_dict
         
     def _process_observation(self, obs):
@@ -399,25 +399,25 @@ if __name__ == '__main__':
     import gym
     from time import sleep
 
-    # env = PZPredPrey()
-    # # exit()
-    # observation = env.reset()
-    # done = False
-    # total_reward = 0
-    # # for i in range(1000):
-    # while not done:
-    #     # actions = {agent: env.action_space(agent).sample() for agent in env.env.agents}
-    #     # actions = env.action_space.sample()
-    #     actions = np.zeros(2*5)
-    #     # actions = {'adversary_0': np.array([0, 1, 1, 0, 0 ],
-    #     # dtype=np.float32), 'agent_0': np.array([1 , 0, 0, 0, 0 ],
-    #     # dtype=np.float32)}
+    env = PZPredPrey()
+    # exit()
+    observation = env.reset()
+    done = False
+    total_reward = 0
+    # for i in range(1000):
+    while not done:
+        # actions = {agent: env.action_space(agent).sample() for agent in env.env.agents}
+        actions = env.action_space.sample()
+        # actions = np.zeros(2*5)
+        # actions = {'adversary_0': np.array([0, 1, 1, 0, 0 ],
+        # dtype=np.float32), 'agent_0': np.array([1 , 0, 0, 0, 0 ],
+        # dtype=np.float32)}
 
-    #     # print(actions)
-    #     observation, reward, done, info = env.step(actions)
-    #     print(env.num_steps)
-    #     env.render()
-    #     # sleep(0.001)
+        # print(actions)
+        observation, reward, done, info = env.step(actions)
+        print(env.num_steps)
+        env.render()
+        # sleep(0.001)
     
     # env = PZPredPreyPred(seed_val=3)
     # behavior = Behavior()

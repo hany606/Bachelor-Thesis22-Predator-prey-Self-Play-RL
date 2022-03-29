@@ -19,25 +19,17 @@ OS = False #True   # This flag just for testing now in order not to break the co
 # Select opponent for training
 class TrainingOpponentSelectionCallback(EventCallback):
     def __init__(self, *args, **kwargs):
-        self.sample_path = kwargs["sample_path"]
+        self.sample_path = kwargs.pop("sample_path")
         self.startswith_keyword = "history"
-        self.env = kwargs["env"]
-        self.opponent_selection = kwargs["opponent_selection"]
-        self.sample_after_rollout = kwargs["sample_after_rollout"]
-        self.sample_after_reset = kwargs["sample_after_reset"]
-        self.num_sampled_per_round = kwargs["num_sampled_per_round"]
-        self.archive = kwargs["archive"]
-        self.randomly_reseed_sampling = kwargs["randomly_reseed_sampling"]
+        self.env = kwargs.pop("env")
+        self.opponent_selection = kwargs.pop("opponent_selection")
+        self.sample_after_rollout = kwargs.pop("sample_after_rollout")
+        self.sample_after_reset = kwargs.pop("sample_after_reset")
+        self.num_sampled_per_round = kwargs.pop("num_sampled_per_round")
+        self.archive = kwargs.pop("archive")
+        self.randomly_reseed_sampling = kwargs.pop("randomly_reseed_sampling")
         self.OS = OS    # Global flag
 
-        del kwargs["sample_path"]
-        del kwargs["env"]
-        del kwargs["opponent_selection"]
-        del kwargs["num_sampled_per_round"]
-        del kwargs["sample_after_rollout"]
-        del kwargs["randomly_reseed_sampling"]
-        del kwargs["sample_after_reset"]
-        # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
             if(k == "archive"):
@@ -108,19 +100,20 @@ class TrainingOpponentSelectionCallback(EventCallback):
 # Based on: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/callbacks.py
 class EvalSaveCallback(EvalCallback):
     def __init__(self, *args, **kwargs):
-        self.save_path = kwargs["save_path"]
-        self.eval_metric = kwargs["eval_metric"]
-        self.eval_opponent_selection = kwargs["eval_opponent_selection"]
-        self.eval_sample_path = kwargs["eval_sample_path"]
-        self.save_freq = kwargs["save_freq"]
-        self.archive = kwargs["archive"]["self"]  # pass it by reference
-        self.opponent_archive = kwargs["archive"]["opponent"]  # pass it by reference
-        self.agent_name = kwargs["agent_name"]
-        self.num_rounds = kwargs["num_rounds"]
-        self.seed_value = kwargs["seed_value"]
-        self.enable_evaluation_matrix = kwargs["enable_evaluation_matrix"]
-        self.randomly_reseed_sampling = kwargs["randomly_reseed_sampling"]
-        self.eval_matrix_method = kwargs["eval_matrix_method"]
+        self.save_path = kwargs.pop("save_path")
+        self.eval_metric = kwargs.pop("eval_metric")
+        self.eval_opponent_selection = kwargs.pop("eval_opponent_selection")
+        self.eval_sample_path = kwargs.pop("eval_sample_path")
+        self.save_freq = kwargs.pop("save_freq")
+        archive = kwargs.pop("archive")
+        self.archive = archive["self"]  # pass it by reference
+        self.opponent_archive = archive["opponent"]  # pass it by reference
+        self.agent_name = kwargs.pop("agent_name")
+        self.num_rounds = kwargs.pop("num_rounds")
+        self.seed_value = kwargs.pop("seed_value")
+        self.enable_evaluation_matrix = kwargs.pop("enable_evaluation_matrix")
+        self.randomly_reseed_sampling = kwargs.pop("randomly_reseed_sampling")
+        self.eval_matrix_method = kwargs.pop("eval_matrix_method")
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
@@ -131,18 +124,6 @@ class EvalSaveCallback(EvalCallback):
         self.best_mean_reward = None
         self.last_mean_reward = None
 
-        del kwargs["save_path"]
-        del kwargs["eval_metric"]
-        del kwargs["eval_opponent_selection"]
-        del kwargs["eval_sample_path"]
-        del kwargs["save_freq"]
-        del kwargs["agent_name"]
-        del kwargs["num_rounds"]
-        del kwargs["seed_value"]
-        del kwargs["enable_evaluation_matrix"]
-        del kwargs["randomly_reseed_sampling"]
-        del kwargs["eval_matrix_method"]
-        # del kwargs["archive"]
         new_kwargs = {}
         for k in kwargs.keys():
             if(k == "archive"):

@@ -5,9 +5,15 @@
 import bach_utils.sorting as utsrt
 from stable_baselines3.common.utils import check_for_correct_spaces
 from stable_baselines3.common.save_util import recursive_getattr, recursive_setattr, load_from_zip_file, save_to_zip_file
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union
 import os
+import torch as th
 from random import randint
 from copy import deepcopy
+from stable_baselines3.common.utils import (
+    check_for_correct_spaces,
+    get_system_info,
+)
 
 def random_no_sort(l, e):
     l.append(e)
@@ -74,6 +80,7 @@ class ArchiveSB3:
         # Copy parameter list so we don't mutate the original dict
         data = model.__dict__.copy()
         exclude = set(model._excluded_save_params())
+        # exclude = exclude.difference(model._include)
         state_dicts_names, torch_variable_names = deepcopy(model._get_torch_save_params())
         all_pytorch_variables = state_dicts_names + torch_variable_names
         for torch_var in all_pytorch_variables:
@@ -149,15 +156,33 @@ class ArchiveSB3:
         return self.get_sorted_dict[self.sorting_functions[sorting_key][0]]()
 
     # Based on: https://github.com/DLR-RM/stable-baselines3/blob/f3a35aa786ee41ffff599b99fa1607c067e89074/stable_baselines3/common/base_class.py#L627
-    def load(self, algorithm_class, name, env, **kwargs):
+    def load(self, 
+             algorithm_class,
+             name,
+             env, 
+             print_system_info: bool = False, 
+             force_reset: bool = True, 
+             custom_objects: Optional[Dict[str, Any]] = None,
+            #  device: Union[th.device, str] = "auto",
+             **kwargs):
+
+        if print_system_info:
+            print("== CURRENT SYSTEM INFO ==")
+            get_system_info()
+
         # Load the model
         if(self.archive_dict[name]["state"] == "disk"):
-            data, params, pytorch_variables = load_from_zip_file(os.path.join(self.save_path, name), device=self.archive_dict[name]["device"])
+            data, params, pytorch_variables = load_from_zip_file(
+                os.path.join(self.save_path, name), device=self.archive_dict[name]["device"], 
+                custom_objects=custom_objects, print_system_info=print_system_info
+            )
             self.archive_dict[name]["model"] = {"data": data, "params": params, "pytorch": pytorch_variables, "device": self.archive_dict[name]["device"]}
-        
+
+
         self.archive_dict[name]["last_time"] = self.num_models
         model_parameters = self.archive_dict[name]["model"]
-        data, params, pytorch_variables, device = model_parameters["data"], model_parameters["params"], model_parameters["pytorch"], model_parameters["device"],
+        data, params, pytorch_variables, device = model_parameters["data"], model_parameters["params"], model_parameters["pytorch"], model_parameters["device"]
+
         # Remove stored device information and replace with ours
         if "policy_kwargs" in data:
             if "device" in data["policy_kwargs"]:
@@ -177,6 +202,10 @@ class ArchiveSB3:
             env = algorithm_class._wrap_env(env, data["verbose"])
             # Check if given env is valid
             check_for_correct_spaces(env, data["observation_space"], data["action_space"])
+            # Discard `_last_obs`, this will force the env to reset before training
+            # See issue https://github.com/DLR-RM/stable-baselines3/issues/597
+            if force_reset and data is not None:
+                data["_last_obs"] = None
         else:
             # Use stored env, if one exists. If not, continue as is (can be used for predict)
             if "env" in data:
@@ -200,25 +229,25 @@ class ArchiveSB3:
 
         # put other pytorch variables back in place
         if pytorch_variables is not None:
-            for name in pytorch_variables:
+            for _name in pytorch_variables:
                 # Skip if PyTorch variable was not defined (to ensure backward compatibility).
                 # This happens when using SAC/TQC.
                 # SAC has an entropy coefficient which can be fixed or optimized.
                 # If it is optimized, an additional PyTorch variable `log_ent_coef` is defined,
                 # otherwise it is initialized to `None`.
-                if pytorch_variables[name] is None:
+                if pytorch_variables[_name] is None:
                     continue
                 # Set the data attribute directly to avoid issue when using optimizers
                 # See https://github.com/DLR-RM/stable-baselines3/issues/391
-                recursive_setattr(model, name + ".data", pytorch_variables[name].data)
+                recursive_setattr(model, _name + ".data", pytorch_variables[_name].data)
 
         # Sample gSDE exploration matrix, so it uses the right device
-        # see issue #44 on stable-baselines3
+        # see issue #44
         if model.use_sde:
             model.policy.reset_noise()  # pytype: disable=attribute-error
         self.archive_dict[name]["last_time"] = self.num_models
-
         return model
+        
         
     def change_archive_core(self, archive):
         self.archive_dict = deepcopy(archive.archive_dict)

@@ -78,7 +78,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
 
     # With every rollout
     def _on_rollout_start(self):
-        print("Start of Rollout")
+        # print("Start of Rollout")
         # If sample_after_reset is false -> Use the sampling method with the rollout
         #       if it is true -> the oppoenent will be sampled from the environment itself
         if(not self.sample_after_reset):

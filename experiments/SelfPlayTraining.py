@@ -30,6 +30,7 @@ import os
 import numpy as np
 
 from stable_baselines3 import PPO
+from stable_baselines3 import SAC
 
 # from bach_utils.archive import Archive
 from archive import ArchiveSB3 as Archive
@@ -46,6 +47,9 @@ from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPredEnv
 from gym_predprey.envs.SelfPlayPredPrey1v1 import SelfPlayPreyEnv
 from gym_pz_predprey.envs.SelfPlayPZPredPrey import SelfPlayPZPredEnv
 from gym_pz_predprey.envs.SelfPlayPZPredPrey import SelfPlayPZPreyEnv
+
+
+from PolicyNetworks import get_policy_arch
 
 
 from shared import *
@@ -117,8 +121,14 @@ class SelfPlayTraining(SelfPlayExp):
                                         "randomly_reseed_sampling": agent_configs.get("randomly_reseed_sampling", False)
                                     }
 
-                self.envs[agent_name].append(super(SelfPlayTraining, self).create_env(key=k, name="Training", opponent_archive=opponent_archive, sample_after_reset=agent_configs["sample_after_reset"], sampling_parameters=sampling_parameters, seed_value=self.seed_value+population_num))
-                self.eval_envs[agent_name].append(super(SelfPlayTraining, self).create_env(key=k, name="Evaluation", opponent_archive=opponent_archive, sample_after_reset=False, sampling_parameters=None, seed_value=self.seed_value+population_num))
+                algorithm_class = None
+                if(agent_configs["rl_algorithm"] == "PPO"):
+                    algorithm_class = PPO
+                elif(agent_configs["rl_algorithm"] == "SAC"):
+                    algorithm_class = SAC
+
+                self.envs[agent_name].append(super(SelfPlayTraining, self).create_env(key=k, name="Training", algorithm_class=algorithm_class, opponent_archive=opponent_archive, sample_after_reset=agent_configs["sample_after_reset"], sampling_parameters=sampling_parameters, seed_value=self.seed_value+population_num))
+                self.eval_envs[agent_name].append(super(SelfPlayTraining, self).create_env(key=k, name="Evaluation", algorithm_class=algorithm_class, opponent_archive=opponent_archive, sample_after_reset=False, sampling_parameters=None, seed_value=self.seed_value+population_num))
 
     def _init_models(self):
         self.models = {}
@@ -129,20 +139,36 @@ class SelfPlayTraining(SelfPlayExp):
             self.models[agent_name] = []
 
             for population_num in range(population_size):
-                self.models[agent_name].append( PPO(agent_configs["policy"], 
-                                                    self.envs[agent_name][population_num],
-                                                    clip_range=agent_configs["clip_range"], 
-                                                    ent_coef=agent_configs["ent_coef"],
-                                                    learning_rate=agent_configs["lr"], 
-                                                    batch_size=agent_configs["batch_size"],
-                                                    gamma=agent_configs["gamma"], 
-                                                    verbose=2,
-                                                    tensorboard_log=os.path.join(self.log_dir,agent_name),
-                                                    n_epochs=agent_configs["n_epochs"],
-                                                    n_steps=agent_configs.get("n_steps", 2048),
-                                                    seed=self.seed_value+population_num
-                                                   )
-                                             )
+                policy_kwargs = get_policy_arch(str(agent_configs.get("policy_arch", None)))
+                policy = None
+                if(agent_configs["rl_algorithm"] == "PPO"):
+                    policy = PPO(   agent_configs["policy"], 
+                                    self.envs[agent_name][population_num],
+                                    clip_range=agent_configs["clip_range"], 
+                                    ent_coef=agent_configs["ent_coef"],
+                                    learning_rate=agent_configs["lr"], 
+                                    batch_size=agent_configs["batch_size"],
+                                    gamma=agent_configs["gamma"], 
+                                    verbose=2,
+                                    tensorboard_log=os.path.join(self.log_dir,agent_name),
+                                    n_epochs=agent_configs["n_epochs"],
+                                    n_steps=agent_configs.get("n_steps", 2048),
+                                    seed=self.seed_value+population_num,
+                                    policy_kwargs=policy_kwargs
+                                )
+                elif(agent_configs["rl_algorithm"] == "SAC"):
+                    policy = SAC(   agent_configs["policy"], 
+                                    self.envs[agent_name][population_num],
+                                    buffer_size=agent_configs["buffer_size"],
+                                    learning_rate=agent_configs["lr"], 
+                                    batch_size=agent_configs["batch_size"],
+                                    gamma=agent_configs["gamma"], 
+                                    verbose=agent_configs.get("verbose", 2),
+                                    tensorboard_log=os.path.join(self.log_dir,agent_name),
+                                    seed=self.seed_value+population_num,
+                                    policy_kwargs=policy_kwargs
+                                )
+                self.models[agent_name].append(policy)
     
     def _init_callbacks(self):
         self.opponent_selection_callbacks = {}
@@ -292,7 +318,11 @@ class SelfPlayTraining(SelfPlayExp):
         
                     # Now, we will calculate the evaluation matrix (Tournment table) for each population and then take the average at the end
                     for population_num in range(population_size):
-                        self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
+                        if(agent_config["rl_algorithm"] == "PPO"):
+                            algorithm_class = PPO
+                        elif(agent_config["rl_algorithm"] == "SAC"):
+                            algorithm_class = SAC
+                        self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=algorithm_class, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
                         
                 
                 # Log intermediate results for the heatmap
@@ -375,7 +405,12 @@ class SelfPlayTraining(SelfPlayExp):
                 mask[num_rounds-best_agent_search_radius:, :] = np.zeros((best_agent_search_radius,num_rounds))
                 for population_num in range(population_size):
                     print(f"Full evaluation matrix for {agent_name} (population: {population_num})")
-                    axis, agent_names = self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq, population_size=population_size, negative_indicator=(j+1)%2)
+                    algorithm_class = None
+                    if(agent_config["rl_algorithm"] == "PPO"):
+                        algorithm_class = PPO
+                    elif(agent_config["rl_algorithm"] == "SAC"):
+                        algorithm_class = SAC
+                    axis, agent_names = self.evalsave_callbacks[agent_name][population_num].compute_eval_matrix(prefix="history_", num_rounds=num_rounds, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=algorithm_class, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name), freq=eval_matrix_testing_freq, population_size=population_size, negative_indicator=(j+1)%2)
                     evaluation_matrix = self.evalsave_callbacks[agent_name][population_num].evaluation_matrix
                     evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
                     evaluation_matrices.append(evaluation_matrix)

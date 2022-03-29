@@ -1,0 +1,35 @@
+{
+    "agent0":{
+        "num_eval_episodes": 5,  
+        "num_timesteps": 25e3,
+        "eval_freq": 0,
+        "save_freq": 0,
+        "eval_metric": "lastreward",
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "eval_opponent_selection": "random",
+
+        "rl_algorithm": "SAC",
+        "policy": "MlpPolicy",
+        "batch_size":64,
+        "gamma":0.99,
+        "lr": 3e-4,
+        "buffer_size":1000000
+    },
+
+    "agent1":{
+        "num_eval_episodes": 5,  
+        "num_timesteps": 25e3,
+        "eval_freq": 0,
+        "save_freq": 0,
+        "eval_metric": "lastreward",
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "eval_opponent_selection": "random",
+
+        "rl_algorithm": "SAC",
+        "policy": "MlpPolicy",
+        "batch_size":64,
+        "gamma":0.99,
+        "lr": 3e-4,
+        "buffer_size":1000000
+    }
+}

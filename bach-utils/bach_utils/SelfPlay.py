@@ -1,6 +1,7 @@
 import os
 
 from stable_baselines3.ppo.ppo import PPO as sb3PPO
+from stable_baselines3.sac.sac import SAC as sb3SAC
 
 import bach_utils.sampling as utsmpl
 
@@ -38,11 +39,10 @@ class SelfPlayEnvSB3:
             return self.action_space.sample() # return a random action
         else:
             action = None
-            if(isinstance(self.opponent_policy, sb3PPO)):
+            if(isinstance(self.opponent_policy, sb3PPO) or isinstance(self.opponent_policy, sb3SAC)):
                 action, self.states = self.opponent_policy.predict(obs, state=self.states) #it is predict because this is PPO from stable-baselines not rllib
             # if(isinstance(self.opponent_policy, rllibPPO)):
                 # action, _ = self.opponent_policy.compute_action(obs) #it is predict because this is PPO from stable-baselines not rllib
-
             return action
 
     def _load_opponent(self, opponent_name):
@@ -55,7 +55,6 @@ class SelfPlayEnvSB3:
         
             # To prevent the time for reloading it and it is already loaded
             if(opponent_name != self.opponent_policy_name):
-                # print("loading model: ", opponent_name)
                 self.opponent_policy_name = opponent_name
                 if self.opponent_policy is not None:
                     del self.opponent_policy
@@ -64,6 +63,7 @@ class SelfPlayEnvSB3:
                     self.opponent_policy = self.archive.load(name=opponent_name, env=self, algorithm_class=self.algorithm_class) # here we load the opponent policy
                 if(self.OS):
                     self.opponent_policy = self.algorithm_class.load(opponent_name, env=self) # here we load the opponent policy
+                # print("loading model: ", opponent_name, self.opponent_policy)
 
 
     def reset(self):

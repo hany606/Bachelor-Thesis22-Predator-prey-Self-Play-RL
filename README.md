@@ -7,6 +7,9 @@ This repository is created for my thesis during the bachelor degree at Innopolis
 - [ ] gym-predprey
 - [ ] bach-utils
 - [ ] submodule PettingZoo
+- [ ] submodule gym-pybullet-drones
+- [ ] gym-predprey-drones
+- [ ] gym-pz-predprey
 
 ## TODO:
 

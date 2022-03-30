@@ -21,7 +21,7 @@
 import os
 
 from stable_baselines3 import PPO
-
+from stable_baselines3 import SAC
 
 from callbacks import *
 
@@ -131,7 +131,13 @@ class SelfPlayTesting(SelfPlayExp):
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
             # env = globals()["SelfPlayPredEnv"](algorithm_class=PPOMod, archive=None, seed_val=3)
-            env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None, algorithm_class=PPOMod)
+            algorithm_class = None
+            if(agent_configs["rl_algorithm"] == "PPO"):
+                algorithm_class = PPOMod
+            elif(agent_configs["rl_algorithm"] == "SAC"):
+                algorithm_class = SAC
+
+            env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None, algorithm_class=algorithm_class)
             # if not isinstance(env, VecEnv):
             #     env = DummyVecEnv([lambda: env])
 
@@ -151,8 +157,13 @@ class SelfPlayTesting(SelfPlayExp):
         for k in self.agents_configs.keys():
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
+            algorithm_class = None
+            if(agent_configs["rl_algorithm"] == "PPO"):
+                algorithm_class = PPOMod
+            elif(agent_configs["rl_algorithm"] == "SAC"):
+                algorithm_class = SAC
 
-            self.models[agent_name] = PPOMod
+            self.models[agent_name] = algorithm_class
             # (agent_configs["policy"], 
             #                                 self.envs[agent_name],
             #                                 clip_range=agent_configs["clip_range"], 
@@ -187,9 +198,14 @@ class SelfPlayTesting(SelfPlayExp):
         # Create environment for each evaluation
         if(env is None and agent_model is None):
             # print(f"Create Env: {self.agents_configs[agent_conifgs_key]['env_class']}, Algorithm: {PPOMod}, seed: {seed_value}")
-            env, seed_value = super(SelfPlayTesting, self).create_env(key=agent_conifgs_key, name="Testing", opponent_archive=None, algorithm_class=PPOMod, seed_value=seed_value, ret_seed=True)
+            algorithm_class = None
+            if(self.agents_configs[agent_conifgs_key]["rl_algorithm"] == "PPO"):
+                algorithm_class = PPOMod
+            elif(self.agents_configs[agent_conifgs_key]["rl_algorithm"] == "SAC"):
+                algorithm_class = SAC
+            env, seed_value = super(SelfPlayTesting, self).create_env(key=agent_conifgs_key, name="Testing", opponent_archive=None, algorithm_class=algorithm_class, seed_value=seed_value, ret_seed=True)
             # print(f"Sampled agent loading {sampled_agent}")
-            agent_model = PPOMod.load(sampled_agent, env)
+            agent_model = algorithm_class.load(sampled_agent, env)
         mean_reward, std_reward, win_rate, std_win_rate, render_ret = evaluate_policy_simple(
                                                                                                 agent_model,
                                                                                                 env,

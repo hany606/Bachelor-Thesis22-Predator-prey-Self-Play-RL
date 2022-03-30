@@ -63,9 +63,6 @@ from bach_utils.json_parser import ExperimentParser
 import numpy.ma as ma
 
 
-# TODO: save the experimenet file in the training folder
-
-# TODO: Should I do different classes?
 # Here the class is for the whole experiment (train, evaluation(heatmaps, plots, ...etc), test (rendering))
 class SelfPlayTraining(SelfPlayExp):
     def __init__(self, seed_value=None):
@@ -95,7 +92,6 @@ class SelfPlayTraining(SelfPlayExp):
             agent_name = agent_configs["name"]
             eval_opponent_selection = agent_configs["eval_opponent_selection"]
             opponent_selection = agent_configs["opponent_selection"]
-            # TODO: Delat-latest with population
             self.archives[agent_name] = Archive(sorting_keys=[eval_opponent_selection, opponent_selection],
                                                 sorting=True,
                                                 moving_least_freq_flag=False,

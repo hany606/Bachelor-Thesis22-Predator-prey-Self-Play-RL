@@ -1,6 +1,5 @@
 {
     "agent0":{
-       
         "num_eval_episodes": 5,  
         "num_timesteps": 25e3,
         "eval_freq": 0,

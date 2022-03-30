@@ -152,7 +152,7 @@ class EvalSaveCallback(EvalCallback):
         self.name_prefix = name_prefix
 
 
-    def _evaluate(self, model, n_eval_episodes, deterministic, sampled_opponents, return_episode_rewards=True, make_deterministic_flag=False):
+    def _evaluate(self, model, n_eval_episodes, deterministic, sampled_opponents, return_episode_rewards=True, make_deterministic_flag=True):
         # Sync training and eval env if there is VecNormalize
         sync_envs_normalization(self.training_env, self.eval_env)
         # This is made in order to prevent making different generatations evaluations affect the others
@@ -256,7 +256,7 @@ class EvalSaveCallback(EvalCallback):
 
     def _save_model_core(self):
         metric_value = None
-        if(self.eval_metric == "steps"):
+        if(self.eval_metric == "length"):
             metric_value = self.mean_ep_length
         elif(self.eval_metric == "bestreward"):
             metric_value = self.best_mean_reward 
@@ -302,6 +302,26 @@ class EvalSaveCallback(EvalCallback):
             self.eval_freq = 0   # There is a problem when this line is not
         super(EvalSaveCallback, self)._on_training_end()
 
+    def _get_score(self, model, n_eval_rep, deterministic, opponents, eval_matrix_method, make_deterministic_flag=True):
+        episodes_rewards_ret, episode_lengths_if_eval_method, win_rates_ret, _, _ = self._evaluate( model,
+                                                                                                    n_eval_episodes=n_eval_rep,
+                                                                                                    deterministic=deterministic,
+                                                                                                    sampled_opponents=opponents,
+                                                                                                    return_episode_rewards=True if eval_matrix_method == "length" else False,
+                                                                                                    make_deterministic_flag=make_deterministic_flag
+                                                                                                    )
+        # win_rate = np.mean(win_rates_ret)
+        # win_rates.append(win_rate)
+        score = None
+        print(eval_matrix_method)
+        if(eval_matrix_method == "reward"):
+            score = np.mean(episodes_rewards_ret)
+        elif(eval_matrix_method == "win_rate"):
+            score = np.mean(win_rates_ret)
+        elif(eval_matrix_method == "length"):
+            # episode_lengths_means = np.mean(episode_lengths_if_eval_method)
+            score = np.mean(episode_lengths_if_eval_method)
+        return score
     # TODO: Add a feature that it will use the correct sorted from the archive if the metric for the archive is steps!
     # TODO: It would be better to update the aggregate evaluation and then use it within here
     # [Deprecated]
@@ -508,24 +528,7 @@ class EvalSaveCallback(EvalCallback):
                     # Run evaluation n_eval_rep for each opponent
                     eval_model_list = [sampled_opponent]
                     # The current model vs the iterated model from the opponent (last opponent in each generation/round)
-                    episodes_rewards_ret, episode_lengths_if_eval_method, win_rates_ret, _, _ = self._evaluate(  agent_model,
-                                                                                                                 n_eval_episodes=n_eval_rep,
-                                                                                                                 deterministic=deterministic,
-                                                                                                                 sampled_opponents=eval_model_list,
-                                                                                                                 return_episode_rewards=True if self.eval_matrix_method == "length" else False,
-                                                                                                                 make_deterministic_flag=True
-                                                                                                              )
-                    # win_rate = np.mean(win_rates_ret)
-                    # win_rates.append(win_rate)
-                    score = None
-                    print(self.eval_matrix_method)
-                    if(self.eval_matrix_method == "reward"):
-                        score = np.mean(episodes_rewards_ret)
-                    elif(self.eval_matrix_method == "win_rate"):
-                        score = np.mean(win_rates_ret)
-                    elif(self.eval_matrix_method == "length"):
-                        # episode_lengths_means = np.mean(episode_lengths_if_eval_method)
-                        score = np.mean(episode_lengths_if_eval_method)
+                    score = self._get_score(agent_model, n_eval_rep, deterministic, eval_model_list, self.eval_matrix_method, True)
                     scores.append(score)
                 # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
                 # Add this matrix to __init__
@@ -564,13 +567,7 @@ class EvalSaveCallback(EvalCallback):
                 eval_model_list = [o for _ in range(n_eval_rep)]
                 # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
                 # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better
-                episodes_rewards_ret, _, win_rates, _, _ = self._evaluate(self.model, n_eval_episodes=n_eval_rep,
-                                                deterministic=deterministic,
-                                                sampled_opponents=eval_model_list,
-                                                make_deterministic_flag=True)
-                # win_rate = np.mean(win_rates)
-                # evaluation_result = win_rate
-                score = np.mean(episodes_rewards_ret)
+                score = self._get_score(self.model, n_eval_rep, deterministic, eval_model_list, self.eval_matrix_method, True)
                 evaluation_result = score
                 # wandb.log({f"{self.agent_name}/post_eval/opponent_idx": i})
                 # wandb.log({f"{self.agent_name}/post_eval/win_rate": evaluation_result})

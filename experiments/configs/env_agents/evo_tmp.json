@@ -15,9 +15,9 @@
         "act": "vel",
 
         "aggregate_eval_matrix":false,
-        "num_heatmap_eval_episodes": 5,
         "heatmap_log_freq":5,
         "eval_matrix_testing_freq":3,
+        "num_heatmap_eval_episodes": 2,
         "eval_matrix_method":"~eval_matrix_method",
 
         "final_save_freq": 5,
@@ -35,11 +35,11 @@
         "act": "vel",
 
         "aggregate_eval_matrix":false,
-        "num_heatmap_eval_episodes": 5,
         "heatmap_log_freq":5,
         "eval_matrix_testing_freq":3,
+        "num_heatmap_eval_episodes": 2,
         "eval_matrix_method":"~eval_matrix_method",
-
+        
         "final_save_freq": 5,
 
         "best_agent_search_radius":"~best_agent_search_radius"

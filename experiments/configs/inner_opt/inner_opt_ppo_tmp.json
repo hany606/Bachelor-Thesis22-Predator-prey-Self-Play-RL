@@ -5,7 +5,7 @@
         "num_timesteps": 2e3,
         "eval_freq": 0,
         "save_freq": 0,
-        "eval_metric": "lastreward",
+        "eval_metric": "length",
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
         "eval_opponent_selection": "random",
 
@@ -25,7 +25,7 @@
         "num_timesteps": 2e3,
         "eval_freq": 0,
         "save_freq": 0,
-        "eval_metric": "lastreward",
+        "eval_metric": "length",
         "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
         "eval_opponent_selection": "random",
 

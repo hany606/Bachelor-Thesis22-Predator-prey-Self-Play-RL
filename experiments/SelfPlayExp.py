@@ -63,6 +63,9 @@ from shared import *
 from copy import deepcopy
 import bach_utils.os as utos
 from bach_utils.shared import *
+import pprint 
+pp = pprint.PrettyPrinter(indent=4)
+
 
 class SelfPlayExp:
     def __init__(self):
@@ -103,10 +106,17 @@ class SelfPlayExp:
         # pp.pprint(....)
 
         print("--------------- Logging configs ---------------")
-        print(f"Experiment configs: {self.experiment_configs}")
-        print(f"Agents configs: {self.agents_configs}")
-        print(f"Evaluation configs: {self.evaluation_configs}")
-        print(f"Testing config: {self.testing_configs}")
+        print(f"Experiment configs:")
+        pp.pprint(self.experiment_configs)
+        print("================================")
+        print(f"Agents configs:")
+        pp.pprint(self.agents_configs)
+        print("================================")
+        print(f"Evaluation configs:")
+        pp.pprint(self.agents_configs)
+        print("================================")
+        print(f"Testing config:")
+        pp.pprint(self.testing_configs)
         print("-----------------------------------------------")
 
     def _generate_log_dir(self, dir_postfix):

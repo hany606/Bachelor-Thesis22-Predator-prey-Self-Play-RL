@@ -30,6 +30,8 @@ import bach_utils.os as utos
 from bach_utils.shared import *
 from SelfPlayExp import SelfPlayExp
 from bach_utils.heatmapvis import *
+from bach_utils.json_parser import ExperimentParser
+
 
 # This is a modified PPO to tackle problem related of loading from different version of pickle than it was saved with
 class PPOMod(PPO):
@@ -57,8 +59,26 @@ class SelfPlayTesting(SelfPlayExp):
         self.crosstest_flag = None
         self.render_sleep_time = render_sleep_time
 
+    # This is made in case that the agents have different RL policies (inner optimization)
+    def _import_original_configs(self):
+        for k in self.agents_configs.keys():
+            agent_configs = self.agents_configs[k]
+            agent_name = agent_configs["name"]
+            testing_config = self.testing_configs[agent_name]
+            agent_config_file_path = os.path.join(testing_config["path"], "experiment_config.json")
+            # if file exists then merge the configuration of that agent
+            if(os.path.isfile(agent_config_file_path)):
+                print(f"Parse from json file in {agent_config_file_path}")
+                _experiment_configs, _agents_configs, _evaluation_configs, _testing_configs, _merged_config = ExperimentParser.load(agent_config_file_path)
+                agent_original_config = _agents_configs[k]
+                self.agents_configs[k] = agent_original_config
+
+
     def _init_testing(self, experiment_filename, logdir, wandb):
         super(SelfPlayTesting, self)._init_exp(experiment_filename, logdir, wandb)
+
+        self._import_original_configs()
+
         self.render = self.testing_configs.get("render", True)
         self.crosstest_flag = self.testing_configs.get("crosstest", False)
         print(f"----- Load testing conditions")
@@ -497,6 +517,8 @@ class SelfPlayTesting(SelfPlayExp):
 
     def test(self, experiment_filename=None, logdir=False, wandb=False, n_eval_episodes=1):
         self._init_testing(experiment_filename=experiment_filename, logdir=logdir, wandb=wandb)
+        print(self.agents_configs)
+        exit()
         n_eval_episodes_configs = self.testing_configs.get("repetition", None)
         n_eval_episodes = n_eval_episodes_configs if n_eval_episodes_configs is not None else n_eval_episodes
 

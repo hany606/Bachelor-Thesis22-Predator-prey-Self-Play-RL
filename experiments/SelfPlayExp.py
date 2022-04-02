@@ -169,7 +169,7 @@ class SelfPlayExp:
             wandb.save(self.log_dir)
 
 
-    def _init_exp(self, experiment_filename, logdir, wandb):
+    def _init_exp(self, experiment_filename, logdir, wandb, load_config_flag=True):
         if(experiment_filename is None):
             self._init_argparse()
         print(f"Parse from json file in {self.args.exp}" if experiment_filename is None else f"----- Loading experiment from: {experiment_filename}")
@@ -183,7 +183,6 @@ class SelfPlayExp:
 
         if(self.log_dir is not None):
             ExperimentParser.save_combined(os.path.join(self.log_dir, "merged_config.json"), self.merged_config)
-
 
         if(wandb):
             print(f"----- Initialize wandb")

@@ -399,8 +399,6 @@ class SelfPlayTraining(SelfPlayExp):
                 evaluation_matrices = []
                 best_agents_population = {}
                 best_agent_search_radius = agent_config.get("best_agent_search_radius", num_rounds)
-                mask = np.ones((num_rounds,num_rounds))
-                mask[num_rounds-best_agent_search_radius:, :] = np.zeros((best_agent_search_radius,num_rounds))
                 for population_num in range(population_size):
                     print(f"Full evaluation matrix for {agent_name} (population: {population_num})")
                     algorithm_class = None
@@ -412,13 +410,23 @@ class SelfPlayTraining(SelfPlayExp):
                     evaluation_matrix = self.evalsave_callbacks[agent_name][population_num].evaluation_matrix
                     evaluation_matrix = evaluation_matrix if(j%2 == 0) else evaluation_matrix.T # .T in order to make the x-axis predators and y-axis are preys
                     evaluation_matrices.append(evaluation_matrix)
+                    
+                    num_eval_rounds = len(axis[0])
+                    best_agent_search_radius = min(best_agent_search_radius, num_eval_rounds)
+                    mask = np.ones((num_eval_rounds, num_eval_rounds))
+                    mask_initial_idx = num_eval_rounds-best_agent_search_radius
+                    mask[mask_initial_idx:, :] = np.zeros((best_agent_search_radius, num_eval_rounds))
+
                     # If it is specified to be reward -> signed value (note: winrate is not signed it is either 0 or 1 from evaluate_policy(.))
                     # TODO: fix it regarding the freq of the heatmap evaluation
-                    # eval_mask = mask if (j%2 == 0) else mask.T
-                    # shape = ((best_agent_search_radius, num_rounds)) #if (j%2 == 0) else ((num_rounds, best_agent_search_radius))
-                    # masked_evaluation_matrix = ma.masked_array(evaluation_matrix, mask=eval_mask).reshape(shape)
-                    # masked_evaluation_matrix = masked_evaluation_matrix if (j%2 == 0) else masked_evaluation_matrix.T
-                    masked_evaluation_matrix = evaluation_matrix
+                    agent_names = np.array(agent_names)
+                    eval_mask = mask if (j%2 == 0) else mask.T
+                    shape = ((best_agent_search_radius, num_eval_rounds)) #if (j%2 == 0) else ((num_rounds, best_agent_search_radius))
+                    masked_evaluation_matrix = evaluation_matrix[eval_mask == 0].reshape(shape)
+                    masked_evaluation_matrix = masked_evaluation_matrix if (j%2 == 0) else masked_evaluation_matrix.T
+                    # masked_evaluation_matrix = evaluation_matrix
+                    agent_names = agent_names[mask[:, 0] == 0]
+
                     best_agent_name, best_agent_score = get_best_agent_from_eval_mat(masked_evaluation_matrix, agent_names, axis=j, maximize=maximize_indicator)
                     best_agents_population[best_agent_name] = best_agent_score
                 

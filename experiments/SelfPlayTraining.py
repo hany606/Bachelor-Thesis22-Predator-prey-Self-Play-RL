@@ -120,9 +120,10 @@ class SelfPlayTraining(SelfPlayExp):
                                     }
 
                 algorithm_class = None
-                if(agent_configs["rl_algorithm"] == "PPO"):
+                opponent_algorithm_class_cfg = agent_configs.get("opponent_rl_algorithm", agent_configs["rl_algorithm"])
+                if(opponent_algorithm_class_cfg == "PPO"):
                     algorithm_class = PPO
-                elif(agent_configs["rl_algorithm"] == "SAC"):
+                elif(opponent_algorithm_class_cfg == "SAC"):
                     algorithm_class = SAC
 
                 self.envs[agent_name].append(super(SelfPlayTraining, self).create_env(key=k, name="Training", algorithm_class=algorithm_class, opponent_archive=opponent_archive, sample_after_reset=agent_configs["sample_after_reset"], sampling_parameters=sampling_parameters, seed_value=self.seed_value+population_num))

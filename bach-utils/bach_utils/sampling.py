@@ -67,6 +67,29 @@ def sample_opponents(files_list, num_sampled_opponents, selection, sorted=False,
             # print("-------------------------------------")
             sampled_opponents_filenames = [utlst.get_random_from(delta_latest)[0] for _ in range(num_sampled_opponents)]  # TODO: Take care about pigonhole principle -> if the set is too small, then the likelihood for selection each element in the list will be relatively large
             
+        elif(selection == "gauss"):
+            # TODO: discretized normal distribution with mean in the middle and variance delta
+            # import matplotlib.pyplot as plt
+            # import numpy as np
+
+            # def normal(x, mu, sigma):
+            #     return 1/(sigma * np.sqrt(2 * np.pi)) * np.exp( - (x - mu)**2 / (2 * sigma**2))
+
+            # mu, sigma = 0, 0.1
+            # s = np.random.normal(mu, sigma, 1000)
+            # count, bins, ignored = plt.hist(s, 30, density=True)
+            # plt.plot(bins, normal(bins, mu, sigma), linewidth=2, color='r')
+
+            # plt.show()
+
+            # print("_______________________________")
+            # print(files_list)
+            file_list_copy = deepcopy(files_list)
+            # random.shuffle(file_list_copy)
+            sampled_opponents_filenames = [utlst.get_random_from(file_list_copy)[0] for _ in range(num_sampled_opponents)]  # TODO: Take care about pigonhole principle -> if the set is too small, then the likelihood for selection each element in the list will be relatively large
+
+        
+
         elif(selection == "latest-set"):
             if(not sorted):
                 files_list = utsrt.sort_metric(files_list)

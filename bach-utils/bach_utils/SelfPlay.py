@@ -10,7 +10,7 @@ OS = False#True
 # Parent class for all using SB3 functions to predict
 class SelfPlayEnvSB3:
     def __init__(self, algorithm_class, archive, sample_after_reset, sampling_parameters):
-        self.algorithm_class = algorithm_class  # algorithm class for the opponent
+        self.opponent_algorithm_class = algorithm_class  # algorithm class for the opponent
         self.opponent_policy = None             # The policy itself after it is loaded
         self.opponent_policy_name = None    # Current loaded policy name -> File -> as it was implement first to be stored on disk (But now in cache=archive) 
         self.target_opponent_policy_name = None
@@ -58,11 +58,11 @@ class SelfPlayEnvSB3:
                 self.opponent_policy_name = opponent_name
                 if self.opponent_policy is not None:
                     del self.opponent_policy
-                # if(isinstance(self.algorithm_class, sb3PPO) or isinstance(super(self.algorithm_class), sb3PPO)):
+                # if(isinstance(self.opponent_algorithm_class, sb3PPO) or isinstance(super(self.opponent_algorithm_class), sb3PPO)):
                 if(not self.OS):
-                    self.opponent_policy = self.archive.load(name=opponent_name, env=self, algorithm_class=self.algorithm_class) # here we load the opponent policy
+                    self.opponent_policy = self.archive.load(name=opponent_name, env=self, algorithm_class=self.opponent_algorithm_class) # here we load the opponent policy
                 if(self.OS):
-                    self.opponent_policy = self.algorithm_class.load(opponent_name, env=self) # here we load the opponent policy
+                    self.opponent_policy = self.opponent_algorithm_class.load(opponent_name, env=self) # here we load the opponent policy
                 # print("loading model: ", opponent_name, self.opponent_policy)
 
 
@@ -88,10 +88,10 @@ class SelfPlayEnvSB3:
             self.target_opponent_policy_name = sampled_opponent
         
         if(self.OS):
-            print(f"Reset, env name: {self._name}, OS, target_policy: {self.target_opponent_policy_name}")
+            print(f"Reset, env name: {self._name}, OS, target_policy: {self.target_opponent_policy_name} ({str(self.opponent_algorithm_class)})")
         # if(not self.OS):
         else:
-            print(f"Reset, env name: {self._name}, archive_id: {self.archive.random_id}, target_policy: {self.target_opponent_policy_name}")
+            print(f"Reset, env name: {self._name}, archive_id: {self.archive.random_id}, target_policy: {self.target_opponent_policy_name} ({str(self.opponent_algorithm_class)})")
         
         self._load_opponent(self.target_opponent_policy_name)
         self.reset_counter += 1

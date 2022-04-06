@@ -62,6 +62,8 @@ from SelfPlayExp import SelfPlayExp
 from bach_utils.json_parser import ExperimentParser
 import numpy.ma as ma
 
+# import pybullet as p
+
 
 # Here the class is for the whole experiment (train, evaluation(heatmaps, plots, ...etc), test (rendering))
 class SelfPlayTraining(SelfPlayExp):
@@ -76,6 +78,8 @@ class SelfPlayTraining(SelfPlayExp):
         self.wandb_callbacks = None
         self.seed_value = seed_value
         self.deterministic = False
+        # p.connect(p.GUI)
+
 
     def _init_argparse(self):
         super(SelfPlayTraining, self)._init_argparse(description='Self-play experiment training script', help='The experiemnt configuration file path and name which the experiment should be loaded')

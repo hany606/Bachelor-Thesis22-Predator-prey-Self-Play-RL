@@ -144,6 +144,15 @@ class SelfPlayTesting(SelfPlayExp):
                 self.testing_conditions[agent_name]["limits"] = [0, num_rounds-1, testing_config["freq"]]
             print(self.testing_conditions[agent_name]["limits"])
 
+    def _get_opponent_algorithm_class(self, agent_configs):
+        algorithm_class = None
+        opponent_algorithm_class_cfg = agent_configs.get("opponent_rl_algorithm", agent_configs["rl_algorithm"])
+        if(opponent_algorithm_class_cfg == "PPO"):
+            algorithm_class = PPOMod
+        elif(opponent_algorithm_class_cfg == "SAC"):
+            algorithm_class = SAC
+        return algorithm_class
+
     def _init_envs(self):
         self.envs = {}
 
@@ -151,12 +160,7 @@ class SelfPlayTesting(SelfPlayExp):
             agent_configs = self.agents_configs[k]
             agent_name = agent_configs["name"]
             # env = globals()["SelfPlayPredEnv"](algorithm_class=PPOMod, archive=None, seed_val=3)
-            algorithm_class = None
-            if(agent_configs["rl_algorithm"] == "PPO"):
-                algorithm_class = PPOMod
-            elif(agent_configs["rl_algorithm"] == "SAC"):
-                algorithm_class = SAC
-
+            algorithm_class = self._get_opponent_algorithm_class(agent_configs)
             env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None, algorithm_class=algorithm_class)
             # if not isinstance(env, VecEnv):
             #     env = DummyVecEnv([lambda: env])
@@ -171,6 +175,7 @@ class SelfPlayTesting(SelfPlayExp):
         raise NotImplementedError("_init_archives() not implemented")
     
     # Useless now as there is a problem and we have to recreate the model again with each evaluation
+    #[Deprecated]
     def _init_models(self):
         self.models = {}
 
@@ -217,14 +222,17 @@ class SelfPlayTesting(SelfPlayExp):
         # TODO: debug why if we did not do this (redefine the env again) it does not work properly for the rendering
         # Create environment for each evaluation
         if(env is None and agent_model is None):
+            agent_configs = self.agents_configs[agent_conifgs_key]
             # print(f"Create Env: {self.agents_configs[agent_conifgs_key]['env_class']}, Algorithm: {PPOMod}, seed: {seed_value}")
-            algorithm_class = None
-            if(self.agents_configs[agent_conifgs_key]["rl_algorithm"] == "PPO"):
-                algorithm_class = PPOMod
-            elif(self.agents_configs[agent_conifgs_key]["rl_algorithm"] == "SAC"):
-                algorithm_class = SAC
-            env, seed_value = super(SelfPlayTesting, self).create_env(key=agent_conifgs_key, name="Testing", opponent_archive=None, algorithm_class=algorithm_class, seed_value=seed_value, ret_seed=True)
+            opponent_algorithm_class = self._get_opponent_algorithm_class(agent_configs)
+            env, seed_value = super(SelfPlayTesting, self).create_env(key=agent_conifgs_key, name="Testing", opponent_archive=None, algorithm_class=opponent_algorithm_class, seed_value=seed_value, ret_seed=True)
             # print(f"Sampled agent loading {sampled_agent}")
+            algorithm_class = None
+            if(agent_configs["rl_algorithm"] == "PPO"):
+                algorithm_class = PPOMod
+            elif(agent_configs["rl_algorithm"] == "SAC"):
+                algorithm_class = SAC
+
             agent_model = algorithm_class.load(sampled_agent, env)
         mean_reward, std_reward, win_rate, std_win_rate, render_ret = evaluate_policy_simple(
                                                                                                 agent_model,
@@ -517,8 +525,8 @@ class SelfPlayTesting(SelfPlayExp):
 
     def test(self, experiment_filename=None, logdir=False, wandb=False, n_eval_episodes=1):
         self._init_testing(experiment_filename=experiment_filename, logdir=logdir, wandb=wandb)
-        print(self.agents_configs)
-        exit()
+        # print(self.agents_configs)
+        # exit()
         n_eval_episodes_configs = self.testing_configs.get("repetition", None)
         n_eval_episodes = n_eval_episodes_configs if n_eval_episodes_configs is not None else n_eval_episodes
 

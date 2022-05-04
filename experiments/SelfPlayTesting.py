@@ -161,7 +161,7 @@ class SelfPlayTesting(SelfPlayExp):
             agent_name = agent_configs["name"]
             # env = globals()["SelfPlayPredEnv"](algorithm_class=PPOMod, archive=None, seed_val=3)
             algorithm_class = self._get_opponent_algorithm_class(agent_configs)
-            env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None, algorithm_class=algorithm_class)
+            env = super(SelfPlayTesting, self).create_env(key=k, name="Testing", opponent_archive=None, algorithm_class=algorithm_class, gui=True)
             # if not isinstance(env, VecEnv):
             #     env = DummyVecEnv([lambda: env])
 
@@ -225,7 +225,7 @@ class SelfPlayTesting(SelfPlayExp):
             agent_configs = self.agents_configs[agent_conifgs_key]
             # print(f"Create Env: {self.agents_configs[agent_conifgs_key]['env_class']}, Algorithm: {PPOMod}, seed: {seed_value}")
             opponent_algorithm_class = self._get_opponent_algorithm_class(agent_configs)
-            env, seed_value = super(SelfPlayTesting, self).create_env(key=agent_conifgs_key, name="Testing", opponent_archive=None, algorithm_class=opponent_algorithm_class, seed_value=seed_value, ret_seed=True)
+            env, seed_value = super(SelfPlayTesting, self).create_env(key=agent_conifgs_key, name="Testing", opponent_archive=None, algorithm_class=opponent_algorithm_class, seed_value=seed_value, ret_seed=True, gui=True)
             # print(f"Sampled agent loading {sampled_agent}")
             algorithm_class = None
             if(agent_configs["rl_algorithm"] == "PPO"):

@@ -124,6 +124,7 @@ class EvalSaveCallback(EvalCallback):
         self.best_mean_reward = None
         self.last_mean_reward = None
         self.checkpoint_num = 0
+        self.max_checkpoint_num = -1
 
 
         new_kwargs = {}
@@ -267,7 +268,7 @@ class EvalSaveCallback(EvalCallback):
         elif(self.eval_metric == "winrate"):
             metric_value = self.win_rate
         # history_<num-round>_<reward/points/winrate>_m_<value>_s_<num-step>
-        name = f"{self.name_prefix}_{self.eval_metric}_m_{metric_value}_s_{self.num_timesteps}_p_{self.population_idx}"#_c_{self.checkpoint_num}"
+        name = f"{self.name_prefix}_{self.eval_metric}_m_{metric_value}_s_{self.num_timesteps}_c_{self.checkpoint_num}_p_{self.population_idx}"#_c_{self.checkpoint_num}"
         self.checkpoint_num += 1
         path = os.path.join(self.save_path, name)
         self.model.save(path)
@@ -295,6 +296,7 @@ class EvalSaveCallback(EvalCallback):
     # The models are not just stored with 25000 steps factors as it is taking more steps a little bit
     def _on_training_end(self) -> None:
         print("-------- Training End --------")
+        self.max_checkpoint_num = max(self.max_checkpoint_num, self.checkpoint_num)
         if(self.save_freq == 0 and self.eval_freq == 0):
             self.eval_freq = self.n_calls   # There is a problem when I do not set it, thus, I have made this setting (The plots are not being reported in wandb)
             print("Evaluating the model according to the metric and save it")
@@ -466,8 +468,10 @@ class EvalSaveCallback(EvalCallback):
 
         # dim = num_rounds//freq+1
         agent_axis = [i for i in range(0, num_rounds, freq)]
+        ret_agent_axis = []
         agent_names = []
         opponent_axis = [i for i in range(0, num_rounds, freq)]
+        ret_opponent_axis = []
         population_axis = [i for i in range(0, population_size)]
         # Enforce doing evaluation for the last generation
         if(agent_axis[-1] != num_rounds-1):
@@ -475,6 +479,7 @@ class EvalSaveCallback(EvalCallback):
         if(opponent_axis[-1] != num_rounds-1):
             opponent_axis.append(num_rounds-1)
         self.evaluation_matrix = np.zeros((len(agent_axis), len(opponent_axis)))
+
         # Enumerate in order to correctly place in the matrix
         for ei, i in enumerate(agent_axis): #, freq):
             startswith_keyword = f"{prefix}{i}_"
@@ -499,6 +504,7 @@ class EvalSaveCallback(EvalCallback):
                 sampled_agent_path = os.path.join(agents_path, sampled_agent)  # Join it with the agent path
                 agent_model = algorithm_class.load(sampled_agent_path, env=self.eval_env)
 
+            ret_agent_axis.append(get_model_label(sampled_agent))
             agent_names.append(sampled_agent)
             for ej, j in enumerate(opponent_axis):
                 print("------------------------------")
@@ -524,6 +530,8 @@ class EvalSaveCallback(EvalCallback):
                         # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
                         sampled_opponent = utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword, population_idx=self.population_idx)[0]
                         sampled_opponent = os.path.join(opponents_path, sampled_opponent)
+                    if(ei == 0):
+                        ret_opponent_axis.append(get_model_label(sampled_opponent))
                     print("---------------")
                     print(f"Model {sampled_agent} vs {sampled_opponent}")
 
@@ -544,7 +552,7 @@ class EvalSaveCallback(EvalCallback):
                     mean_score = self.eval_env.get_attr("max_num_steps",0)[0] - mean_score
                 self.evaluation_matrix[ei, ej] = mean_score
                 print(f"Mean score ({self.eval_matrix_method}): {mean_score}")
-        return [agent_axis, opponent_axis], agent_names
+        return [ret_agent_axis, ret_opponent_axis], agent_names
 
     # This last agent
     # Post evaluate the model against all the opponents from opponents_path

@@ -21,12 +21,13 @@ def alphanum_key(s):
     return [ trynum(c) for c in re.split('([0-9]+)', s) ]
 
 def steps_key(s):
+    return [trynum(c) for c in re.split('(_s_(\d*)_)', s)][-2]
     # This try exception has been added because of backward compatibility as some old files do not have population index
-    try:
-        return [trynum(c) for c in re.split('(_s_(.*)_p_)', s)][-2]
-    except:
-        return [trynum(c) for c in re.split('(_s_)', s)][-1]
-
+    # try:
+    #     return [trynum(c) for c in re.split('(_s_(.*)_p_)', s)][-2]
+    # except:
+    #     return [trynum(c) for c in re.split('(_s_)', s)][-1]
+    
 def round_key(s):
     # print([trynum(c) for c in re.split('(_p_)', s)][-1])
     return [trynum(c) for c in re.split('(history_(\d*)_)', s)][-2]
@@ -36,9 +37,8 @@ def population_key(s):
     return [trynum(c) for c in re.split('(_p_)', s)][-1]
     # return [trynum(c) for c in re.split('(_p_(.*)_c_)', s)][-2]
 
-# Not used for now
 def checkpoint_key(s):
-    return [trynum(c) for c in re.split('(_c_)', s)][-1]
+    return [trynum(c) for c in re.split('(_c_(\d*))', s)][-2]
 
 def metric_key(s):
     return [trynum(c) for c in re.split('(_m_(.*)_s_)', s)][-2]
@@ -105,7 +105,15 @@ def insertion_sorted_population(l, e):
 
 if __name__ == '__main__':
     # l = ["history_1_winrate_m_0.53_s_565_p_0_c_1", "history_1_winrate_m_0.8_s_562_p_1_c_1"]#, "history_2_winrate_m_0.59_s_562_p_1", "history_4_winrate_m_0.56_s_563_p_1", "history_3_winrate_m_0.15_s_567_p_1"]
-    l = ["history_1_winrate_m_0.53_s_565_p_1", "history_1_winrate_m_0.8_s_562_p_0"]#, "history_2_winrate_m_0.59_s_562_p_1", "history_4_winrate_m_0.56_s_563_p_1", "history_3_winrate_m_0.15_s_567_p_1"]
-    print(round_key(l[1]))
+    l = ["history_10_winrate_m_0.53_s_565_c_1_p_0", "history_1_winrate_m_0.8_s_562_c_0_p_0"]#, "history_2_winrate_m_0.59_s_562_p_1", "history_4_winrate_m_0.56_s_563_p_1", "history_3_winrate_m_0.15_s_567_p_1"]
+    print("-------------")
+    print(l[0])
+    print(f"Round key: {round_key(l[0])}")
+    print(f"Steps key: {steps_key(l[0])}")
+    print(f"Population key: {population_key(l[0])}")
+    print(f"Checkpoint key: {checkpoint_key(l[0])}")
+    print(f"Metric key: {metric_key(l[0])}")
+    print("-------------")
+
     print("Sorting by the population number")
     print(_sort(l, population_key))

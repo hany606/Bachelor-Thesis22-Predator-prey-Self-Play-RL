@@ -90,6 +90,7 @@ class SelfPlayExp:
         # TODO: Force different seed from argparse if it exists against the one in the json file
         parser.add_argument('--exp', type=str, help=help, metavar='')
         parser.add_argument('--seed', type=int, help=help, default=-1)
+        parser.add_argument('--prefix', type=str, help=help, default="")
         self.args = parser.parse_args()
 
     def _load_configs(self, filename):        
@@ -159,7 +160,7 @@ class SelfPlayExp:
         )
 
         experiment_name = self.experiment_configs["experiment_name"]
-        wandb.run.name = f"[Seed: {self.experiment_configs.get('seed_value', None)}] " + wandb.run.name + experiment_name + "-" + self.experiment_id
+        wandb.run.name = self.args.prefix + f"[Seed: {self.experiment_configs.get('seed_value', None)}] " + wandb.run.name + experiment_name + "-" + self.experiment_id
         wandb.run.save()
         wandb.save(self.experiment_filename)
         wandb.save(os.path.join(self.log_dir, "merged_config.json"))

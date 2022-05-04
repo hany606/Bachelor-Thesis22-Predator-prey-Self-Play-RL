@@ -48,7 +48,7 @@ class PZPredPrey(gym.Env):
                         seed_val=3, 
                         reward_type=None,
                         caught_distance=0.001,
-                        gui=False,
+                        gui=False,  # for compatibility with other envs
                         reseed=False):
         # adversary_0 -> predator, "agent_0" -> prey
         self.agent_keys = ["adversary_0", "agent_0"]
@@ -287,8 +287,7 @@ class PZPredPrey(gym.Env):
         return ""
     
     def _process_info(self):
-        return {"win":self.who_won(), "reward": (self._pred_reward, self._prey_reward), "Num. steps": self.num_steps}
-
+        return {"win":self.who_won(), "reward": (self._pred_reward, self._prey_reward), "num_steps": self.num_steps}
 
     def step(self, action):
         self.num_steps += 1
@@ -305,6 +304,7 @@ class PZPredPrey(gym.Env):
             # self.render()
             # input("Input!!!!")
             print(info)
+        # self.render()
         return obs, reward, done, info
 
     def render(self, mode='human', extra_info=None):

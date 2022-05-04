@@ -57,7 +57,7 @@ from PolicyNetworks import get_policy_arch
 from shared import *
 from copy import deepcopy
 from bach_utils.shared import *
-from bach_utils.sorting import population_key, round_key
+from bach_utils.sorting import population_key, round_key, checkpoint_key, sort_steps
 from SelfPlayExp import SelfPlayExp
 from bach_utils.json_parser import ExperimentParser
 import numpy.ma as ma
@@ -360,18 +360,37 @@ class SelfPlayTraining(SelfPlayExp):
             agent_config = self.agents_configs[agent_name]
             aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
             opponent_name = agent_config["opponent_name"]
+            print(f"------------------- Prepare freq log used by {agent_name} ({opponent_name} archive) --------------------")
             num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
             eval_matrix_testing_freq = agent_config["eval_matrix_testing_freq"]
             # archive of the opponent that was used to train the agent
             freq_keys, freq_values = self.archives[opponent_name].get_freq()
             freq_dict = dict(zip(freq_keys, freq_values))
-            freq_matrix = np.zeros((population_size, num_rounds))
+            # print(freq_dict)
+            
+            # freq_matrix = np.zeros((population_size, len(freq_keys)))
+            # freq_matrix = np.zeros((population_size, num_rounds))
+            max_checkpoint_num = 1
+            for population_num in range(population_size):
+                max_checkpoint_num = max(max_checkpoint_num, self.evalsave_callbacks[opponent_name][population_num].max_checkpoint_num)
+            
+            # max_checkpoint_num += 1
+            freq_matrix = np.zeros((population_size, max_checkpoint_num*num_rounds))
+
+            sorted_keys = sort_steps(list(freq_keys))
             # x-axis labels, y-axis labels
-            axis = [[i for i in range(num_rounds)], [i for i in range(population_size)]]
-            for key, val in freq_dict.items():
+            x_axis = [f"{j}.{i}" for j in range(num_rounds) for i in range(max_checkpoint_num)]
+            axis = [x_axis, [i for i in range(population_size)]]
+            # axis = [[i for i in range(num_rounds)], [i for i in range(population_size)]]
+
+            # for key, val in freq_dict.items():
+            for i,key in enumerate(sorted_keys):
                 population_num = population_key(key)
                 round_num = round_key(key)
-                freq_matrix[population_num, round_num] = val
+                checkpoint_num = checkpoint_key(key)
+                val = freq_dict[key]
+                # If we uncomment the commented freq_matrix and axis lines, this will make the matrix with fixed size always and aggregate over the checkpoints of the same round 
+                freq_matrix[population_num, round_num*max_checkpoint_num+checkpoint_num] += val
             
             wandb.log({f"{agent_name}vs({opponent_name}_archive)/freq_heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], freq_matrix, show_text=True)})
             wandb.log({f"{agent_name}vs({opponent_name}_archive)/freq_heatmap_no_text"'': wandb.plots.HeatMap(axis[0], axis[1], freq_matrix, show_text=False)})
@@ -444,12 +463,18 @@ class SelfPlayTraining(SelfPlayExp):
                 mean_evaluation_matrix = np.mean(evaluation_matrices, axis=0)
                 std_evaluation_matrix = np.std(evaluation_matrices, axis=0)
                 # One with text and other without (I kept the name in wandb just not to be a problem with previous experiments)
+                # print(len(axis[0]), len(axis[1]), mean_evaluation_matrix.shape)
                 wandb.log({f"{agent_name}/heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], mean_evaluation_matrix, show_text=True)})
                 wandb.log({f"{agent_name}/mid_eval/heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], mean_evaluation_matrix, show_text=False)})
                 wandb.log({f"{agent_name}/std_heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], std_evaluation_matrix, show_text=True)})
 
+                np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix_axis_x"), axis[0])
+                np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix_axis_y"), axis[1])
                 np.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix"), mean_evaluation_matrix)
                 wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix")+".npy")
+                wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix_axis_x")+".npy")
+                wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix_axis_y")+".npy")
+
             
             print("Save experiment configuration with ")
             log_file = os.path.join(self.log_dir, "experiment_config.json")
@@ -478,3 +503,4 @@ class SelfPlayTraining(SelfPlayExp):
 
         # TODO: parse back the evaluation information (locs of evaluation matrix, best agents names, ....etc)
         # TODO: save the json back to the location of the experiemnt and send it to wand as well
+

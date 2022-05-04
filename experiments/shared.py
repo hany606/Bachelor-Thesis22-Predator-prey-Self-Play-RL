@@ -9,7 +9,14 @@ import warnings
 from time import sleep
 from bach_utils.shared import make_deterministic
 from datetime import datetime
+from bach_utils.sorting import population_key, round_key, checkpoint_key
 
+
+def get_model_label(s):
+    # history_10_winrate_m_0.53_s_565_c_1_p_0
+    checkpoint_key_val = checkpoint_key(s)
+    round_key_val = round_key(s)
+    return f"{round_key_val}.{checkpoint_key_val}"
 
 def normalize_reward(reward, mn=-1010, mx=1010):
     return (reward - mn)/(mx-mn)

@@ -111,11 +111,13 @@ class PZPredPrey(gym.Env):
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         print(f"Seed: {seed}")
-        self.env.seed(seed)
+        # self.env.seed(seed)
+        self.env.reset(seed=seed)
         return [seed]
 
     def reset(self):
-        self.env.seed(self.seed_val)
+        # self.env.seed(self.seed_val)
+        # obs = self.env.reset(seed=self.seed_val)
         obs = self.env.reset()
         self.num_steps = 0
         self.observation, self.whole_observation = self._process_observation(obs)
@@ -175,8 +177,8 @@ class PZPredPrey(gym.Env):
         ac = [a for a in ac]
         action_dict = {self.agent_keys[i]:np.array(ac[self.noutputs*i:self.noutputs*(i+1)], dtype=np.float32) for i in range(self.nrobots)}
         # Divide the speed of the adversary (predator) by 2 -> to slow it down
-        # for i in range(len(action_dict[self.agent_keys[0]])):
-        #     action_dict[self.agent_keys[0]][i] /= 2
+        for i in range(len(action_dict[self.agent_keys[0]])):
+            action_dict[self.agent_keys[0]][i] /= 2
         return action_dict
         
     def _process_observation(self, obs):

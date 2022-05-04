@@ -374,12 +374,12 @@ class SelfPlayTraining(SelfPlayExp):
             for population_num in range(population_size):
                 max_checkpoint_num = max(max_checkpoint_num, self.evalsave_callbacks[opponent_name][population_num].max_checkpoint_num)
             
-            # max_checkpoint_num += 1
+            # max_checkpoint_num = 1
             freq_matrix = np.zeros((population_size, max_checkpoint_num*num_rounds))
 
             sorted_keys = sort_steps(list(freq_keys))
             # x-axis labels, y-axis labels
-            x_axis = [f"{j}.{i}" for j in range(num_rounds) for i in range(max_checkpoint_num)]
+            x_axis = [f"{j:02d}.{i:01d}" for j in range(num_rounds) for i in range(max_checkpoint_num)]
             axis = [x_axis, [i for i in range(population_size)]]
             # axis = [[i for i in range(num_rounds)], [i for i in range(population_size)]]
 
@@ -389,9 +389,10 @@ class SelfPlayTraining(SelfPlayExp):
                 round_num = round_key(key)
                 checkpoint_num = checkpoint_key(key)
                 val = freq_dict[key]
-                # If we uncomment the commented freq_matrix and axis lines, this will make the matrix with fixed size always and aggregate over the checkpoints of the same round 
                 freq_matrix[population_num, round_num*max_checkpoint_num+checkpoint_num] += val
-            
+                # freq_matrix[population_num, round_num] += val
+
+
             wandb.log({f"{agent_name}vs({opponent_name}_archive)/freq_heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], freq_matrix, show_text=True)})
             wandb.log({f"{agent_name}vs({opponent_name}_archive)/freq_heatmap_no_text"'': wandb.plots.HeatMap(axis[0], axis[1], freq_matrix, show_text=False)})
             # TODO: find a way to plot directly the mean and standard deviation in one plot

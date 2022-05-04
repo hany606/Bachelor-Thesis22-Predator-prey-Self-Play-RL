@@ -10,7 +10,7 @@
 
         "rl_algorithm": "SAC",
         "policy": "MlpPolicy",
-        "batch_size":64,
+        "batch_size":256,
         "gamma":0.99,
         "lr": 3e-4,
         "buffer_size":1000000
@@ -27,7 +27,7 @@
 
         "rl_algorithm": "SAC",
         "policy": "MlpPolicy",
-        "batch_size":64,
+        "batch_size":256,
         "gamma":0.99,
         "lr": 3e-4,
         "buffer_size":1000000

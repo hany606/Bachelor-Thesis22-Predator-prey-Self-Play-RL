@@ -123,6 +123,8 @@ class EvalSaveCallback(EvalCallback):
         self.win_rate = None
         self.best_mean_reward = None
         self.last_mean_reward = None
+        self.checkpoint_num = 0
+
 
         new_kwargs = {}
         for k in kwargs.keys():
@@ -266,7 +268,7 @@ class EvalSaveCallback(EvalCallback):
             metric_value = self.win_rate
         # history_<num-round>_<reward/points/winrate>_m_<value>_s_<num-step>
         name = f"{self.name_prefix}_{self.eval_metric}_m_{metric_value}_s_{self.num_timesteps}_p_{self.population_idx}"#_c_{self.checkpoint_num}"
-        # self.checkpoint_num += 1
+        self.checkpoint_num += 1
         path = os.path.join(self.save_path, name)
         self.model.save(path)
         if(not self.OS):
@@ -293,13 +295,13 @@ class EvalSaveCallback(EvalCallback):
     # The models are not just stored with 25000 steps factors as it is taking more steps a little bit
     def _on_training_end(self) -> None:
         print("-------- Training End --------")
-        self.checkpoint_num = 0
         if(self.save_freq == 0 and self.eval_freq == 0):
             self.eval_freq = self.n_calls   # There is a problem when I do not set it, thus, I have made this setting (The plots are not being reported in wandb)
             print("Evaluating the model according to the metric and save it")
             result = self._evaluate_policy(force_evaluation=True)
             name = self._save_model(force_saving=True)
             self.eval_freq = 0   # There is a problem when this line is not
+        self.checkpoint_num = 0
         super(EvalSaveCallback, self)._on_training_end()
 
     def _get_score(self, model, n_eval_rep, deterministic, opponents, eval_matrix_method, make_deterministic_flag=True):

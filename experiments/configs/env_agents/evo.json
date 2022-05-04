@@ -15,12 +15,12 @@
         "act": "vel",
 
         "aggregate_eval_matrix":false,
-        "num_heatmap_eval_episodes": 5,
+        "num_heatmap_eval_episodes": "~num_heatmap_eval_episodes",
         "heatmap_log_freq":5,
-        "eval_matrix_testing_freq":3,
+        "eval_matrix_testing_freq": "~eval_matrix_testing_freq",
         "eval_matrix_method":"~eval_matrix_method",
 
-        "final_save_freq": 5,
+        "final_save_freq": "~final_save_freq",
 
         "best_agent_search_radius":"~best_agent_search_radius"
 
@@ -35,12 +35,12 @@
         "act": "vel",
 
         "aggregate_eval_matrix":false,
-        "num_heatmap_eval_episodes": 5,
+        "num_heatmap_eval_episodes": "~num_heatmap_eval_episodes",
         "heatmap_log_freq":5,
-        "eval_matrix_testing_freq":3,
+        "eval_matrix_testing_freq": "~eval_matrix_testing_freq",
         "eval_matrix_method":"~eval_matrix_method",
 
-        "final_save_freq": 5,
+        "final_save_freq": "~final_save_freq",
 
         "best_agent_search_radius":"~best_agent_search_radius"
     }

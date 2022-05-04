@@ -7,6 +7,16 @@
         "__comment1__": "reward, win_rate, length",
         "eval_matrix_method": "length",
         "randomly_reseed_sampling":false,
-        "best_agent_search_radius":5
+        "best_agent_search_radius":5,
+        "num_heatmap_eval_episodes":3,
+        "final_save_freq":10,
+        "eval_matrix_testing_freq": 9,
+        "num_eval_episodes": 3,
+        "num_timesteps": 30e3,
+        "eval_freq": 10e3,
+        "save_freq": 10e3
+          
+
+
     }
 }

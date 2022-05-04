@@ -48,7 +48,8 @@ class PZPredPrey(gym.Env):
                         seed_val=3, 
                         reward_type=None,
                         caught_distance=0.001,
-                        gui=False):
+                        gui=False,
+                        reseed=False):
         # adversary_0 -> predator, "agent_0" -> prey
         self.agent_keys = ["adversary_0", "agent_0"]
         self.nrobots = len(self.agent_keys)
@@ -57,6 +58,7 @@ class PZPredPrey(gym.Env):
 
 
         self.seed_val = self.seed(seed_val)[0]
+        self.reseed = reseed
 
         # [no_action, move_left, move_right, move_down, move_up]
         self.noutputs = self.env.action_space("adversary_0").shape[0]   # for single agent
@@ -117,8 +119,12 @@ class PZPredPrey(gym.Env):
 
     def reset(self):
         # self.env.seed(self.seed_val)
-        # obs = self.env.reset(seed=self.seed_val)
-        obs = self.env.reset()
+        obs = None
+        if(self.reseed):
+            print(f"Reseed env with the initial seed: {self.seed_val}")
+            obs = self.env.reset(seed=self.seed_val)
+        else:
+            obs = self.env.reset()
         self.num_steps = 0
         self.observation, self.whole_observation = self._process_observation(obs)
         return self.observation

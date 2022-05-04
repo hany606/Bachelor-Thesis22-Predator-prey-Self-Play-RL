@@ -20,7 +20,7 @@ def sample_set(source_list, num):
 def sample_opponents(files_list, num_sampled_opponents, selection, sorted=False, randomly_reseed=True, delta=0, idx=None):
     if(randomly_reseed):
         random_seed = datetime.now().microsecond//1000
-        print(f"Reseed: {random_seed}")
+        print(f"Reseed opponent sampler: {random_seed}")
         random.seed(random_seed)
         
     sampled_opponents_filenames = []

@@ -219,7 +219,7 @@ class SelfPlayTesting(SelfPlayExp):
                                   return_episode_rewards=False):
         print("----------------------------------------")
         print(render_extra_info)
-        # self.make_deterministic(cuda_check=False)   # This was added as we observed that previous rounds affect the other rounds
+        self.make_deterministic(cuda_check=False)   # This was added as we observed that previous rounds affect the other rounds
         # TODO: debug why if we did not do this (redefine the env again) it does not work properly for the rendering
         # Create environment for each evaluation
         if(env is None and agent_model is None):

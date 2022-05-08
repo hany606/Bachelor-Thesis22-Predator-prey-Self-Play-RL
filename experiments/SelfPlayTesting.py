@@ -49,11 +49,11 @@ class PPOMod(PPO):
         return PPO.load(model_path, env, custom_objects=custom_objects)
 
 class SelfPlayTesting(SelfPlayExp):
-    def __init__(self, seed_value=None, render_sleep_time=0.01):
+    def __init__(self, seed_value=None, render_sleep_time=0.001):
         super(SelfPlayTesting, self).__init__()
         self.seed_value = seed_value
         self.load_prefix = "history_"
-        self.deterministic = True
+        self.deterministic = False#True
         self.warn = True
         self.render = None # it is being set by the configuration file
         self.crosstest_flag = None
@@ -77,6 +77,7 @@ class SelfPlayTesting(SelfPlayExp):
     def _init_testing(self, experiment_filename, logdir, wandb):
         super(SelfPlayTesting, self)._init_exp(experiment_filename, logdir, wandb)
 
+        # Only the agents_configs are overwritten
         self._import_original_configs()
 
         self.render = self.testing_configs.get("render", True)
@@ -218,7 +219,7 @@ class SelfPlayTesting(SelfPlayExp):
                                   return_episode_rewards=False):
         print("----------------------------------------")
         print(render_extra_info)
-        self.make_deterministic(cuda_check=False)   # This was added as we observed that previous rounds affect the other rounds
+        # self.make_deterministic(cuda_check=False)   # This was added as we observed that previous rounds affect the other rounds
         # TODO: debug why if we did not do this (redefine the env again) it does not work properly for the rendering
         # Create environment for each evaluation
         if(env is None and agent_model is None):
@@ -234,6 +235,7 @@ class SelfPlayTesting(SelfPlayExp):
                 algorithm_class = SAC
 
             agent_model = algorithm_class.load(sampled_agent, env)
+        print(f"Inside run_one_ {seed_value}")
         mean_reward, std_reward, win_rate, std_win_rate, render_ret = evaluate_policy_simple(
                                                                                                 agent_model,
                                                                                                 env,

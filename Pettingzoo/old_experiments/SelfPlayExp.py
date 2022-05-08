@@ -85,7 +85,7 @@ class SelfPlayExp:
 
     def _load_configs(self, filename):        
         self.experiment_filename = self.args.exp if filename is None else filename
-        self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs = ExperimentParser.load(self.experiment_filename)
+        self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs, _ = ExperimentParser.load(self.experiment_filename)
         self.seed_value = self.experiment_configs["seed_value"] if self.seed_value is None else self.seed_value
 
     def log_configs(self):

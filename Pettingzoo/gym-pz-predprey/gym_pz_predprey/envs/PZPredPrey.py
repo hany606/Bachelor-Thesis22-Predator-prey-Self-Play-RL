@@ -49,7 +49,7 @@ class PZPredPrey(gym.Env):
                         reward_type=None,
                         caught_distance=0.001,
                         gui=False,  # for compatibility with other envs
-                        reseed=False):
+                        reseed=True):
         # adversary_0 -> predator, "agent_0" -> prey
         self.agent_keys = ["adversary_0", "agent_0"]
         self.nrobots = len(self.agent_keys)

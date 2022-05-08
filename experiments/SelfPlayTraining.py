@@ -77,7 +77,7 @@ class SelfPlayTraining(SelfPlayExp):
         self.opponent_selection_callbacks = None
         self.wandb_callbacks = None
         self.seed_value = seed_value
-        self.deterministic = False
+        self.deterministic = True  # This flag is used wrongly, it is for deterministic flag in the callback evaluation not the determinism of the experiemnt
         # p.connect(p.GUI)
 
 

@@ -40,20 +40,20 @@ class PPOMod(PPO):
 
     # To fix issue while loading when loading from different versions of pickle and python from the server and the local machine
     # https://stackoverflow.com/questions/63329657/python-3-7-error-unsupported-pickle-protocol-5
-    @staticmethod
-    def load(model_path, env):
-        custom_objects = {
-            "lr_schedule": lambda x: .003,
-            "clip_range": lambda x: .2
-        }
-        return PPO.load(model_path, env, custom_objects=custom_objects)
+    # @staticmethod
+    # def load(model_path, env):
+    #     custom_objects = {
+    #         "lr_schedule": lambda x: .003,
+    #         "clip_range": lambda x: .2
+    #     }
+    #     return PPO.load(model_path, env, custom_objects=custom_objects)
 
 class SelfPlayTesting(SelfPlayExp):
     def __init__(self, seed_value=None, render_sleep_time=0.001):
         super(SelfPlayTesting, self).__init__()
         self.seed_value = seed_value
         self.load_prefix = "history_"
-        self.deterministic = False#True
+        self.deterministic = True  # This flag is used wrongly, it is for deterministic flag in the callback evaluation not the determinism of the experiemnt
         self.warn = True
         self.render = None # it is being set by the configuration file
         self.crosstest_flag = None
@@ -235,7 +235,6 @@ class SelfPlayTesting(SelfPlayExp):
                 algorithm_class = SAC
 
             agent_model = algorithm_class.load(sampled_agent, env)
-        print(f"Inside run_one_ {seed_value}")
         mean_reward, std_reward, win_rate, std_win_rate, render_ret = evaluate_policy_simple(
                                                                                                 agent_model,
                                                                                                 env,

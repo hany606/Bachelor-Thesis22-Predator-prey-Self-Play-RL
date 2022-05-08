@@ -374,14 +374,14 @@ class SelfPlayTraining(SelfPlayExp):
             for population_num in range(population_size):
                 max_checkpoint_num = max(max_checkpoint_num, self.evalsave_callbacks[opponent_name][population_num].max_checkpoint_num)
             
-            # max_checkpoint_num = 1
+            max_checkpoint_num = 1
             freq_matrix = np.zeros((population_size, max_checkpoint_num*num_rounds))
 
             sorted_keys = sort_steps(list(freq_keys))
             # x-axis labels, y-axis labels
-            x_axis = [f"{j:02d}.{i:01d}" for j in range(num_rounds) for i in range(max_checkpoint_num)]
-            axis = [x_axis, [i for i in range(population_size)]]
-            # axis = [[i for i in range(num_rounds)], [i for i in range(population_size)]]
+            # x_axis = [f"{j:02d}.{i:01d}" for j in range(num_rounds) for i in range(max_checkpoint_num)]
+            # axis = [x_axis, [i for i in range(population_size)]]
+            axis = [[i for i in range(num_rounds)], [i for i in range(population_size)]]
 
             # for key, val in freq_dict.items():
             for i,key in enumerate(sorted_keys):
@@ -389,8 +389,8 @@ class SelfPlayTraining(SelfPlayExp):
                 round_num = round_key(key)
                 checkpoint_num = checkpoint_key(key)
                 val = freq_dict[key]
-                freq_matrix[population_num, round_num*max_checkpoint_num+checkpoint_num] += val
-                # freq_matrix[population_num, round_num] += val
+                # freq_matrix[population_num, round_num*max_checkpoint_num+checkpoint_num] += val
+                freq_matrix[population_num, round_num] += val
 
 
             wandb.log({f"{agent_name}vs({opponent_name}_archive)/freq_heatmap"'': wandb.plots.HeatMap(axis[0], axis[1], freq_matrix, show_text=True)})

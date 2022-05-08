@@ -56,7 +56,7 @@ class PZPredPrey(gym.Env):
         self.num_obstacles = 3
         self.env = simple_tag_v2.parallel_env(num_good=1, num_adversaries=1, num_obstacles=self.num_obstacles, max_cycles=max_num_steps, continuous_actions=True)
 
-
+        self.seed_val = seed_val
         self.seed_val = self.seed(seed_val)[0]
         self.reseed = reseed
 
@@ -110,12 +110,14 @@ class PZPredPrey(gym.Env):
         self.prey_behavior = prey_behavior
         self.pred_behavior = pred_behavior
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        print(f"Seed (env): {seed}")
+    def seed(self, seed_val=None):
+        self.np_random, seed_val = seeding.np_random(seed_val)
+        print(f"Seed (env): {self.seed_val}")
         # self.env.seed(seed)
-        self.env.reset(seed=seed)
-        return [seed]
+        # This is due to some problems, I do not know the reason that it make seed when it is not called
+        print(f"Warn: if you want to seed with different value, change seed_value of env first")
+        self.env.reset(seed=self.seed_val)
+        return [self.seed_val]
 
     def reset(self):
         # self.env.seed(self.seed_val)

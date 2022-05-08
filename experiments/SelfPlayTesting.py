@@ -233,8 +233,10 @@ class SelfPlayTesting(SelfPlayExp):
                 algorithm_class = PPOMod
             elif(agent_configs["rl_algorithm"] == "SAC"):
                 algorithm_class = SAC
-
+            # print("Debug")
+            # PPO.load -> calls env.seed for some reason with wrong seed value (I think the random seed value used during the training is stored and restored with the model)
             agent_model = algorithm_class.load(sampled_agent, env)
+            # print("======")
         mean_reward, std_reward, win_rate, std_win_rate, render_ret = evaluate_policy_simple(
                                                                                                 agent_model,
                                                                                                 env,

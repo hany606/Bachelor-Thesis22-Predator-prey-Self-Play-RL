@@ -159,7 +159,7 @@ def evaluate_policy(
     env.set_opponents_indicies(opponents_indicies) # To be used later inside reset()
     env.set_attr("target_opponent_policy_name", sampled_opponents, different_values=True, values_indices=opponents_indicies)
     seed_value = datetime.now().microsecond//1000 if seed_value is None else seed_value
-    env.seed(seed_value)
+    # env.seed(seed_value)
     # print(f"Load evaluation models for {n_envs} vectorized env")
     observations = env.reset()
     states = None
@@ -291,7 +291,7 @@ def evaluate_policy_simple(
             
         # if(seed is not None):
         #     env.seed(seed)
-        env.seed(seed_value)
+        # env.seed(seed_value)
         seed_value += 1
         # make_deterministic(seed_value, cuda_check=False)
 

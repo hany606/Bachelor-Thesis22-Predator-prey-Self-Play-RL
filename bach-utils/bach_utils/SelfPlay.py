@@ -39,8 +39,12 @@ class SelfPlayEnvSB3:
             return self.action_space.sample() # return a random action
         else:
             action = None
+            deterministic = False
+            if(isinstance(self.opponent_policy, sb3SAC)):
+                deterministic = True
             if(isinstance(self.opponent_policy, sb3PPO) or isinstance(self.opponent_policy, sb3SAC)):
-                action, self.states = self.opponent_policy.predict(obs, state=self.states) #it is predict because this is PPO from stable-baselines not rllib
+                # For determinisitic flag: https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html
+                action, self.states = self.opponent_policy.predict(obs, state=self.states, deterministic=deterministic) #it is predict because this is PPO from stable-baselines not rllib
             # if(isinstance(self.opponent_policy, rllibPPO)):
                 # action, _ = self.opponent_policy.compute_action(obs) #it is predict because this is PPO from stable-baselines not rllib
             return action

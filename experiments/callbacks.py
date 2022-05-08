@@ -159,8 +159,8 @@ class EvalSaveCallback(EvalCallback):
         # Sync training and eval env if there is VecNormalize
         sync_envs_normalization(self.training_env, self.eval_env)
         # This is made in order to prevent making different generatations evaluations affect the others
-        if(make_deterministic_flag):
-            make_deterministic(seed_value=self.seed_value, cuda_check=False)
+        # if(make_deterministic_flag):
+        #     make_deterministic(seed_value=self.seed_value, cuda_check=False)
 
 
         # Reset success rate buffer
@@ -516,7 +516,7 @@ class EvalSaveCallback(EvalCallback):
                 # For each opponent from different population, we evaluate the agent of the specific population against all the populations
                 for ep, population_idx in enumerate(population_axis):
                     # To ensure that each evalaution is determinsitic and not affected by the previous one somehow
-                    make_deterministic(seed_value=self.seed_value, cuda_check=False)
+                    # make_deterministic(seed_value=self.seed_value, cuda_check=False)
                     sampled_opponent = None
                     # Get 2nd agent
                     if(not self.OS):
@@ -573,7 +573,7 @@ class EvalSaveCallback(EvalCallback):
             self.eval_env.set_attr("OS", True)
             self.OS = True
             for i, o in enumerate(opponents_models_path):   # For all the opponents saved for this population
-                make_deterministic(seed_value=self.seed_value, cuda_check=False)
+                # make_deterministic(seed_value=self.seed_value, cuda_check=False)
                 eval_model_list = [o for _ in range(n_eval_rep)]
                 # Doing this as only logger.record doesn't work, I think I need to call something else for Wandb callback
                 # TODO: Fix the easy method (the commented) without using evaluate() function to make the code better

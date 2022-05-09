@@ -125,6 +125,8 @@ class EvalSaveCallback(EvalCallback):
         self.last_mean_reward = None
         self.checkpoint_num = 0
         self.max_checkpoint_num = -1
+        self.last_save_timestep = 0
+
 
 
         new_kwargs = {}
@@ -134,8 +136,10 @@ class EvalSaveCallback(EvalCallback):
             new_kwargs[k] = kwargs[k]
 
         super(EvalSaveCallback, self).__init__(*args, **new_kwargs)
-        if not isinstance(self.eval_env, DummyVecEnvSelfPlay):
-            self.eval_env.__class__ = DummyVecEnvSelfPlay   # This works fine, the other solution is commented
+        self.eval_env = kwargs.get("eval_env")
+        # Used with shared.evaluate_policy()
+        # if not isinstance(self.eval_env, DummyVecEnvSelfPlay):
+        #     self.eval_env.__class__ = DummyVecEnvSelfPlay   # This works fine, the other solution is commented
 
 
 
@@ -166,7 +170,7 @@ class EvalSaveCallback(EvalCallback):
         deterministic = True 
         # Reset success rate buffer
         self._is_success_buffer = []
-        return evaluate_policy(
+        return evaluate_policy_simple(
                                 model,
                                 self.eval_env,
                                 n_eval_episodes=n_eval_episodes,
@@ -273,6 +277,7 @@ class EvalSaveCallback(EvalCallback):
         self.checkpoint_num += 1
         path = os.path.join(self.save_path, name)
         self.model.save(path)
+        self.last_save_timestep = self.num_timesteps
         if(not self.OS):
             self.archive.add(name, self.model) # Add the model to the archive
         if self.verbose > 0:
@@ -298,13 +303,15 @@ class EvalSaveCallback(EvalCallback):
     def _on_training_end(self) -> None:
         print("-------- Training End --------")
         self.max_checkpoint_num = max(self.max_checkpoint_num, self.checkpoint_num)
-        if(self.save_freq == 0 and self.eval_freq == 0):
+        # if(self.save_freq == 0 and self.eval_freq == 0):
+        if(self.last_save_timestep != self.num_timesteps):
             self.eval_freq = self.n_calls   # There is a problem when I do not set it, thus, I have made this setting (The plots are not being reported in wandb)
             print("Evaluating the model according to the metric and save it")
             result = self._evaluate_policy(force_evaluation=True)
             name = self._save_model(force_saving=True)
-            self.eval_freq = 0   # There is a problem when this line is not
+            # self.eval_freq = 0   # There is a problem when this line is not
         self.checkpoint_num = 0
+        self.last_save_timestep = self.num_timesteps
         super(EvalSaveCallback, self)._on_training_end()
 
     def _get_score(self, model, n_eval_rep, deterministic, opponents, eval_matrix_method, make_deterministic_flag=True):
@@ -550,7 +557,7 @@ class EvalSaveCallback(EvalCallback):
                 mean_score = np.mean(scores)
                 # This already done
                 if(self.eval_matrix_method == "length" and negative_indicator):
-                    mean_score = self.eval_env.get_attr("max_num_steps",0)[0] - mean_score
+                    mean_score = self.eval_env.max_num_steps#.get_attr("max_num_steps",0)[0] - mean_score
                 self.evaluation_matrix[ei, ej] = mean_score
                 print(f"Mean score ({self.eval_matrix_method}): {mean_score}")
         return [ret_agent_axis, ret_opponent_axis], agent_names
@@ -570,8 +577,8 @@ class EvalSaveCallback(EvalCallback):
 
             opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]
             eval_return_list = []
-            # self.eval_env.OS = True
-            self.eval_env.set_attr("OS", True)
+            self.eval_env.OS = True
+            # self.eval_env.set_attr("OS", True)
             self.OS = True
             for i, o in enumerate(opponents_models_path):   # For all the opponents saved for this population
                 # make_deterministic(seed_value=self.seed_value, cuda_check=False)
@@ -592,8 +599,8 @@ class EvalSaveCallback(EvalCallback):
                 #                                                 override=True)
                 eval_return_list.append(evaluation_result)
             population_eval_return_list.append(eval_return_list)
-        # self.eval_env.OS = False
-        self.eval_env.set_attr("OS", False)
+        self.eval_env.OS = False
+        # self.eval_env.set_attr("OS", False)
         self.OS = False
         return np.array(eval_return_list)
 

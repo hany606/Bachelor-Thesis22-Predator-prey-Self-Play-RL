@@ -34,16 +34,22 @@ class SelfPlayEnvSB3:
     # Compute actions for the opponent agent in the environment (Note: that the action for )
     # This is only be called for the opponent agent
     # TODO: This should be renamed -> compute_opponent_action or opponent_compute_policy-> Change them in PredPrey1v1.py
-    def compute_action(self, obs): # the policy
+    def compute_action(self, obs): # the policy for the opponent
         if self.opponent_policy is None:
             return self.action_space.sample() # return a random action
         else:
             action = None
-            deterministic = True
-            if(isinstance(self.opponent_policy, sb3SAC)):
+            deterministic = None # False through the training procedure, and True during the evaluation
+            if("Training" in self._name):
                 deterministic = False
+            else:
+                deterministic = True
+            # deterministic = True
+            # if(isinstance(self.opponent_policy, sb3SAC)):
+            #     deterministic = False
             if(isinstance(self.opponent_policy, sb3PPO) or isinstance(self.opponent_policy, sb3SAC)):
                 # For determinisitic flag: https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html
+                # print(f"Opponent (Training?{'Training' in self._name}): {deterministic}")
                 action, self.states = self.opponent_policy.predict(obs, state=self.states, deterministic=deterministic) #it is predict because this is PPO from stable-baselines not rllib
             # if(isinstance(self.opponent_policy, rllibPPO)):
                 # action, _ = self.opponent_policy.compute_action(obs) #it is predict because this is PPO from stable-baselines not rllib

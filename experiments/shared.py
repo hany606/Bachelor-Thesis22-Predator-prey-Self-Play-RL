@@ -165,6 +165,7 @@ def evaluate_policy(
     states = None
     # print("Evaluation started --------------------")
     while (episode_counts < episode_count_targets).any():
+        # print(f"Evaluate: {deterministic}")
         actions, states = model.predict(observations, state=states, deterministic=deterministic)
         observations, rewards, dones, infos = env.step(actions)
         current_rewards += rewards

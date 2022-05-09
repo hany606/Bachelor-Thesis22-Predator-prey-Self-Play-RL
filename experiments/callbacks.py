@@ -162,7 +162,8 @@ class EvalSaveCallback(EvalCallback):
         # if(make_deterministic_flag):
         #     make_deterministic(seed_value=self.seed_value, cuda_check=False)
 
-
+        # Deterministic is true through the evaluation
+        deterministic = True 
         # Reset success rate buffer
         self._is_success_buffer = []
         return evaluate_policy(

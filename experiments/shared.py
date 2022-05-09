@@ -306,6 +306,7 @@ def evaluate_policy_simple(
             # action = env.action_space.sample()
             # print(action)
             observations, reward, done, info = env.step(action)
+            # print(observations)
 
             episode_reward += reward
             episode_length += 1

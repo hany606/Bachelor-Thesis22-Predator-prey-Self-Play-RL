@@ -39,9 +39,9 @@ class SelfPlayEnvSB3:
             return self.action_space.sample() # return a random action
         else:
             action = None
-            deterministic = False
+            deterministic = True
             if(isinstance(self.opponent_policy, sb3SAC)):
-                deterministic = True
+                deterministic = False
             if(isinstance(self.opponent_policy, sb3PPO) or isinstance(self.opponent_policy, sb3SAC)):
                 # For determinisitic flag: https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html
                 action, self.states = self.opponent_policy.predict(obs, state=self.states, deterministic=deterministic) #it is predict because this is PPO from stable-baselines not rllib
@@ -67,7 +67,7 @@ class SelfPlayEnvSB3:
                     self.opponent_policy = self.archive.load(name=opponent_name, env=self, algorithm_class=self.opponent_algorithm_class) # here we load the opponent policy
                 if(self.OS):
                     self.opponent_policy = self.opponent_algorithm_class.load(opponent_name, env=self) # here we load the opponent policy
-                # print("loading model: ", opponent_name, self.opponent_policy)
+                print("loading opponent model: ", opponent_name, self.opponent_policy, self)
 
 
     def reset(self):

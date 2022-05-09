@@ -91,6 +91,7 @@ class SelfPlayExp:
         parser.add_argument('--exp', type=str, help=help, metavar='')
         parser.add_argument('--seed', type=int, help=help, default=-1)
         parser.add_argument('--prefix', type=str, help=help, default="")
+        parser.add_argument('--notes', type=str, help=help, default="")
         self.args = parser.parse_args()
 
     def _load_configs(self, filename):        
@@ -156,7 +157,7 @@ class SelfPlayExp:
                 sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
                 monitor_gym=True,  # auto-upload the videos of agents playing the game
                 save_code=True,  # optional
-                notes=self.experiment_configs["wandb_notes"],
+                notes=self.experiment_configs["wandb_notes"]+f"\n{self.args.notes}",
         )
 
         experiment_name = self.experiment_configs["experiment_name"]
@@ -205,7 +206,8 @@ class SelfPlayExp:
         agent_configs = self.agents_configs[key]
         agent_name = agent_configs["name"]
         env_class_name = agent_configs["env_class"]
-        # print(f"Create Env: {env_class_name}, Algorithm: {algorithm_class}, seed: {seed_value}")
+        # if(isinstance(algorithm_class, PPO)):
+        print(f"Create Env: {env_class_name}, Algorithm: {algorithm_class}, seed: {seed_value}")
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
         reward_type = agent_configs.get("reward_type", None)
         params = dict(algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters, gui=gui, reward_type=reward_type)

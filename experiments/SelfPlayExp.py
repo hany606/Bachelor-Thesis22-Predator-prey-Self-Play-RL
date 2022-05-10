@@ -28,19 +28,12 @@
 
 import os
 from datetime import datetime
-import numpy as np
 import argparse
-import random
-from shutil import copyfile # keep track of generations
 
-import torch
-from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.vec_env import DummyVecEnv, VecVideoRecorder
 from stable_baselines3 import PPO
-from stable_baselines3.common import callbacks, logger
+from stable_baselines3.common import logger
 
-# from bach_utils.archive import Archive
-from archive import ArchiveSB3 as Archive
+from bach_utils.list import reinit_seeder
 
 import gym_predprey
 import gym
@@ -55,14 +48,9 @@ from gym_predprey_drones.envs.SelfPlayPredPreyDrones1v1 import SelfPlayPreyDrone
 
 from callbacks import *
 
-from wandb.integration.sb3 import WandbCallback
 import wandb
 
 from bach_utils.json_parser import ExperimentParser
-from shared import *
-from copy import deepcopy
-import bach_utils.os as utos
-from bach_utils.shared import *
 import pprint 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -92,6 +80,7 @@ class SelfPlayExp:
         parser.add_argument('--seed', type=int, help=help, default=-1)
         parser.add_argument('--prefix', type=str, help=help, default="")
         parser.add_argument('--notes', type=str, help=help, default="")
+        parser.add_argument('--samplerseed', type=int, help=help, default=-1)
         self.args = parser.parse_args()
 
     def _load_configs(self, filename):        
@@ -100,6 +89,13 @@ class SelfPlayExp:
         self.experiment_configs["seed_value"] = self.experiment_configs["seed_value"] if self.args.seed == -1 else self.args.seed
         self.merged_config["experiment"]["seed_value"] = self.merged_config["experiment"]["seed_value"] if self.args.seed == -1 else self.args.seed
         self.seed_value = self.experiment_configs["seed_value"] if self.seed_value is None else self.seed_value
+        
+
+        # Sampler seed
+        if self.experiment_configs.get("random_sampler_seed_value") is not None:
+            self.experiment_configs["random_sampler_seed_value"] = self.experiment_configs["random_sampler_seed_value"] if self.args.samplerseed == -1 else self.args.samplerseed
+            os.environ["SELFPLAY_SAMPLING_SEED"] = str(self.experiment_configs["random_sampler_seed_value"])
+            reinit_seeder()
 
     def log_configs(self):
         # TODO: use prettyprint

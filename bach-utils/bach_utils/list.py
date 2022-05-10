@@ -5,8 +5,21 @@ from bach_utils.filtering import filter_population
 import numpy as np
 
 from gym.utils import seeding
-seed_value = 3
+
+import os
+
+# To have different sampling for each seed
+seed_value = 3 if os.environ.get("SELFPLAY_SAMPLING_SEED") is None else int(os.environ["SELFPLAY_SAMPLING_SEED"]) # default value = 3
+print(f"**** Seed the random sampler with seed value: {seed_value} ****")
 np_random, seed_value = seeding.np_random(seed_value)
+
+
+def reinit_seeder():
+    global seed_value, np_random
+    seed_value = 3 if os.environ.get("SELFPLAY_SAMPLING_SEED") is None else int(os.environ["SELFPLAY_SAMPLING_SEED"]) # default value = 3
+    print(f"**** Seed the random sampler with seed value: {seed_value} ****")
+    print(f"Random Generator state: {np_random.get_state()}")
+    np_random, seed_value = seeding.np_random(seed_value)
 
 # TODO: Check whether do we still need return_count or not?
 
@@ -47,6 +60,7 @@ def get_first(source_list, return_count=False):
 def get_random_from(full_list, seed=1):
     # random.randint is uniform
     # https://stackoverflow.com/questions/41100287/randint-doesnt-always-follow-uniform-distribution
+    # print(f"Debug: {np_random.get_state()}")
     random_idx = np_random.randint(0, len(full_list))#random.randint(0, len(full_list)-1) #np.random.randint(0, len(full_list))#
     # print(random_idx, len(full_list))
     return [full_list[random_idx]]

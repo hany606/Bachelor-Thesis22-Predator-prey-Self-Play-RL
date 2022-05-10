@@ -14,6 +14,7 @@
         "num_rounds": 50,
         "parallel_alternate_training": false,
         "seed_value": 10,
+        "random_sampler_seed_value": 3,
         "framework": "stable_baselines3",
 
         "agents_order": {"0":"pred", "1":"prey"}

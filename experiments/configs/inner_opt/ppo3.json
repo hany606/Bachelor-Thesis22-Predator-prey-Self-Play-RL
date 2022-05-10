@@ -1,0 +1,42 @@
+{
+    "agent0":{
+        "num_eval_episodes": "~num_eval_episodes",  
+        "num_timesteps": "~num_timesteps",
+        "eval_freq": "~eval_freq",
+        "save_freq": "~save_freq",
+        "eval_metric": "lastreward",
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "eval_opponent_selection": "random",
+
+        "rl_algorithm": "PPO",
+        "policy": "MlpPolicy",
+        "clip_range": 0.3,
+        "ent_coef": 0.00001,
+        "batch_size":256,
+        "gamma":0.95,
+        "lr": 2.5e-4,
+        "n_epochs": 20,
+        "__comment_n_steps__": "number of steps before update the policy",
+        "n_steps":8192
+    },
+
+    "agent1":{
+        "num_eval_episodes": "~num_eval_episodes",  
+        "num_timesteps": "~num_timesteps",
+        "eval_freq": "~eval_freq",
+        "save_freq": "~save_freq",
+        "eval_metric": "lastreward",
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "eval_opponent_selection": "random",
+
+        "rl_algorithm": "PPO",
+        "policy": "MlpPolicy",
+        "clip_range": 0.3,
+        "ent_coef": 0.00001,
+        "batch_size":256,
+        "gamma":0.95,
+        "lr": 2.5e-4,
+        "n_epochs": 20,
+        "n_steps":8192
+    }
+}

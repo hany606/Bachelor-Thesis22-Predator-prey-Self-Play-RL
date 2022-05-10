@@ -31,6 +31,7 @@ from bach_utils.shared import *
 from SelfPlayExp import SelfPlayExp
 from bach_utils.heatmapvis import *
 from bach_utils.json_parser import ExperimentParser
+import random
 
 
 # This is a modified PPO to tackle problem related of loading from different version of pickle than it was saved with
@@ -529,6 +530,8 @@ class SelfPlayTesting(SelfPlayExp):
 
     def test(self, experiment_filename=None, logdir=False, wandb=False, n_eval_episodes=1):
         self._init_testing(experiment_filename=experiment_filename, logdir=logdir, wandb=wandb)
+        self.render_sleep_time = self.render_sleep_time if self.args.rendersleep <= 0 else self.args.rendersleep
+
         # print(self.agents_configs)
         # exit()
         n_eval_episodes_configs = self.testing_configs.get("repetition", None)

@@ -1,4 +1,11 @@
-// {
+{
+    "python.analysis.extraPaths": [
+        "./bach-utils",
+        "./Drones/gym-predprey-drones",
+        "./Pettingzoo/gym-pz-predprey",
+        "./2D/gym-predprey"
+    ]
+} // {
 //     "python.linting.enabled": true,
 //     "python.linting.pylintPath": "pylint",
 //     "editor.formatOnSave": true,

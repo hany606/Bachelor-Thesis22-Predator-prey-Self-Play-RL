@@ -51,6 +51,8 @@ from callbacks import *
 import wandb
 
 from bach_utils.json_parser import ExperimentParser
+from bach_utils.shared import check_cuda
+
 import pprint 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -81,6 +83,7 @@ class SelfPlayExp:
         parser.add_argument('--prefix', type=str, help=help, default="")
         parser.add_argument('--notes', type=str, help=help, default="")
         parser.add_argument('--samplerseed', type=int, help=help, default=-1)
+        parser.add_argument('--rendersleep', type=float, help=help, default=-1)
         self.args = parser.parse_args()
 
     def _load_configs(self, filename):        

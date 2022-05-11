@@ -1,5 +1,8 @@
 # This for experiements parser
 # The parser should parse the experiment file then return a dictionary with the parameters
+from bach_utils.logger import get_logger
+clilog = get_logger()
+
 import json
 import numpy as np
 from math import sqrt
@@ -25,35 +28,35 @@ class Parser:
 
         # print(header_filename, shared_filename)
         shared = Parser.load(shared_filename)["shared"]
-        print("==============SHARED==============")
+        clilog.debug("==============SHARED==============")
         header = Parser.load(header_filename)
         # header = Parser.load(header_filename, shared)
-        print("=============HEADER===============")
+        clilog.debug("=============HEADER===============")
 
 
         env_agents = Parser.load(env_agents_filename, shared=False)
         # env_agents = Parser.load(env_agents_filename, shared)
-        print("=============ENV_agents===============")
+        clilog.debug("=============ENV_agents===============")
         # print(env_agents["experiment"])
         # print("============================")
         # print(header)
         # print("============================")
         header = merge_1lvl(header, env_agents)
         del env_agents["experiment"]
-        print("============HEADER+ENV_AGENTS================")
+        clilog.debug("============HEADER+ENV_AGENTS================")
         # pp.pprint(header)
         # print("============================")
         inner = Parser.load(inner_filename, shared=False)
-        print("=============Inner===============")
+        clilog.debug("=============Inner===============")
         env_agents = merge_1lvl(env_agents, inner)
-        print("==============ENV_AGENTS+INNER==============")
+        clilog.debug("==============ENV_AGENTS+INNER==============")
         outer = Parser.load(outer_filename, shared=False)
-        print("==============OUTER==============")
+        clilog.debug("==============OUTER==============")
         header = merge_1lvl(header, outer)
         del outer["experiment"]
-        print("=============HEADER+OUTER===============")
+        clilog.debug("=============HEADER+OUTER===============")
         env_agents = merge_1lvl(env_agents, outer)
-        print("=============ENV_AGENTS+OUTER===============")
+        clilog.debug("=============ENV_AGENTS+OUTER===============")
         header = header["experiment"]
 
         testing = Parser.load(testing_filename)
@@ -71,7 +74,7 @@ class Parser:
         new_data = {"experiment": header, "shared": shared, "testing": testing}
         new_data = dict(new_data, **env_agents)
         # pp.pprint(new_data)
-        # print("========================")
+        clilog.debug("========================")
         return new_data
 
     @staticmethod   

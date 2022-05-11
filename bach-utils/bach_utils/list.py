@@ -1,3 +1,6 @@
+from bach_utils.logger import get_logger
+clilog = get_logger()
+
 import random
 from copy import deepcopy
 import bach_utils.sorting as utsrt
@@ -10,15 +13,15 @@ import os
 
 # To have different sampling for each seed
 seed_value = 3 if os.environ.get("SELFPLAY_SAMPLING_SEED") is None else int(os.environ["SELFPLAY_SAMPLING_SEED"]) # default value = 3
-print(f"**** Seed the random sampler with seed value: {seed_value} ****")
+clilog.info(f"**** Seed the random sampler with seed value: {seed_value} ****")
 np_random, seed_value = seeding.np_random(seed_value)
 
 
 def reinit_seeder():
     global seed_value, np_random
     seed_value = 3 if os.environ.get("SELFPLAY_SAMPLING_SEED") is None else int(os.environ["SELFPLAY_SAMPLING_SEED"]) # default value = 3
-    print(f"**** Seed the random sampler with seed value: {seed_value} ****")
-    print(f"Random Generator state: {np_random.get_state()}")
+    clilog.info(f"**** Seed the random sampler with seed value: {seed_value} ****")
+    clilog.debug(f"Random Generator state: {np_random.get_state()}")
     np_random, seed_value = seeding.np_random(seed_value)
 
 # TODO: Check whether do we still need return_count or not?

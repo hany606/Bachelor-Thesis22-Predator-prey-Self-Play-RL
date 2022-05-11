@@ -1,3 +1,6 @@
+from bach_utils.logger import get_logger
+clilog = get_logger()
+
 # TODO: integrate the archive with sampling methods
 # TODO: integrate the archive with getting specific round (To be indexable with the number of round or specific id)
 # TODO: integrate the archive to be constructed using a path of files
@@ -167,7 +170,7 @@ class ArchiveSB3:
              **kwargs):
 
         if print_system_info:
-            print("== CURRENT SYSTEM INFO ==")
+            clilog.debug("== CURRENT SYSTEM INFO ==")
             get_system_info()
 
         # Load the model

@@ -25,6 +25,10 @@
 
 
 # Note: this script is made only for now for pred and prey (1v1) setting
+from bach_utils.logger import init_logger
+import logging
+
+cli_logger = init_logger()
 
 import os
 from datetime import datetime
@@ -68,7 +72,11 @@ class SelfPlayExp:
         self.seed_value = None
         self.log_dir = None
         # TODO:
-        self.log_vals_dict = {"debug": None, "info": None, "warn":None, "error":None}
+        self.cli_log_vals_dict = {"debug": logging.DEBUG,
+                                  "info": logging.INFO,
+                                  "warn":logging.WARN,
+                                  "error":logging.ERROR}
+        self.cli_log_level = logging.DEBUG
 
     def _check_cuda(self):
         check_cuda()
@@ -88,9 +96,11 @@ class SelfPlayExp:
         parser.add_argument('--rendersleep', type=float, help=help, default=-1)
         parser.add_argument('--threaded', dest='threaded', action='store_true')
         parser.add_argument('--no-threaded', dest='threaded', action='store_false')
-        parser.add_argument('--log', type=str, help=help, choices=list(self.log_vals_dict.keys()), default="debug")
+        parser.add_argument('--cli-log', type=str, help=help, choices=list(self.cli_log_vals_dict.keys()), default="debug")
         parser.set_defaults(threaded=False)
         self.args = parser.parse_args()
+
+        self.cli_log_level = self.cli_log_vals_dict[self.args.cli_log]
 
     def _load_configs(self, filename):        
         self.experiment_filename = self.args.exp if filename is None else filename
@@ -112,19 +122,19 @@ class SelfPlayExp:
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(....)
 
-        print("--------------- Logging configs ---------------")
-        print(f"Experiment configs:")
+        self.clilog.info("--------------- Logging configs ---------------")
+        self.clilog.info(f"Experiment configs:")
         pp.pprint(self.experiment_configs)
-        print("================================")
-        print(f"Agents configs:")
+        self.clilog.info("================================")
+        self.clilog.info(f"Agents configs:")
         pp.pprint(self.agents_configs)
-        print("================================")
-        print(f"Evaluation configs:")
+        self.clilog.info("================================")
+        self.clilog.info(f"Evaluation configs:")
         pp.pprint(self.agents_configs)
-        print("================================")
-        print(f"Testing config:")
+        self.clilog.info("================================")
+        self.clilog.info(f"Testing config:")
         pp.pprint(self.testing_configs)
-        print("-----------------------------------------------")
+        self.clilog.info("-----------------------------------------------")
 
     def _generate_log_dir(self, dir_postfix):
         self.experiment_id = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
@@ -180,12 +190,16 @@ class SelfPlayExp:
     def _init_exp(self, experiment_filename, logdir, wandb, load_config_flag=True):
         if(experiment_filename is None):
             self._init_argparse()
-        print(f"Parse from json file in {self.args.exp}" if experiment_filename is None else f"----- Loading experiment from: {experiment_filename}")
+        
+        self.clilog = cli_logger
+        self.clilog.setLevel(self.cli_log_level)
+
+        self.clilog.info(f"Parse from json file in {self.args.exp}" if experiment_filename is None else f"----- Loading experiment from: {experiment_filename}")
         self._load_configs(experiment_filename)
         
         if(logdir):
             self.log_dir = self._generate_log_dir()
-            print(f"----- Initialize loggers")
+            self.clilog.info(f"----- Initialize loggers")
             self._init_log_files()
             logger.configure(folder=self.log_dir)
 
@@ -193,16 +207,16 @@ class SelfPlayExp:
             ExperimentParser.save_combined(os.path.join(self.log_dir, "merged_config.json"), self.merged_config)
 
         if(wandb):
-            print(f"----- Initialize wandb")
+            self.clilog.info(f"----- Initialize wandb")
             self._init_wandb()
 
         # They were moved down to be logged in wandb log
-        print(f"----- Experiment logs are being stored in: {self.log_dir}")
+        self.clilog.info(f"----- Experiment logs are being stored in: {self.log_dir}")
         self.log_configs()
         
         self.THREADED = self.args.threaded
         if(self.THREADED):
-            print(f"**** Experiment is THREADED ****")
+            self.clilog.info(f"**** Experiment is THREADED ****")
 
         self.make_deterministic()
     
@@ -217,7 +231,7 @@ class SelfPlayExp:
         agent_name = agent_configs["name"]
         env_class_name = agent_configs["env_class"]
         # if(isinstance(algorithm_class, PPO)):
-        print(f"Create Env: {env_class_name}, Algorithm: {algorithm_class}, seed: {seed_value}")
+        self.clilog.info(f"Create Env: {env_class_name}, Algorithm: {algorithm_class}, seed: {seed_value}")
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
         reward_type = agent_configs.get("reward_type", None)
         params = dict(algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters, gui=gui, reward_type=reward_type)

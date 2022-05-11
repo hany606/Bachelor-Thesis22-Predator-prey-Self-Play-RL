@@ -25,6 +25,8 @@
 
 
 # Note: this script is made only for now for pred and prey (1v1) setting
+from SelfPlayExp import SelfPlayExp # Import it at the begining of the file to correctly init the logger
+
 
 import os
 import numpy as np
@@ -58,7 +60,6 @@ from shared import *
 from copy import deepcopy
 from bach_utils.shared import *
 from bach_utils.sorting import population_key, round_key, checkpoint_key, sort_steps
-from SelfPlayExp import SelfPlayExp
 from bach_utils.json_parser import ExperimentParser
 import numpy.ma as ma
 
@@ -242,7 +243,7 @@ class SelfPlayTraining(SelfPlayExp):
 
     def _init_training(self, experiment_filename):
         super(SelfPlayTraining, self)._init_exp(experiment_filename, True, True)
-        print(f"----- Initialize archives, envs, models, callbacks")
+        self.clilog.info(f"----- Initialize archives, envs, models, callbacks")
         # Create the archives to store the models in the cache
         self._init_archives()
         # Create training and evaluation environments
@@ -282,8 +283,8 @@ class SelfPlayTraining(SelfPlayExp):
         # TODO: create 5 threads for the populations = 10 threads in total (5 for predator and 5 for prey)
         # TODO: instead of creating a thread for each population make a thread for some number of populations, for example: 4
         for population_num in range(population_size):
-            print(f"------------------- Train {agent_name}, round: {round_num},  population: {population_num}--------------------")
-            print(f"Model mem id: {self.models[agent_name][population_num]}")
+            self.clilog.info(f"------------------- Train {agent_name}, round: {round_num},  population: {population_num}--------------------")
+            self.clilog.debug(f"Model mem id: {self.models[agent_name][population_num]}")
             # Here the model for a different population is trained as they are in parallel (Not sequentioal for the population)
             # However, different population contributes here in the same archive, and select opponent from the same archive as all agents
             if(self.THREADED):
@@ -353,8 +354,8 @@ class SelfPlayTraining(SelfPlayExp):
                 aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
                 
                 if(aggregate_eval_matrix):
-                    print("--------------------------------------------------------------")
-                    print(f"Round: {round_num} -> Aggregate HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
+                    self.clilog.info("--------------------------------------------------------------")
+                    self.clilog.info(f"Round: {round_num} -> Aggregate HeatMap Evaluation for current round version of {agent_name} vs {opponent_name}")
                     # It does not matter which population will compute the evaluation matrix as all of them shares the same archive
                     # self.evalsave_callbacks[agent_name][self.evalsave_callbacks_master_idx].compute_eval_matrix_aggregate(prefix="history_", round_num=round_num, n_eval_rep=num_heatmap_eval_episodes, algorithm_class=PPO, opponents_path=os.path.join(self.log_dir, opponent_name), agents_path=os.path.join(self.log_dir, agent_name))
         
@@ -387,7 +388,7 @@ class SelfPlayTraining(SelfPlayExp):
                     wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix")+".npy")
                 
                 if(round_num%final_save_freq == 0 or round_num==num_rounds-1):
-                    print(f"------------------- Models saving freq --------------------")
+                    self.clilog.info(f"------------------- Models saving freq --------------------")
                     # TODO: Change it to save the best model till now, not the latest (How to define the best model)
                     for population_num in range(population_size):
                         self.models[agent_name][population_num].save(os.path.join(self.log_dir, agent_name, f"final_model_pop{population_num}"))
@@ -399,7 +400,7 @@ class SelfPlayTraining(SelfPlayExp):
             agent_config = self.agents_configs[agent_name]
             aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
             opponent_name = agent_config["opponent_name"]
-            print(f"------------------- Prepare freq log used by {agent_name} ({opponent_name} archive) --------------------")
+            self.clilog.info(f"------------------- Prepare freq log used by {agent_name} ({opponent_name} archive) --------------------")
             num_heatmap_eval_episodes = agent_config["num_heatmap_eval_episodes"]
             eval_matrix_testing_freq = agent_config["eval_matrix_testing_freq"]
             # archive of the opponent that was used to train the agent
@@ -448,9 +449,9 @@ class SelfPlayTraining(SelfPlayExp):
         self.evaluation_configs["log_main_dir"] = self.log_main_dir
 
         for j,agent_name in enumerate(agents_names_list):
-            print(f" ----------- Evaluation for {agent_name} -----------")
+            self.clilog.info(f" ----------- Evaluation for {agent_name} -----------")
             if((j+1)%2):
-                print("Note the score is inversed for length, it is not length but time elapsed")
+                self.clilog.warn("Note the score is inversed for length, it is not length but time elapsed")
             agent_config = self.agents_configs[agent_name]
             aggregate_eval_matrix = agent_config["aggregate_eval_matrix"]
 
@@ -464,7 +465,7 @@ class SelfPlayTraining(SelfPlayExp):
                 best_agents_population = {}
                 best_agent_search_radius = agent_config.get("best_agent_search_radius", num_rounds)
                 for population_num in range(population_size):
-                    print(f"Full evaluation matrix for {agent_name} (population: {population_num})")
+                    self.clilog.info(f"Full evaluation matrix for {agent_name} (population: {population_num})")
                     algorithm_class = None
                     if(agent_config["rl_algorithm"] == "PPO"):
                         algorithm_class = PPO
@@ -497,7 +498,7 @@ class SelfPlayTraining(SelfPlayExp):
                 # ---- Best agents ----
                 best_agent_name, best_agent_score = get_best_agent_from_vector(list(best_agents_population.values()), list(best_agents_population.keys()), maximize=maximize_indicator)
                 self.evaluation_configs[agent_name] = {"best_agent_name":best_agent_name, "best_agent_score":best_agent_score, "best_agent_method":self.eval_matrix_method[agent_name]}
-                print(f"Best agent for {agent_name} -> {best_agent_name}, score: {best_agent_score}")
+                self.clilog.info(f"Best agent for {agent_name} -> {best_agent_name}, score: {best_agent_score}")
                 
                 # ---- Evaluation matrix logging/plotting ----
                 mean_evaluation_matrix = np.mean(evaluation_matrices, axis=0)
@@ -516,7 +517,7 @@ class SelfPlayTraining(SelfPlayExp):
                 wandb.save(os.path.join(self.log_dir, agent_name, "evaluation_matrix_axis_y")+".npy")
 
             
-            print("Save experiment configuration with ")
+            self.clilog.info("Save experiment configuration with ")
             log_file = os.path.join(self.log_dir, "experiment_config.json")
             ExperimentParser.save(log_file, self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs) 
             wandb.save(log_file)
@@ -525,9 +526,9 @@ class SelfPlayTraining(SelfPlayExp):
             # Now it is made for all the agents and takes the mean and the standard deviation
             post_eval_list = []
             for population_num in range(population_size):
-                print("-----------------------------------------------------------------------")
-                print(f"Post Evaluation for {agent_name} (population: {population_num})")
-                print("-----------------------------------------------------------------------")
+                self.clilog.info("-----------------------------------------------------------------------")
+                self.clilog.info(f"Post Evaluation for {agent_name} (population: {population_num})")
+                self.clilog.info("-----------------------------------------------------------------------")
                 eval_return_list = self.evalsave_callbacks[agent_name][population_num].post_eval(opponents_path=os.path.join(self.log_dir, self.agents_configs[agent_name]["opponent_name"]), population_size=population_size)
                 post_eval_list.append(eval_return_list)
                 self.envs[agent_name][population_num].close()

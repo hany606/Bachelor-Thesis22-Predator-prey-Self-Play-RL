@@ -110,6 +110,10 @@ class PZPredPrey(gym.Env):
         self.prey_behavior = prey_behavior
         self.pred_behavior = pred_behavior
 
+    def set_seed(self, seed_val):
+        if(not self.reseed):
+            self.seed_val = seed_val
+
     def seed(self, seed_val=None):
         self.np_random, seed_val = seeding.np_random(seed_val)
         print(f"Seed (env): {self.seed_val}")

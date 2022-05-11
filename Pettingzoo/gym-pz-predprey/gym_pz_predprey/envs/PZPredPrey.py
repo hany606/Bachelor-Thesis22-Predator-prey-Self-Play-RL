@@ -78,11 +78,12 @@ class PZPredPrey(gym.Env):
 
         low = []
         high = []
+        #   2           2           #*2                     #*2                     #*2
         # [self_vel, self_pos, landmark_rel_positions, other_agent_rel_positions, other_agent_velocities]
-        self.ninputs = self.env.observation_space("adversary_0").shape[0]    # for single agent
+        self.ninputs = self.env.observation_space("adversary_0").shape[0]+1    # for single agent
         for i in range(self.nrobots):
-            low.extend([-np.inf for i in range(self.ninputs)])
-            high.extend([np.inf for i in range(self.ninputs)])
+            low.extend([-np.float32(np.inf) for i in range(self.ninputs)])
+            high.extend([np.float32(np.inf) for i in range(self.ninputs)])
         self.observation_space_      = spaces.Box(low=np.array(low),
                                             high=np.array(high),
                                             dtype=np.float32)
@@ -192,8 +193,8 @@ class PZPredPrey(gym.Env):
         ac = [a for a in ac]
         action_dict = {self.agent_keys[i]:np.array(ac[self.noutputs*i:self.noutputs*(i+1)], dtype=np.float32) for i in range(self.nrobots)}
         # Divide the speed of the adversary (predator) by 2 -> to slow it down
-        for i in range(len(action_dict[self.agent_keys[0]])):
-            action_dict[self.agent_keys[0]][i] /= 2
+        # for i in range(len(action_dict[self.agent_keys[0]])):
+        #     action_dict[self.agent_keys[0]][i] /= 2
         return action_dict
         
     def _process_observation(self, obs):
@@ -211,14 +212,20 @@ class PZPredPrey(gym.Env):
         """
         obs_list = []
         for i in range(self.nrobots):
-            obs_list.extend(obs[self.agent_keys[i]]) 
+            num_steps = self.num_steps
+            extended_obs = [num_steps]
+            if(i == self.nrobots-1):
+                extended_obs = [0 for _ in range(2)]
+                extended_obs.append(num_steps)
+            obs_list.extend(np.append(obs[self.agent_keys[i]], extended_obs)) 
         # Originally:
         # adversary_0: (2)self_vel, (2)self_pos, (2*other agents)agent_i_rel_position, (2*other agents)agent_i_vel
         # agent_0: (2)self_vel, (2)self_pos, (2*other_adversaries)adversary_i_rel_position
         # However, we will add the adversary_rel_vel to the agent_0
         # TODO: refactor it and remove the hardcoded part
         # obs_list.extend(obs["adversary_0"][:2])
-        obs_list.extend([0 for i in range(2)])
+        # obs_list.insert(self.ninputs+1, self.num_steps)
+        # obs_list.append(self.num_steps)
         # New:
         # adversary_0: (2)self_vel, (2)self_pos, (2*other agents)agent_i_rel_position, (2*other agents)agent_i_vel
         # agent_0: (2)self_vel, (2)self_pos, (2*other_adversaries)adversary_i_rel_position, (2*other other_adversaries)adversary_i_vel
@@ -257,12 +264,13 @@ class PZPredPrey(gym.Env):
         prey_reward += 1
         predator_reward += -1
 
+        # The increment to take into account the boundaries violations
         if(self.caught):   # if the predator caught the prey before finishing the time
-            prey_reward = -10
-            predator_reward = 10
+            prey_reward += -10
+            predator_reward = 10    # predator it does not matter if go out of the boundary or not in case of catching
         if(self.steps_done):
-            prey_reward = 10
-            predator_reward = -10
+            prey_reward += 10   # if the prey got out of circle he will get positive and will not caught in immediate step
+            predator_reward += -10
 
         self._pred_reward, self._prey_reward = predator_reward, prey_reward # to be used for the info
         return predator_reward, prey_reward
@@ -281,9 +289,20 @@ class PZPredPrey(gym.Env):
         # self._pred_reward, self._prey_reward = predator_reward, prey_reward # to be used for the info
         # return predator_reward, prey_reward
 
+    # Assuming there is only one opponent (1v1)
+    def _compute_caught(self, obs):
+        delta_pos = obs[self.num_obstacles*2+4:self.num_obstacles*2+6] #np.array(obs[2:4]) - np.array(obs[self.num_obstacles*2+4:self.num_obstacles*2+6])
+        # print(obs[self.num_obstacles*2+4:self.num_obstacles*2+6])
+        dist = np.sqrt(np.sum(np.square(delta_pos)))
+        # dist_min = agent1.size + agent2.size
+        dist_min = 0.13
+        return True if dist < dist_min else False
+
     def _process_done(self, obs, done_dict, reward_dict):
         # As I am not sure about what is their termination criteria as it seems it only related with time
-        self.caught = True if reward_dict["adversary_0"] > 1 else False #self._compute_caught(obs)
+        # print(self._compute_caught(obs))
+        
+        self.caught = self._compute_caught(obs) #True if reward_dict["adversary_0"] > 1 else False
         self.steps_done = self.num_steps >= self.max_num_steps
         done = True if self.caught or self.steps_done else False
         return done
@@ -306,7 +325,7 @@ class PZPredPrey(gym.Env):
         self.obs = obs
         self.whole_observation = whole_obs
 
-        done = self._process_done(obs, done_dict, reward_dict)
+        done = self._process_done(whole_obs, done_dict, reward_dict)
         reward = self._process_reward(obs, action, reward_dict)
         info = self._process_info()
         if(done):
@@ -331,7 +350,9 @@ class PZPredPreyPred(PZPredPrey):
         self.action_space      = spaces.Box(low=self.action_space_.low[:self.noutputs],
                                             high=self.action_space_.high[:self.noutputs],
                                             dtype=np.float32)
+        
         # Split the observation space
+        # self.ninputs += 1
         self.observation_space = spaces.Box(low=self.observation_space_.low[:self.ninputs],
                                             high=self.observation_space_.high[:self.ninputs],
                                             dtype=np.float32)
@@ -377,6 +398,7 @@ class PZPredPreyPrey(PZPredPrey):
                                             high=self.action_space_.high[self.noutputs:],
                                             dtype=np.float32)
         # Split the observation space
+        # self.ninputs += 1
         self._ninputs = self.ninputs #12
         self.observation_space = spaces.Box(low=self.observation_space_.low[self.ninputs:self.ninputs+self._ninputs],
                                             high=self.observation_space_.high[self.ninputs:self.ninputs+self._ninputs],
@@ -413,29 +435,39 @@ class PZPredPreyPrey(PZPredPrey):
         predator_reward, prey_reward = PZPredPrey._process_reward(self, obs, action, reward_dict)
         return prey_reward
 
+def print_obs(obs, n_landmarks):
+    # print(obs)
+    # print(f"Self vel: {obs[0:2]}")
+    print(f"Self pos: {obs[2:4]}")
+    print(f"Landmark rel pos: {obs[4:4+n_landmarks*2]}")
+    # Assuming there is only one agent more
+    print(f"Other agents rel pos: {obs[4+n_landmarks*2:4+n_landmarks*2+2]}")
+    print(f"Other agents rel vel: {obs[4+n_landmarks*2+2:4+n_landmarks*2+4]}")
+    print(f"Time: {obs[4+n_landmarks*2+4:]}")
+
 if __name__ == '__main__':
     import gym
     from time import sleep
 
-    env = PZPredPrey()
-    # exit()
-    observation = env.reset()
-    done = False
-    total_reward = 0
-    # for i in range(1000):
-    while not done:
-        # actions = {agent: env.action_space(agent).sample() for agent in env.env.agents}
-        actions = env.action_space.sample()
-        # actions = np.zeros(2*5)
-        # actions = {'adversary_0': np.array([0, 1, 1, 0, 0 ],
-        # dtype=np.float32), 'agent_0': np.array([1 , 0, 0, 0, 0 ],
-        # dtype=np.float32)}
+    # env = PZPredPrey()
+    # # exit()
+    # observation = env.reset()
+    # done = False
+    # total_reward = 0
+    # # for i in range(1000):
+    # while not done:
+    #     # actions = {agent: env.action_space(agent).sample() for agent in env.env.agents}
+    #     actions = env.action_space.sample()
+    #     # actions = np.zeros(2*5)
+    #     # actions = {'adversary_0': np.array([0, 1, 1, 0, 0 ],
+    #     # dtype=np.float32), 'agent_0': np.array([1 , 0, 0, 0, 0 ],
+    #     # dtype=np.float32)}
 
-        # print(actions)
-        observation, reward, done, info = env.step(actions)
-        print(env.num_steps)
-        env.render()
-        # sleep(0.001)
+    #     # print(actions)
+    #     observation, reward, done, info = env.step(actions)
+    #     print(env.num_steps)
+    #     env.render()
+    #     # sleep(0.001)
     
     # env = PZPredPreyPred(seed_val=3)
     # behavior = Behavior()
@@ -446,10 +478,13 @@ if __name__ == '__main__':
 
     # while not done:
     #     # action = {0: np.array([0.5, 0, 0.6]), 1: np.array([0, 0, 0])}#env.action_space.sample()
-    #     action = env.action_space.sample()
+    #     # action = env.action_space.sample()
+    #     action = [0,0,0,0,0]
     #     # action = [0,0,1]
     #     # action = [-observation[0]+observation[6],-observation[1]+observation[7],-observation[2]+observation[8]]
-    #     print(f"Actions: {action}")
+    #     # print(f"Actions: {action}")
+    #     print_obs(observation, 3)
+
     #     # action[0] = [0,0]
     #     # action[1] = 1
     #     # action[2] = 1
@@ -463,7 +498,7 @@ if __name__ == '__main__':
     #     # if ((isinstance(done, dict) and done["__all__"]) or (isinstance(done, bool) and done)):
     #     #     break
     # env.close()
-    
+    from matplotlib import pyplot as plt
     env = PZPredPreyPrey(seed_val=3)
     behavior = Behavior()
     env.reinit(pred_behavior=behavior.fixed_pred)
@@ -473,10 +508,11 @@ if __name__ == '__main__':
     # print(observation.shape)
     # exit()
     done = False
-
+    rewards = []
     while not done:
         # action = {0: np.array([0.5, 0, 0.6]), 1: np.array([0, 0, 0])}#env.action_space.sample()
-        action = env.action_space.sample()
+        # action = env.action_space.sample()
+        action = [0,0.1,0,0,0]
         # action = [0,0,1]
         # action = [-observation[0]+observation[6],-observation[1]+observation[7],-observation[2]+observation[8]]
         # print(f"Actions: {action}")
@@ -485,8 +521,10 @@ if __name__ == '__main__':
         # action[2] = 1
         # action[3] = 1
         observation, reward, done, info = env.step(action)
+        # print_obs(observation, 3)
+        rewards.append(reward)
         # print(observation.shape)
-        print(info)
+        # print(info)
         # print(reward, info, done)
         env.render(extra_info="test")
         # sleep(0.01)
@@ -494,4 +532,9 @@ if __name__ == '__main__':
         # if ((isinstance(done, dict) and done["__all__"]) or (isinstance(done, bool) and done)):
         #     break
     env.close()
+    print(f"Sum: {sum(rewards)}")
+    print(f"Max: {max(rewards)}")
+    print(f"Min: {min(rewards)}")
+    plt.plot(rewards)
+    plt.show()
     

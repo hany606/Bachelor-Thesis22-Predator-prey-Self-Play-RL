@@ -1,4 +1,7 @@
 # These environment are  single agent envs while the others agents are preloaded polices
+from bach_utils.logger import get_logger
+clilog = get_logger()
+
 from pettingzoo.mpe import simple_tag_v2
 
 import numpy as np
@@ -112,10 +115,10 @@ class PZPredPrey(gym.Env):
 
     def seed(self, seed_val=None):
         self.np_random, seed_val = seeding.np_random(seed_val)
-        print(f"Seed (env): {self.seed_val}")
+        clilog.debug(f"Seed (env): {self.seed_val}")
         # self.env.seed(seed)
         # This is due to some problems, I do not know the reason that it make seed when it is not called
-        print(f"Warn: if you want to seed with different value, change seed_value of env first")
+        clilog.warn(f"Warn: if you want to seed with different value, change seed_value of env first")
         self.env.reset(seed=self.seed_val)
         return [self.seed_val]
 
@@ -123,7 +126,7 @@ class PZPredPrey(gym.Env):
         # self.env.seed(self.seed_val)
         obs = None
         if(self.reseed):
-            print(f"Reseed env with the initial seed: {self.seed_val}")
+            clilog.debug(f"Reseed env with the initial seed: {self.seed_val}")
             obs = self.env.reset(seed=self.seed_val)
         else:
             obs = self.env.reset()
@@ -305,7 +308,7 @@ class PZPredPrey(gym.Env):
         if(done):
             # self.render()
             # input("Input!!!!")
-            print(info)
+            clilog.debug(info)
         # self.render()
         return obs, reward, done, info
 

@@ -1,3 +1,6 @@
+from bach_utils.logger import get_logger
+clilog = get_logger()
+
 # Generation and round are being used as the same meaning
 from random import sample
 from stable_baselines3.common.callbacks import EvalCallback, EventCallback
@@ -47,9 +50,9 @@ class TrainingOpponentSelectionCallback(EventCallback):
     def _on_training_start(self):
         self.env.reset_counter = 0
         # if(not self.sampled_per_round):
-        print("training started")
+        clilog.info("training started")
         if(not (self.sample_after_rollout or self.sample_after_reset)):
-            print("Sample opponets for the training round at the start")
+            clilog.debug("Sample opponets for the training round at the start")
             # Sample opponents for the round
             if(not self.OS):
                 # print("Not OS")
@@ -60,7 +63,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
                 self.sampled_per_round = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, self.num_sampled_per_round, selection=self.opponent_selection, randomly_reseed=self.randomly_reseed_sampling)
             # If it is specified to have only one sample per round, then load it only once at the training start (now) and do not change it (not load it again)
             if(self.num_sampled_per_round == 1):
-                print("Set the opponent only once as num_sampled_per_round=1")
+                clilog.debug("Set the opponent only once as num_sampled_per_round=1")
                 self.env.set_target_opponent_policy_name(self.sampled_per_round[0])
         super(TrainingOpponentSelectionCallback, self)._on_training_start()
 
@@ -76,7 +79,7 @@ class TrainingOpponentSelectionCallback(EventCallback):
         if(not self.sample_after_reset):
             # If sample_after_rollout is true -> sample different opponent after each rollout 
             if(self.sample_after_rollout):
-                print("Sample opponents again with the start rollout")
+                clilog.debug("Sample opponents again with the start rollout")
                 opponent = None
                 if(not self.OS):
                     archive = self.archive.get_sorted(self.opponent_selection)
@@ -84,12 +87,12 @@ class TrainingOpponentSelectionCallback(EventCallback):
                     opponent = utsmpl.sample_opponents(models_names, 1, selection=self.opponent_selection, sorted=True, randomly_reseed=self.randomly_reseed_sampling)[0]
                 if(self.OS):
                     opponent = utsmpl.sample_opponents_os(self.sample_path, self.startswith_keyword, 1, selection=self.opponent_selection, randomly_reseed=self.randomly_reseed_sampling)[0]
-                print("Change sampled agent")
+                clilog.debug("Change sampled agent")
                 self.env.set_target_opponent_policy_name(opponent)
             # If sample_after_rollout is fales -> Do not sample anymore and just use the the current bag of samples as a circular buffer
             else:
                 if(self.num_sampled_per_round > 1): # just condition not for resetting the same agent multiple times if the sampled agent is always the same
-                    print("Change sampled agent")
+                    clilog.debug("Change sampled agent")
                     self.env.set_target_opponent_policy_name(self.sampled_per_round[self.sampled_idx % self.num_sampled_per_round]) # as a circular buffer
                     self.sampled_idx += 1
 
@@ -211,21 +214,21 @@ class EvalSaveCallback(EvalCallback):
         self.win_rate, std_win_rate = win_rate, std_win_rate # ratio [0,1]
 
         if self.verbose > 0:
-            print(f"Eval num_timesteps={self.num_timesteps}, " f"episode_reward={mean_reward:.2f} +/- {std_reward:.2f}")
-            print(f"Episode length: {self.mean_ep_length:.2f} +/- {std_ep_length:.2f}")
+            clilog.info(f"Eval num_timesteps={self.num_timesteps}, " f"episode_reward={mean_reward:.2f} +/- {std_reward:.2f}")
+            clilog.info(f"Episode length: {self.mean_ep_length:.2f} +/- {std_ep_length:.2f}")
         # Add to current Logger
         self.logger.record(f"{logger_prefix}/mean_reward", float(mean_reward))
         self.logger.record(f"{logger_prefix}/mean_ep_length", self.mean_ep_length)
         self.logger.record(f"{logger_prefix}/record_timesteps", self.num_timesteps)
         if self.verbose > 0:
-            print(f"{win_rate}")
-            print(f"Win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}")
+            clilog.debug(f"{win_rate}")
+            clilog.info(f"Win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}")
         self.logger.record(f"{logger_prefix}/win_rate", win_rate)
 
         if len(self._is_success_buffer) > 0:
             success_rate = np.mean(self._is_success_buffer)
             if self.verbose > 0:
-                print(f"Success rate: {100 * success_rate:.2f}%")
+                clilog.debug(f"Success rate: {100 * success_rate:.2f}%")
             self.logger.record(f"{logger_prefix}/success_rate", success_rate)
 
         # Dump log so the evaluation results are printed with the correct timestep
@@ -234,7 +237,7 @@ class EvalSaveCallback(EvalCallback):
         
         if mean_reward > self.best_mean_reward:
             if self.verbose > 0:
-                print("New best mean reward!")
+                clilog.debug("New best mean reward!")
             if self.best_model_save_path is not None:
                 self.model.save(os.path.join(self.best_model_save_path, "best_model"))
             self.best_mean_reward = mean_reward
@@ -247,7 +250,7 @@ class EvalSaveCallback(EvalCallback):
     def _evaluate_policy(self, force_evaluation=False) -> bool:
         if (force_evaluation or (self.eval_freq > 0 and self.n_calls % self.eval_freq == 0)):
             sampled_opponents = None
-            print("Sample models for evaluation")
+            clilog.debug("Sample models for evaluation")
             if(not self.OS):
                 # print(self.opponent_archive.archive_dict.keys())
                 archive = self.opponent_archive.get_sorted(self.eval_opponent_selection)
@@ -281,7 +284,7 @@ class EvalSaveCallback(EvalCallback):
         if(not self.OS):
             self.archive.add(name, self.model) # Add the model to the archive
         if self.verbose > 0:
-            print(f"Saving model checkpoint to {path}")
+            clilog.debug(f"Saving model checkpoint to {path}")
         return name
 
     def _save_model(self, force_saving=False):
@@ -301,12 +304,12 @@ class EvalSaveCallback(EvalCallback):
     # 22.12.2021: Seems that it is working fine! ?
     # The models are not just stored with 25000 steps factors as it is taking more steps a little bit
     def _on_training_end(self) -> None:
-        print("-------- Training End --------")
+        clilog.info("-------- Training End --------")
         self.max_checkpoint_num = max(self.max_checkpoint_num, self.checkpoint_num)
         # if(self.save_freq == 0 and self.eval_freq == 0):
         if(self.last_save_timestep != self.num_timesteps):
             self.eval_freq = self.n_calls   # There is a problem when I do not set it, thus, I have made this setting (The plots are not being reported in wandb)
-            print("Evaluating the model according to the metric and save it")
+            clilog.debug("Evaluating the model according to the metric and save it")
             result = self._evaluate_policy(force_evaluation=True)
             name = self._save_model(force_saving=True)
             # self.eval_freq = 0   # There is a problem when this line is not
@@ -325,7 +328,7 @@ class EvalSaveCallback(EvalCallback):
         # win_rate = np.mean(win_rates_ret)
         # win_rates.append(win_rate)
         score = None
-        print(eval_matrix_method)
+        clilog.debug(eval_matrix_method)
         if(eval_matrix_method == "reward"):
             score = np.mean(episodes_rewards_ret)
         elif(eval_matrix_method == "win_rate"):
@@ -373,8 +376,8 @@ class EvalSaveCallback(EvalCallback):
 
         # TODO: Make it in one loop (Easy)
         for j in range(round_num+1):
-            print("------------------------------")
-            print(f"Round: {i} vs {j}")
+            clilog.info("------------------------------")
+            clilog.info(f"Round: {i} vs {j}")
             opponent_startswith_keyword = f"{prefix}{j}_"
             sampled_opponent = None
             # Get 2nd agent
@@ -387,8 +390,8 @@ class EvalSaveCallback(EvalCallback):
                 # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
                 sampled_opponent = os.path.join(opponents_path, utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword)[0])
             
-            print("---------------")
-            print(f"Model {sampled_agent} vs {sampled_opponent}")
+            clilog.info("---------------")
+            clilog.info(f"Model {sampled_agent} vs {sampled_opponent}")
             # Run evaluation n_eval_rep for each opponent
             eval_model_list = [sampled_opponent]
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
@@ -401,7 +404,7 @@ class EvalSaveCallback(EvalCallback):
             # It will be redundent to have 2 matrices but it is fine
             win_rate = np.mean(win_rates)
             self.evaluation_matrix[i,j] = win_rate
-            print(f"win rate: {win_rate}")
+            clilog.info(f"win rate: {win_rate}")
 
         # 2. evaluate for the previous rounds of agent 1 against the current round of agent 2
         j = round_num
@@ -420,8 +423,8 @@ class EvalSaveCallback(EvalCallback):
         eval_model_list = [sampled_opponent]
 
         for i in range(round_num):
-            print("------------------------------")
-            print(f"Round: {i} vs {j}")
+            clilog.info("------------------------------")
+            clilog.info(f"Round: {i} vs {j}")
             startswith_keyword = f"{prefix}{i}_"
             agent_model = None
             
@@ -438,8 +441,8 @@ class EvalSaveCallback(EvalCallback):
                 # sampled_agent_startswith = utos.get_startswith(self.save_path, startswith=startswith_keyword)
                 sampled_agent = os.path.join(agents_path, utos.get_latest(self.save_path, startswith=startswith_keyword)[0])  # Join it with the agent path
                 agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
-            print("---------------")
-            print(f"Model {sampled_agent} vs {sampled_opponent}")
+            clilog.info("---------------")
+            clilog.info(f"Model {sampled_agent} vs {sampled_opponent}")
             # Run evaluation n_eval_rep for each opponent
             # The current model vs the iterated model from the opponent (last opponent in each generation/round)
             _, _, win_rates, _, _ = self._evaluate(agent_model, n_eval_episodes=n_eval_rep,
@@ -448,7 +451,7 @@ class EvalSaveCallback(EvalCallback):
             # Save the result to a matrix (nxm) -> n -agent, m -opponents -> Index by round number
             win_rate = np.mean(win_rates)
             self.evaluation_matrix[i,j] = win_rate
-            print(f"win rate: {win_rate}")
+            clilog.info(f"win rate: {win_rate}")
             
 
     # TODO: It would be better to update the aggregate evaluation and then use it within here as a sub function
@@ -515,8 +518,8 @@ class EvalSaveCallback(EvalCallback):
             ret_agent_axis.append(get_model_label(sampled_agent))
             agent_names.append(sampled_agent)
             for ej, j in enumerate(opponent_axis):
-                print("------------------------------")
-                print(f"Round: {i} vs {j}")
+                clilog.info("------------------------------")
+                clilog.info(f"Round: {i} vs {j}")
                 opponent_startswith_keyword = f"{prefix}{j}_"
                 
                 # win_rates = []
@@ -540,8 +543,8 @@ class EvalSaveCallback(EvalCallback):
                         sampled_opponent = os.path.join(opponents_path, sampled_opponent)
                     if(ei == 0):
                         ret_opponent_axis.append(get_model_label(sampled_opponent))
-                    print("---------------")
-                    print(f"Model {sampled_agent} vs {sampled_opponent}")
+                    clilog.info("---------------")
+                    clilog.info(f"Model {sampled_agent} vs {sampled_opponent}")
 
                     # Run evaluation n_eval_rep for each opponent
                     eval_model_list = [sampled_opponent]
@@ -559,7 +562,7 @@ class EvalSaveCallback(EvalCallback):
                 if(self.eval_matrix_method == "length" and negative_indicator):
                     mean_score = self.eval_env.max_num_steps - mean_score #.get_attr("max_num_steps",0)[0] - mean_score
                 self.evaluation_matrix[ei, ej] = mean_score
-                print(f"Mean score ({self.eval_matrix_method}): {mean_score}")
+                clilog.info(f"Mean score ({self.eval_matrix_method}): {mean_score}")
         return [ret_agent_axis, ret_opponent_axis], agent_names
 
     # This last agent

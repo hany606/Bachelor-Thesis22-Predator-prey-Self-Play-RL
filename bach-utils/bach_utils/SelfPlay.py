@@ -1,3 +1,6 @@
+from bach_utils.logger import get_logger
+clilog = get_logger()
+
 import os
 
 from stable_baselines3.ppo.ppo import PPO as sb3PPO
@@ -60,7 +63,7 @@ class SelfPlayEnvSB3:
         # Prevent reloading the same policy again or reload empty policy -> empty policy means random policy
         if opponent_name is not None:
             if("Training" in self._name):
-                print(f"Add frequency +1 for {opponent_name}")
+                clilog.debug(f"Add frequency +1 for {opponent_name}")
                 self.archive.add_freq(opponent_name, 1) 
         
             # To prevent the time for reloading it and it is already loaded
@@ -73,14 +76,14 @@ class SelfPlayEnvSB3:
                     self.opponent_policy = self.archive.load(name=opponent_name, env=self, algorithm_class=self.opponent_algorithm_class) # here we load the opponent policy
                 if(self.OS):
                     self.opponent_policy = self.opponent_algorithm_class.load(opponent_name, env=self) # here we load the opponent policy
-                print("loading opponent model: ", opponent_name, self.opponent_policy, self)
+                clilog.debug(f"loading opponent model: {opponent_name}, {self.opponent_policy}, {self}")
 
 
     def reset(self):
         self.states = None
         # if sample_after_reset flag is set then we need to sample from the archive here
         if(self.sample_after_reset):
-            print("Sample after reset the environment")
+            clilog.debug("Sample after reset the environment")
 
             opponent_selection = self.sampling_parameters["opponent_selection"]
             sample_path = self.sampling_parameters["sample_path"]
@@ -98,10 +101,10 @@ class SelfPlayEnvSB3:
             self.target_opponent_policy_name = sampled_opponent
         
         if(self.OS):
-            print(f"Reset, env name: {self._name}, OS, target_policy: {self.target_opponent_policy_name} ({str(self.opponent_algorithm_class)})")
+            clilog.debug(f"Reset, env name: {self._name}, OS, target_policy: {self.target_opponent_policy_name} ({str(self.opponent_algorithm_class)})")
         # if(not self.OS):
         else:
-            print(f"Reset, env name: {self._name}, archive_id: {self.archive.random_id}, target_policy: {self.target_opponent_policy_name} ({str(self.opponent_algorithm_class)})")
+            clilog.debug(f"Reset, env name: {self._name}, archive_id: {self.archive.random_id}, target_policy: {self.target_opponent_policy_name} ({str(self.opponent_algorithm_class)})")
         
         self._load_opponent(self.target_opponent_policy_name)
         self.reset_counter += 1

@@ -1,0 +1,37 @@
+{
+    "experiment":{
+        "population_size": 5
+    },
+    
+    "agent0":{
+        
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "opponent_selection": "random",
+        "training_agent_selection": "latest",
+
+        "delta_latest":0,
+
+        "num_sampled_opponent_per_round": 10,
+        "sample_after_rollout": "~sample_after_rollout",
+        "sample_after_reset": "~sample_after_reset",
+
+        "randomly_reseed_sampling": "~randomly_reseed_sampling"
+
+    },
+
+    "agent1":{
+        
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "opponent_selection": "random",
+        "training_agent_selection": "latest",
+
+        "delta_latest":0,
+
+        "num_sampled_opponent_per_round": 10,
+        "sample_after_rollout": "~sample_after_rollout",
+        "sample_after_reset": "~sample_after_reset",
+
+        "randomly_reseed_sampling": "~randomly_reseed_sampling"
+
+    }
+}

@@ -13,7 +13,7 @@
         
         "num_workers": 1,
         "num_rounds": 10,
-        "parallel_alternate_training": false,
+        "parallel_alternate_training": true,
         "seed_value": 10,
         "framework": "stable_baselines3",
 

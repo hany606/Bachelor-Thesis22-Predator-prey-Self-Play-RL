@@ -67,6 +67,8 @@ class SelfPlayExp:
         self.testing_configs = None
         self.seed_value = None
         self.log_dir = None
+        # TODO:
+        self.log_vals_dict = {"debug": None, "info": None, "warn":None, "error":None}
 
     def _check_cuda(self):
         check_cuda()
@@ -84,6 +86,10 @@ class SelfPlayExp:
         parser.add_argument('--notes', type=str, help=help, default="")
         parser.add_argument('--samplerseed', type=int, help=help, default=-1)
         parser.add_argument('--rendersleep', type=float, help=help, default=-1)
+        parser.add_argument('--threaded', dest='threaded', action='store_true')
+        parser.add_argument('--no-threaded', dest='threaded', action='store_false')
+        parser.add_argument('--log', type=str, help=help, choices=list(self.log_vals_dict.keys()), default="debug")
+        parser.set_defaults(threaded=False)
         self.args = parser.parse_args()
 
     def _load_configs(self, filename):        
@@ -157,6 +163,7 @@ class SelfPlayExp:
                 monitor_gym=True,  # auto-upload the videos of agents playing the game
                 save_code=True,  # optional
                 notes=self.experiment_configs["wandb_notes"]+f"\n{self.args.notes}",
+                # allow_val_change=True,
         )
 
         experiment_name = self.experiment_configs["experiment_name"]
@@ -192,6 +199,10 @@ class SelfPlayExp:
         # They were moved down to be logged in wandb log
         print(f"----- Experiment logs are being stored in: {self.log_dir}")
         self.log_configs()
+        
+        self.THREADED = self.args.threaded
+        if(self.THREADED):
+            print(f"**** Experiment is THREADED ****")
 
         self.make_deterministic()
     

@@ -62,8 +62,11 @@ from SelfPlayExp import SelfPlayExp
 from bach_utils.json_parser import ExperimentParser
 import numpy.ma as ma
 
+import threading
+
 # import pybullet as p
 
+THREADED = True
 
 # Here the class is for the whole experiment (train, evaluation(heatmaps, plots, ...etc), test (rendering))
 class SelfPlayTraining(SelfPlayExp):
@@ -80,6 +83,7 @@ class SelfPlayTraining(SelfPlayExp):
         # It is used in the code wrongly
         self.deterministic = False #True  # This flag is named wrongly, it is for deterministic flag in the callback evaluation not the determinism of the experiemnt
         # p.connect(p.GUI)
+        self.THREADED = THREADED
 
 
     def _init_argparse(self):
@@ -259,6 +263,42 @@ class SelfPlayTraining(SelfPlayExp):
     def _change_archives(self, agent_name, archive):
         self.archives[agent_name].change_archive_core(archive)
 
+    def _population_thread_func(self, agent_name, population_num):
+            self.models[agent_name][population_num].learn(  total_timesteps=int(self.agents_configs[agent_name]["num_timesteps"]), 
+                                                    callback=[
+                                                                self.opponent_selection_callbacks[agent_name][population_num], 
+                                                                self.evalsave_callbacks[agent_name][population_num],
+                                                                self.wandb_callbacks[agent_name]
+                                                                ], 
+                                                    reset_num_timesteps=False)
+
+    def _agent_thread_func(self, agent_name, population_size, round_num):
+        opponent_name = self.agents_configs[agent_name]["opponent_name"]
+        # Agent will train on the previous version of the archive of the opponent agent before this round
+        if(self.experiment_configs.get("parallel_alternate_training", True)):
+            self.archives[opponent_name].change_archive_core(self.old_archives[opponent_name])
+
+        threads = []
+        # TODO: create 5 threads for the populations = 10 threads in total (5 for predator and 5 for prey)
+        # TODO: instead of creating a thread for each population make a thread for some number of populations, for example: 4
+        for population_num in range(population_size):
+            print(f"------------------- Train {agent_name}, round: {round_num},  population: {population_num}--------------------")
+            print(f"Model mem id: {self.models[agent_name][population_num]}")
+            # Here the model for a different population is trained as they are in parallel (Not sequentioal for the population)
+            # However, different population contributes here in the same archive, and select opponent from the same archive as all agents
+            if(self.THREADED):
+                thread = threading.Thread(target=self._population_thread_func, args=(agent_name, population_num, ))
+                threads.append(thread)
+                thread.start()
+            else:
+                self._population_thread_func(agent_name, population_num)
+        
+        for e, thread in enumerate(threads):
+            # logging.info(f"Joing agent: {agent}, thread: {e}, round: {round}")
+            thread.join()
+        self.new_archives[agent_name] = deepcopy(self.archives[agent_name]) # Save the resulted archive for each agent to be stored after the training process for all the agents
+        # wandb.log({f"round_num": round_num})
+
     def train(self, experiment_filename=None):
         self._init_training(experiment_filename=experiment_filename)
         num_rounds = self.experiment_configs["num_rounds"]
@@ -268,6 +308,9 @@ class SelfPlayTraining(SelfPlayExp):
         self.new_archives = {}
         # --------------------------------------------- Training Rounds ---------------------------------------------
         # Here alternate training
+        old_THREADED = deepcopy(self.THREADED)
+        # There is something wrong is happening with wandb sb3 callback and this trick makes it work
+        self.THREADED = False
         for round_num in range(num_rounds):
             wandb.log({f"progress (round_num)": round_num})
             # --------------------------------------------- Starting of the round ---------------------------------------------
@@ -280,30 +323,25 @@ class SelfPlayTraining(SelfPlayExp):
             # Train all agents then evaluate
             # --------------------------------------------- Training agent by agent ---------------------------------------------
             # In each loop, the agent is training and the opponent is not training (Single RL agent configuration)
+            threads = []
             for agent_idx, agent_name in enumerate(agents_names_list):
-
-                opponent_name = self.agents_configs[agent_name]["opponent_name"]
-                # Agent will train on the previous version of the archive of the opponent agent before this round
-                if(self.experiment_configs.get("parallel_alternate_training", True)):
-                    self.archives[opponent_name].change_archive_core(self.old_archives[opponent_name])
-                for population_num in range(population_size):
-                    print(f"------------------- Train {agent_name}, round: {round_num},  population: {population_num}--------------------")
-                    print(f"Model mem id: {self.models[agent_name][population_num]}")
-                    # Here the model for a different population is trained as they are in parallel (Not sequentioal for the population)
-                    # However, different population contributes here in the same archive, and select opponent from the same archive as all agents
-                    self.models[agent_name][population_num].learn(  total_timesteps=int(self.agents_configs[agent_name]["num_timesteps"]), 
-                                                                    callback=[
-                                                                                self.opponent_selection_callbacks[agent_name][population_num], 
-                                                                                self.evalsave_callbacks[agent_name][population_num],
-                                                                                self.wandb_callbacks[agent_name]
-                                                                             ], 
-                                                                    reset_num_timesteps=False)
-                self.new_archives[agent_name] = deepcopy(self.archives[agent_name]) # Save the resulted archive for each agent to be stored after the training process for all the agents
-                # wandb.log({f"round_num": round_num})
-
+                # create two threads, one for the predator and one for the prey
+                if(self.THREADED):
+                    thread = threading.Thread(target=self._agent_thread_func, args=(agent_name, population_size, round_num,))
+                    threads.append(thread)
+                    thread.start()
+                else:
+                    self._agent_thread_func(agent_name, population_size, round_num)
+            # If threading is not enabled, it will be empty list and no for loop
+            # wait till the threads finish
+            for e, thread in enumerate(threads):
+                # logging.info(f"Joing round: {i}, thread: {e}")
+                thread.join()
             if(self.experiment_configs.get("parallel_alternate_training", True)):    
                 for agent_name in agents_names_list:
                     self.archives[agent_name].change_archive_core(self.new_archives[agent_name])
+            if(old_THREADED):
+                self.THREADED = True
             # print(f"------------------- Evaluation (Heatmap) --------------------")
             # --------------------------------------------- Evaluating agent by agent ---------------------------------------------            
             for j,agent_name in enumerate(agents_names_list):
@@ -506,3 +544,11 @@ class SelfPlayTraining(SelfPlayExp):
         # TODO: parse back the evaluation information (locs of evaluation matrix, best agents names, ....etc)
         # TODO: save the json back to the location of the experiemnt and send it to wand as well
 
+
+
+if __name__ == "__main__":
+    from SelfPlayTraining_threaded import SelfPlayTraining
+
+    training = SelfPlayTraining()
+
+    training.train()

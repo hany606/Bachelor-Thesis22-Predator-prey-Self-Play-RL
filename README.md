@@ -135,3 +135,8 @@ For example:
 ```git pull --recurse-submodules```
 
 4. To remove submodules: Check [https://stackoverflow.com/questions/1260748/how-do-i-remove-a-submodule](https://stackoverflow.com/questions/1260748/how-do-i-remove-a-submodule)
+
+
+5. Fetch and merge with upstream from a fork: check [https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/merging-an-upstream-repository-into-your-fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/merging-an-upstream-repository-into-your-fork)
+
+6. Merge with some conflicts: check [https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-on-github](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-on-github), it is better to use gitkraken

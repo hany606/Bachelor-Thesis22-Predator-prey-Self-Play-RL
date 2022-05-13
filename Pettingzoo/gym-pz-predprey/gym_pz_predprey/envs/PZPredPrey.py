@@ -126,7 +126,7 @@ class PZPredPrey(gym.Env):
         for _ in range(self.nrobots):
             # low.extend([-np.float32(np.inf) for i in range(self.ninputs)])
             # high.extend([np.float32(np.inf) for i in range(self.ninputs)])
-            low.extend([0 for i in range(self.ninputs)])
+            low.extend([-1 for i in range(self.ninputs)])
             high.extend([1 for i in range(self.ninputs)])
 
         self.observation_space_      = spaces.Box(low=np.array(low),
@@ -265,7 +265,8 @@ class PZPredPrey(gym.Env):
 
     def _normalize_obs(self, obs):
         def normalize(o, mn, mx):
-            return (o - mn)/(mx-mn)
+            # https://stats.stackexchange.com/questions/178626/how-to-normalize-data-between-1-and-1
+            return 2*(o - mn)/(mx-mn) - 1
     
         normalized_obs = []
         for i,o in enumerate(obs):
@@ -389,7 +390,7 @@ class PZPredPrey(gym.Env):
         # print(self.env.state().shape)
         dist = np.sqrt(np.sum(np.square(delta_pos)))
         # dist_min = agent1.size + agent2.size
-        dist_min = 0.13
+        dist_min = 0.04
         # print(f"Dist: {dist}")
         return True if dist < dist_min else False
 
@@ -536,6 +537,7 @@ def print_obs(obs, n_landmarks):
     print(f"Self pos: {obs[2:4]}")
     print(f"Landmark rel pos: {obs[4:4+n_landmarks*2]}")
     # Assuming there is only one agent more
+    print(4+n_landmarks*2,4+n_landmarks*2+2)
     print(f"Other agents rel pos: {obs[4+n_landmarks*2:4+n_landmarks*2+2]}")
     print(f"Other agents rel vel: {obs[4+n_landmarks*2+2:4+n_landmarks*2+4]}")
     print(f"Time: {obs[4+n_landmarks*2+4:]}")
@@ -544,26 +546,26 @@ if __name__ == '__main__':
     import gym
     from time import sleep
 
-    env = PZPredPrey()
-    # # exit()
-    observation = env.reset()
-    done = False
-    total_reward = 0
-    # for i in range(1000):
-    while not done:
-        # actions = {agent: env.action_space(agent).sample() for agent in env.env.agents}
-        actions = env.action_space.sample()
-        # actions = np.zeros(2*5)
-        # actions = {'adversary_0': np.array([0, 1, 1, 0, 0 ],
-        # dtype=np.float32), 'agent_0': np.array([1 , 0, 0, 0, 0 ],
-        # dtype=np.float32)}
+    # env = PZPredPrey()
+    # # # exit()
+    # observation = env.reset()
+    # done = False
+    # total_reward = 0
+    # # for i in range(1000):
+    # while not done:
+    #     # actions = {agent: env.action_space(agent).sample() for agent in env.env.agents}
+    #     actions = env.action_space.sample()
+    #     # actions = np.zeros(2*5)
+    #     # actions = {'adversary_0': np.array([0, 1, 1, 0, 0 ],
+    #     # dtype=np.float32), 'agent_0': np.array([1 , 0, 0, 0, 0 ],
+    #     # dtype=np.float32)}
 
-        # print(actions)
-        observation, reward, done, info = env.step(actions)
-        # print(env.num_steps)
-        # print(observation)
-        env.render()
-        # sleep(0.001)
+    #     # print(actions)
+    #     observation, reward, done, info = env.step(actions)
+    #     # print(env.num_steps)
+    #     # print(observation)
+    #     env.render()
+    #     # sleep(0.001)
     
     # env = PZPredPreyPred(seed_val=3)
     # behavior = Behavior()
@@ -599,7 +601,6 @@ if __name__ == '__main__':
     behavior = Behavior()
     env.reinit(pred_behavior=behavior.fixed_pred)
     for i in range(5):
-
         observation = env.reset()
         # print(env.observation_space.shape)
         # print(observation.shape)
@@ -607,9 +608,12 @@ if __name__ == '__main__':
         done = False
         rewards = []
         while not done:
+        # for i in range(500):
             # action = {0: np.array([0.5, 0, 0.6]), 1: np.array([0, 0, 0])}#env.action_space.sample()
-            action = env.action_space.sample()
-            print(action)
+            # action = env.action_space.sample()
+            # print(action)
+            # pos, rel, .., .., ..
+            action = observation[10:12]
             # print_obs(observation)
             # action = [-0,+0.1]#[0,0,-0.3,0,0]
             # action = [0,0,1]
@@ -620,7 +624,7 @@ if __name__ == '__main__':
             # action[2] = 1
             # action[3] = 1
             observation, reward, done, info = env.step(action)
-            # print_obs(observation, 3)
+            print_obs(observation, 3)
             rewards.append(reward)
             # print(observation.shape)
             # print(info)

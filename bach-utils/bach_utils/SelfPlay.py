@@ -43,9 +43,9 @@ class SelfPlayEnvSB3:
         else:
             action = None
             deterministic = None # False through the training procedure, and True during the evaluation
-            if("Training" in self._name):
+            if(self._name in ["Training", "Evaluation"]):
                 deterministic = False
-            else:
+            else:   # For testing
                 deterministic = True
             # deterministic = True
             # if(isinstance(self.opponent_policy, sb3SAC)):

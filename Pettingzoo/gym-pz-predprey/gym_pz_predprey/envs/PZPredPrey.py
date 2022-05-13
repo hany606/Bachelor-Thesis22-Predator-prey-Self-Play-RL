@@ -12,6 +12,7 @@ from gym import spaces
 from gym.utils import seeding
 from torch import seed
 import time
+from math import copysign
 
 class Behavior: # For only prey for now, we need to make it configured for the predator also :TODO:
     def __init__(self, **kwargs):
@@ -21,14 +22,18 @@ class Behavior: # For only prey for now, we need to make it configured for the p
         if(isinstance(action, dict)):
             action["agent_0"] = [0, 0, 0, 0, 0]
         else:
-            action[5:] = [0, 0, 0, 0, 0]
+            # action[5:] = [0, 0, 0, 0, 0]
+            action[2:] = [0,0]#[0, 0, 0, 0, 0]
+
         return action
 
     def fixed_pred(self, action, time, observation):
         if(isinstance(action, dict)):
             action["adversary_0"] = [0, 0, 0, 0, 0]
         else:
-            action[:5] = [0, 0, 0, 0, 0]
+            # action[:5] = [0, 0, 0, 0, 0]
+            action[:2] = [0,0]#[0, 0, 0, 0, 0]
+
         return action
 
 # TODO: custom class Scenario from scenarios/simple_tag.py for enabling the feature for fixed positions
@@ -56,7 +61,7 @@ class PZPredPrey(gym.Env):
                         specific_pos=
                         {
                                         "adversary_0": np.array([-0.82870167, -0.52637899]),
-                                        "agent_0": np.array([0.60254893, 0.16432407]),
+                                        "agent_0": np.array([0.60254893, 0]),
                                         "landmark":[
                                                     np.array([-0.73056844, -0.12037151]),
                                                     np.array([-0.03770766, -0.61246995]),
@@ -83,13 +88,16 @@ class PZPredPrey(gym.Env):
         self.reseed = reseed
         self.seed_val = self.seed(seed_val)[0]
 
-        # [no_action, move_left, move_right, move_down, move_up]
-        self.noutputs = self.env.action_space("adversary_0").shape[0]   # for single agent
+        # [no_action, move_left, move_right, move_up, move_down]
+        # (x,y)
+        self.noutputs = 2#self.env.action_space("adversary_0").shape[0]   # for single agent
         # TODO: low, high can be written like: action = np.array([action, [0,0]]).flatten()
         low = []
         high = []
         for i in range(self.nrobots):
-            low.extend([0 for i in range(self.noutputs)])
+            # low.extend([0 for i in range(self.noutputs)])
+            low.extend([-1 for i in range(self.noutputs)])
+
             high.extend([1 for i in range(self.noutputs)])
         self.action_space_      = spaces.Box(low=np.array(low),
                                             high=np.array(high),
@@ -98,12 +106,29 @@ class PZPredPrey(gym.Env):
 
         low = []
         high = []
+        
+        # positive, negative
+        rel_pos_limits = 4#[4,4]
+        rel_vel_limits = 1#[1,1]
+        # [ (limit_x, limit_y) ]
+        self.normalized_obs_limits = [
+                                            0.5,0.5,  # self vel
+                                            2,2,      # self pos
+        ]
+        self.normalized_obs_limits.extend([rel_pos_limits for _ in range(self.num_obstacles*2)]) # Landmarks rel pos
+        self.normalized_obs_limits.extend([rel_pos_limits for _ in range(1*2)]) # Other agents rel pos
+        self.normalized_obs_limits.extend([rel_vel_limits for _ in range(1*2)]) # Other agents rel vel
+        self.normalized_obs_limits.append(1) # Time
+
         #   2           2           #*2                     #*2                     #*2
         # [self_vel, self_pos, landmark_rel_positions, other_agent_rel_positions, other_agent_velocities]
         self.ninputs = self.env.observation_space("adversary_0").shape[0]+1    # for single agent
-        for i in range(self.nrobots):
-            low.extend([-np.float32(np.inf) for i in range(self.ninputs)])
-            high.extend([np.float32(np.inf) for i in range(self.ninputs)])
+        for _ in range(self.nrobots):
+            # low.extend([-np.float32(np.inf) for i in range(self.ninputs)])
+            # high.extend([np.float32(np.inf) for i in range(self.ninputs)])
+            low.extend([0 for i in range(self.ninputs)])
+            high.extend([1 for i in range(self.ninputs)])
+
         self.observation_space_      = spaces.Box(low=np.array(low),
                                             high=np.array(high),
                                             dtype=np.float32)
@@ -170,6 +195,21 @@ class PZPredPrey(gym.Env):
     def _get_opponent_observation(self, obs):
         raise NotImplementedError("_get_opponent_observation() Not implemented")
     
+    # Transform action to the original env actions
+    # From (x,y) to (stop, right, left, up, down)
+    def _transform_action(self, a):
+        new_a = [0,0,0,0,0]
+        idx_map = [(1,2), (3,4)]
+        for i in range(2):
+            idx = None
+            if(int(copysign(1,a[i])) > 0):  # positive
+                idx = 0
+            else:
+                idx = 1
+            new_a[idx_map[i][idx]] = abs(a[i])
+        return new_a
+
+
     def _process_action(self, action, observation):
         """
         Change the actions generated by the policy (List) to the base (PettingZoo) environment datatype (Dict)
@@ -214,14 +254,28 @@ class PZPredPrey(gym.Env):
             # ac[self.noutputs:] = self.prey_policy.compute_action(self.ob[self.ninputs:]) # The agent gets its own observations
             # ac[self.noutputs:] = self.prey_policy.compute_action(self.ob[:self.ninputs]) # The agent gets the opponent observations
 
-        # Actions are amplified
         ac = [a for a in ac]
-        action_dict = {self.agent_keys[i]:np.array(ac[self.noutputs*i:self.noutputs*(i+1)], dtype=np.float32) for i in range(self.nrobots)}
+        action_dict = {self.agent_keys[i]:np.array(self._transform_action(ac[self.noutputs*i:self.noutputs*(i+1)]), dtype=np.float32) for i in range(self.nrobots)}
+        # Actions are amplified
         # Divide the speed of the adversary (predator) by 2 -> to slow it down
-        for i in range(len(action_dict[self.agent_keys[0]])):
-            action_dict[self.agent_keys[0]][i] *= 0.8
+        # for i in range(len(action_dict[self.agent_keys[0]])):
+        #     action_dict[self.agent_keys[0]][i] *= 0.8
         return action_dict
         
+
+    def _normalize_obs(self, obs):
+        def normalize(o, mn, mx):
+            return (o - mn)/(mx-mn)
+    
+        normalized_obs = []
+        for i,o in enumerate(obs):
+            # print(self.normalized_obs_limits[i])
+            mn = -self.normalized_obs_limits[i]
+            mx = -mn
+            normalized_obs.append(normalize(o, mn, mx))
+        return np.array(normalized_obs)
+
+            
     def _process_observation(self, obs):
         """
         Change from PZ environment's observations (dict) to list of observations
@@ -237,12 +291,14 @@ class PZPredPrey(gym.Env):
         """
         obs_list = []
         for i in range(self.nrobots):
-            num_steps = self.num_steps
+            num_steps = self.num_steps/self.max_num_steps
             extended_obs = [num_steps]
             if(i == self.nrobots-1):
                 extended_obs = [0 for _ in range(2)]
                 extended_obs.append(num_steps)
-            obs_list.extend(np.append(obs[self.agent_keys[i]], extended_obs)) 
+            tmp_obs = np.append(obs[self.agent_keys[i]], extended_obs)
+            normalized_obs = self._normalize_obs(tmp_obs)
+            obs_list.extend(normalized_obs)
         # Originally:
         # adversary_0: (2)self_vel, (2)self_pos, (2*other agents)agent_i_rel_position, (2*other agents)agent_i_vel
         # agent_0: (2)self_vel, (2)self_pos, (2*other_adversaries)adversary_i_rel_position
@@ -476,7 +532,7 @@ class PZPredPreyPrey(PZPredPrey):
 
 def print_obs(obs, n_landmarks):
     # print(obs)
-    # print(f"Self vel: {obs[0:2]}")
+    print(f"Self vel: {obs[0:2]}")
     print(f"Self pos: {obs[2:4]}")
     print(f"Landmark rel pos: {obs[4:4+n_landmarks*2]}")
     # Assuming there is only one agent more
@@ -488,25 +544,26 @@ if __name__ == '__main__':
     import gym
     from time import sleep
 
-    # env = PZPredPrey()
+    env = PZPredPrey()
     # # exit()
-    # observation = env.reset()
-    # done = False
-    # total_reward = 0
-    # # for i in range(1000):
-    # while not done:
-    #     # actions = {agent: env.action_space(agent).sample() for agent in env.env.agents}
-    #     actions = env.action_space.sample()
-    #     # actions = np.zeros(2*5)
-    #     # actions = {'adversary_0': np.array([0, 1, 1, 0, 0 ],
-    #     # dtype=np.float32), 'agent_0': np.array([1 , 0, 0, 0, 0 ],
-    #     # dtype=np.float32)}
+    observation = env.reset()
+    done = False
+    total_reward = 0
+    # for i in range(1000):
+    while not done:
+        # actions = {agent: env.action_space(agent).sample() for agent in env.env.agents}
+        actions = env.action_space.sample()
+        # actions = np.zeros(2*5)
+        # actions = {'adversary_0': np.array([0, 1, 1, 0, 0 ],
+        # dtype=np.float32), 'agent_0': np.array([1 , 0, 0, 0, 0 ],
+        # dtype=np.float32)}
 
-    #     # print(actions)
-    #     observation, reward, done, info = env.step(actions)
-    #     print(env.num_steps)
-    #     env.render()
-    #     # sleep(0.001)
+        # print(actions)
+        observation, reward, done, info = env.step(actions)
+        # print(env.num_steps)
+        # print(observation)
+        env.render()
+        # sleep(0.001)
     
     # env = PZPredPreyPred(seed_val=3)
     # behavior = Behavior()
@@ -552,7 +609,9 @@ if __name__ == '__main__':
         while not done:
             # action = {0: np.array([0.5, 0, 0.6]), 1: np.array([0, 0, 0])}#env.action_space.sample()
             action = env.action_space.sample()
-            # action = [0,0.1,0,0,0]
+            print(action)
+            # print_obs(observation)
+            # action = [-0,+0.1]#[0,0,-0.3,0,0]
             # action = [0,0,1]
             # action = [-observation[0]+observation[6],-observation[1]+observation[7],-observation[2]+observation[8]]
             # print(f"Actions: {action}")
@@ -567,7 +626,7 @@ if __name__ == '__main__':
             # print(info)
             # print(reward, info, done)
             env.render(extra_info="test")
-            # sleep(0.01)
+            sleep(0.01)
             # print(done)
             # if ((isinstance(done, dict) and done["__all__"]) or (isinstance(done, bool) and done)):
             #     break
@@ -578,3 +637,8 @@ if __name__ == '__main__':
     plt.plot(rewards)
     plt.show()
     
+
+# self Vel 0.5,0.5
+# self Pos 2,2
+# rel pos 4
+# rel 

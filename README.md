@@ -140,3 +140,23 @@ For example:
 5. Fetch and merge with upstream from a fork: check [https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/merging-an-upstream-repository-into-your-fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/merging-an-upstream-repository-into-your-fork)
 
 6. Merge with some conflicts: check [https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-on-github](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-on-github), it is better to use gitkraken
+
+7. In order to run the experiment on the server that you connected to it through ssh, and then close the server. You can use screen or nohup
+
+To use screen:
+
+```bash
+
+screen # creates new screen
+screen -S <name-screen>
+screen -ls # shows the ids and names of the opened screens
+screen -r <screen-id>
+
+ctrl+a+d to go out of the screen
+ctrl+a+ESC to go up and down using scrolling and then press ESC to go out of the scrolling mode
+```
+
+To use nohup
+```bash
+nohup <cmd> &
+```

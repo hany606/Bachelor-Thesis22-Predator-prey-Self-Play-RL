@@ -601,7 +601,7 @@ if __name__ == '__main__':
     env = PZPredPreyPrey(seed_val=3)
     behavior = Behavior()
     env.reinit(pred_behavior=behavior.fixed_pred)
-    for i in range(5):
+    for i in range(1):
         observation = env.reset()
         # print(env.observation_space.shape)
         # print(observation.shape)
@@ -614,7 +614,8 @@ if __name__ == '__main__':
             # action = env.action_space.sample()
             # print(action)
             # pos, rel, .., .., ..
-            action = observation[10:12]
+            # action = observation[10:12]   # P controller
+            action = [0,0.5]
             # print_obs(observation)
             # action = [-0,+0.1]#[0,0,-0.3,0,0]
             # action = [0,0,1]
@@ -626,7 +627,7 @@ if __name__ == '__main__':
             # action[3] = 1
             observation, reward, done, info = env.step(action)
             print_obs(observation, 3)
-            rewards.append(reward)
+            rewards.append(info["reward"][1])
             # print(observation.shape)
             # print(info)
             # print(reward, info, done)
@@ -642,6 +643,7 @@ if __name__ == '__main__':
     plt.plot(rewards)
     plt.show()
     
+
 
 # self Vel 0.5,0.5
 # self Pos 2,2

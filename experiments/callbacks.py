@@ -139,10 +139,10 @@ class EvalSaveCallback(EvalCallback):
             new_kwargs[k] = kwargs[k]
 
         super(EvalSaveCallback, self).__init__(*args, **new_kwargs)
-        self.eval_env = kwargs.get("eval_env")
+        # self.eval_env = kwargs.get("eval_env")
         # Used with shared.evaluate_policy()
-        # if not isinstance(self.eval_env, DummyVecEnvSelfPlay):
-        #     self.eval_env.__class__ = DummyVecEnvSelfPlay   # This works fine, the other solution is commented
+        if not isinstance(self.eval_env, DummyVecEnvSelfPlay):
+            self.eval_env.__class__ = DummyVecEnvSelfPlay   # This works fine, the other solution is commented
 
 
 
@@ -173,7 +173,7 @@ class EvalSaveCallback(EvalCallback):
         deterministic = True 
         # Reset success rate buffer
         self._is_success_buffer = []
-        return evaluate_policy_simple(
+        return evaluate_policy(
                                 model,
                                 self.eval_env,
                                 n_eval_episodes=n_eval_episodes,
@@ -221,7 +221,7 @@ class EvalSaveCallback(EvalCallback):
         self.logger.record(f"{logger_prefix}/mean_ep_length", self.mean_ep_length)
         self.logger.record(f"{logger_prefix}/record_timesteps", self.num_timesteps)
         if self.verbose > 0:
-            clilog.debug(f"{win_rate}")
+            # clilog.debug(f"{win_rate}")
             clilog.info(f"Win rate: {100 * win_rate:.2f}% +/- {std_win_rate:.2f}")
         self.logger.record(f"{logger_prefix}/win_rate", win_rate)
 
@@ -328,7 +328,7 @@ class EvalSaveCallback(EvalCallback):
         # win_rate = np.mean(win_rates_ret)
         # win_rates.append(win_rate)
         score = None
-        clilog.debug(eval_matrix_method)
+        # clilog.debug(eval_matrix_method)
         if(eval_matrix_method == "reward"):
             score = np.mean(episodes_rewards_ret)
         elif(eval_matrix_method == "win_rate"):
@@ -560,7 +560,8 @@ class EvalSaveCallback(EvalCallback):
                 mean_score = np.mean(scores)
                 # This already done
                 if(self.eval_matrix_method == "length" and negative_indicator):
-                    mean_score = self.eval_env.max_num_steps - mean_score #.get_attr("max_num_steps",0)[0] - mean_score
+                    # mean_score = self.eval_env.max_num_steps - mean_score #.get_attr("max_num_steps",0)[0] - mean_score
+                    mean_score = self.eval_env.get_attr("max_num_steps",0)[0] - mean_score
                 self.evaluation_matrix[ei, ej] = mean_score
                 clilog.info(f"Mean score ({self.eval_matrix_method}): {mean_score}")
         return [ret_agent_axis, ret_opponent_axis], agent_names
@@ -580,8 +581,8 @@ class EvalSaveCallback(EvalCallback):
 
             opponents_models_path = [os.path.join(opponents_path, f) for f in opponents_models_names]
             eval_return_list = []
-            self.eval_env.OS = True
-            # self.eval_env.set_attr("OS", True)
+            # self.eval_env.OS = True
+            self.eval_env.set_attr("OS", True)
             self.OS = True
             for i, o in enumerate(opponents_models_path):   # For all the opponents saved for this population
                 # make_deterministic(seed_value=self.seed_value, cuda_check=False)
@@ -602,8 +603,8 @@ class EvalSaveCallback(EvalCallback):
                 #                                                 override=True)
                 eval_return_list.append(evaluation_result)
             population_eval_return_list.append(eval_return_list)
-        self.eval_env.OS = False
-        # self.eval_env.set_attr("OS", False)
+        # self.eval_env.OS = False
+        self.eval_env.set_attr("OS", False)
         self.OS = False
         return np.array(eval_return_list)
 

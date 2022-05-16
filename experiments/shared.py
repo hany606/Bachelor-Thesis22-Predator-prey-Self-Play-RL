@@ -7,8 +7,6 @@ from stable_baselines3.common import base_class
 from copy import deepcopy
 import warnings
 from time import sleep
-from bach_utils.shared import make_deterministic
-from datetime import datetime
 from bach_utils.sorting import population_key, round_key, checkpoint_key
 
 
@@ -83,7 +81,7 @@ def evaluate_policy(
     sampled_opponents = None,
     render_extra_info = None,
     render_callback = None,
-    seed_value=None,
+    seed_value=None
     ):
     """
     Runs policy for ``n_eval_episodes`` episodes and returns average reward.
@@ -158,22 +156,16 @@ def evaluate_policy(
     env.set_sampled_opponents(sampled_opponents)
     env.set_opponents_indicies(opponents_indicies) # To be used later inside reset()
     env.set_attr("target_opponent_policy_name", sampled_opponents, different_values=True, values_indices=opponents_indicies)
-    seed_value = datetime.now().microsecond//1000 if seed_value is None else seed_value
-    old_seed = seed_value#env[0].seed_val
-    env.set_attr("seed_val", [i+seed_value for i in range(n_envs)], different_values=True, values_indices=[i for i in range(n_envs)])
-
     # print(f"Load evaluation models for {n_envs} vectorized env")
     observations = env.reset()
     states = None
     # print("Evaluation started --------------------")
     while (episode_counts < episode_count_targets).any():
-        # print(f"Evaluate: {deterministic}")
         actions, states = model.predict(observations, state=states, deterministic=deterministic)
         observations, rewards, dones, infos = env.step(actions)
         current_rewards += rewards
         current_lengths += 1
         for i in range(n_envs):
-            # print(f"Seed: {env.get_attr('seed_val', i)}")
             if episode_counts[i] < episode_count_targets[i]:
 
                 # unpack values so that the callback can access the local variables
@@ -222,10 +214,6 @@ def evaluate_policy(
     std_reward = np.std(episode_rewards)
     win_rate = np.mean(win_rates)#np.sum(win_rate)/n_eval_episodes
     std_win_rate = np.std(win_rates)
-
-    env.set_attr("seed_val", [old_seed for i in range(n_envs)], different_values=True, values_indices=[i for i in range(n_envs)])
-
-
     if reward_threshold is not None:
         assert mean_reward > reward_threshold, "Mean reward below threshold: " f"{mean_reward:.2f} < {reward_threshold:.2f}"
     if return_episode_rewards:
@@ -247,7 +235,7 @@ def evaluate_policy_simple(
     render_extra_info = None,
     render_callback = None,
     sleep_time=0.0001,
-    seed_value=None
+    seed=None
     ):
     """
     Runs policy for ``n_eval_episodes`` episodes and returns average reward.
@@ -292,21 +280,12 @@ def evaluate_policy_simple(
     env.set_target_opponent_policy_name(sampled_opponents[0])
 
     # print(f"Load evaluation models for {n_envs} vectorized env")
-    seed_value = datetime.now().microsecond//1000 if seed_value is None else seed_value
-    old_seed = env.seed_val
-    env.set_seed(seed_value)
-    env.seed(seed_value)
     for i in range(n_eval_episodes):
         # TODO: add functionality for the seed 
         # if(seed == "random"):
             
         # if(seed is not None):
         #     env.seed(seed)
-        # env.seed(seed_value)
-        env.set_seed(seed_value)
-        env.seed(seed_value)
-        seed_value += 1
-        # make_deterministic(seed_value, cuda_check=False)
 
         observations = env.reset()
         state = None
@@ -319,7 +298,6 @@ def evaluate_policy_simple(
             # action = env.action_space.sample()
             # print(action)
             observations, reward, done, info = env.step(action)
-            # print(observations)
 
             episode_reward += reward
             episode_length += 1
@@ -360,11 +338,9 @@ def evaluate_policy_simple(
         episodes_length.append(episode_length)
 
     mean_reward = np.mean(episodes_reward)
-    std_reward = np.std(episodes_reward)
+    std_reward = np.std(episodes_length)
     win_rate = np.mean(win_rates)#np.sum(win_rate)/n_eval_episodes
     std_win_rate = np.std(win_rates)
-    env.set_seed(old_seed)
-    env.seed(old_seed)
     if reward_threshold is not None:
         assert mean_reward > reward_threshold, "Mean reward below threshold: " f"{mean_reward:.2f} < {reward_threshold:.2f}"
     if return_episode_rewards:

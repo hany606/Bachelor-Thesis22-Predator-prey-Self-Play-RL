@@ -340,8 +340,8 @@ class PZPredPrey(gym.Env):
     #     return False
 
     def _process_reward(self, obs, action, reward_dict):
-        # OLD when the boundaries where not made and the bounds where compensated in the reward function
-        #       This was not giving good trainings I do not know why
+        # # OLD when the boundaries where not made and the bounds where compensated in the reward function
+        # #       This was not giving good trainings I do not know why
         # # To take the advantage of the bound reward that is already implemented
         # prey_reward, predator_reward = reward_dict["agent_0"], reward_dict["adversary_0"]
         # # Survival rewards
@@ -356,15 +356,16 @@ class PZPredPrey(gym.Env):
         #     predator_reward += -10
         # --------------------------------------------------
 
+        prey_reward, predator_reward = reward_dict["agent_0"], reward_dict["adversary_0"]
         timestep_reward = 3*self.num_steps/self.max_num_steps
-        prey_reward = 1 + timestep_reward
-        predator_reward = -1 - timestep_reward
+        prey_reward += 1 + timestep_reward
+        predator_reward += -1 - timestep_reward
         if(self.caught):   # if the predator caught the prey before finishing the time
-            prey_reward = -10
-            predator_reward = 10    # predator it does not matter if go out of the boundary or not in case of catching
+            prey_reward = -1000
+            predator_reward = 1000    # predator it does not matter if go out of the boundary or not in case of catching
         if(self.steps_done):
-            prey_reward = 10   # if the prey got out of circle he will get positive and will not caught in immediate step
-            predator_reward = -10
+            prey_reward = 1000   # if the prey got out of circle he will get positive and will not caught in immediate step
+            predator_reward = -1000
 
         self._pred_reward, self._prey_reward = predator_reward, prey_reward # to be used for the info
         return predator_reward, prey_reward

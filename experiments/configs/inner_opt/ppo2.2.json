@@ -1,4 +1,5 @@
 {
+    "__comment":"Bad for evo",
     "agent0":{
         "num_eval_episodes": "~num_eval_episodes",  
         "num_timesteps": "~num_timesteps",
@@ -11,14 +12,12 @@
         "rl_algorithm": "PPO",
         "policy": "MlpPolicy",
         "clip_range": 0.25,
-        "ent_coef": 0.00001,
+        "ent_coef": 0.0,
         "batch_size":128,
-        "gamma":0.99,
+        "gamma":0.95,
         "lr": 3e-4,
         "n_epochs": 15,
-        "n_steps":2048,
-        "policy_arch": "evo_ppo2.1"
-
+        "n_steps":2048
     },
 
     "agent1":{
@@ -33,13 +32,11 @@
         "rl_algorithm": "PPO",
         "policy": "MlpPolicy",
         "clip_range": 0.25,
-        "ent_coef": 0.00001,
+        "ent_coef": 0.0,
         "batch_size":128,
-        "gamma":0.99,
+        "gamma":0.95,
         "lr": 3e-4,
         "n_epochs": 15,
-        "n_steps":2048,
-        "policy_arch": "evo_ppo2.1"
-
+        "n_steps":2048
     }
 }

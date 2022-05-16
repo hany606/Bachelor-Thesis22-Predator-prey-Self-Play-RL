@@ -162,7 +162,7 @@ class SelfPlayTraining(SelfPlayExp):
                                     tensorboard_log=os.path.join(self.log_dir,agent_name),
                                     n_epochs=agent_configs["n_epochs"],
                                     n_steps=agent_configs.get("n_steps", 2048),
-                                    seed=self.seed_value+population_num,
+                                    # seed=self.seed_value+population_num,
                                     policy_kwargs=policy_kwargs
                                 )
                 elif(agent_configs["rl_algorithm"] == "SAC"):
@@ -174,7 +174,7 @@ class SelfPlayTraining(SelfPlayExp):
                                     gamma=agent_configs["gamma"], 
                                     verbose=agent_configs.get("verbose", 2),
                                     tensorboard_log=os.path.join(self.log_dir,agent_name),
-                                    seed=self.seed_value+population_num,
+                                    # seed=self.seed_value+population_num,
                                     policy_kwargs=policy_kwargs
                                 )
                 self.models[agent_name].append(policy)
@@ -266,7 +266,7 @@ class SelfPlayTraining(SelfPlayExp):
 
     def _population_thread_func(self, agent_name, population_num):
             self.models[agent_name][population_num].learn(  total_timesteps=int(self.agents_configs[agent_name]["num_timesteps"]), 
-                                                    callback=[
+                                                            callback=[
                                                                 self.opponent_selection_callbacks[agent_name][population_num], 
                                                                 self.evalsave_callbacks[agent_name][population_num],
                                                                 self.wandb_callbacks[agent_name]

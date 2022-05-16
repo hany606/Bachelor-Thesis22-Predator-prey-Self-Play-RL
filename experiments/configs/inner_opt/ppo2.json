@@ -1,4 +1,5 @@
 {
+    "__comment":"Good for evo",
     "agent0":{
         "num_eval_episodes": "~num_eval_episodes",  
         "num_timesteps": "~num_timesteps",

@@ -216,6 +216,7 @@ class SelfPlayExp:
         
         self.THREADED = self.args.threaded
         if(self.THREADED):
+            self.clilog.error(f"THREADED seems not working correctly")
             self.clilog.info(f"**** Experiment is THREADED ****")
 
         self.make_deterministic()

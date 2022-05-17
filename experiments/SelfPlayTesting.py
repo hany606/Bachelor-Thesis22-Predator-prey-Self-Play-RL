@@ -252,7 +252,7 @@ class SelfPlayTesting(SelfPlayExp):
                                                                                                 render_extra_info=render_extra_info,
                                                                                                 render_callback=self.render_callback,
                                                                                                 sleep_time=self.render_sleep_time, #0.1,
-                                                                                                seed_value=seed_value
+                                                                                                # seed_value=seed_value
                                                                                             )
         mean_reward_, std_reward_, win_rate_, std_win_rate_ = mean_reward, std_reward, win_rate, std_win_rate
         if(return_episode_rewards):

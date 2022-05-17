@@ -541,7 +541,7 @@ class EvalSaveCallback(EvalCallback):
                         # sampled_opponent_startswith = utos.get_startswith(self.eval_sample_path, startswith=opponent_startswith_keyword)
                         sampled_opponent = utos.get_latest(self.eval_sample_path, startswith=opponent_startswith_keyword, population_idx=self.population_idx)[0]
                         sampled_opponent = os.path.join(opponents_path, sampled_opponent)
-                    if(ei == 0):
+                    if(ei == 0 and ep == 0):
                         ret_opponent_axis.append(get_model_label(sampled_opponent))
                     clilog.info("---------------")
                     clilog.info(f"Model {sampled_agent} vs {sampled_opponent}")

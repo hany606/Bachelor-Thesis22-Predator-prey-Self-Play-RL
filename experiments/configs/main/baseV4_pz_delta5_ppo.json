@@ -3,7 +3,7 @@
     "header": "configs/header/baseV4_pz.json",
     "shared": "configs/shared/shared.json",
     "env_agents": "configs/env_agents/pz.json",
-    "outer_opt": "configs/outer_opt/random.json",
+    "outer_opt": "configs/outer_opt/delta5.json",
     "inner_opt": "configs/inner_opt/ppo1.json",
     "testing": "configs/testing/testing_pz_tmp.json"
 }

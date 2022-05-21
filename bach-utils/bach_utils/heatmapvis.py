@@ -2,6 +2,18 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import numpy as np
+import pandas as pd
+from matplotlib.colors import LinearSegmentedColormap
+# cmap = sns.diverging_palette(145, 20, as_cmap=True).reversed()
+cmap = sns.diverging_palette(130, 10, as_cmap=True).reversed()
+# cmap = sns.color_palette("coolwarm", as_cmap=True).reversed()
+# cmap = sns.cm.rocket_r
+
+# cmap = LinearSegmentedColormap.from_list(
+#     name='test', 
+#     # colors=['red','white','green']
+#     colors=['red','white','green']
+# )
 
 # https://plotly.com/python/heatmaps/
 # http://www.heatmapper.ca/pairwise/
@@ -12,32 +24,59 @@ class HeatMapVisualizer:
     @staticmethod
     def visSeaborn(heatmap_data,
                    mn_val=0.0,
-                   mx_val=1.0,
+                   mx_val=1000.0,
                    center=0.5,
-                   labels=["prey", "predator", "win rate", "win rate (heatmap)"],
+                #    labels=["prey", "predator", "episode length", "win rate (heatmap)"],
+                   labels=["prey", "predator", "signed episode length", ""],
                    annot=False,
                    linewidth=0,
-                   cmap="bwr",#"YlGnBu",
+                   cmap=cmap,#"YlGnBu",#"YlGnBu",
                    xticklabels=5,
                    yticklabels=5,
+                   x_axis=None,
+                   y_axis=None,
                    cbar=True,
-                   show=True):
+                   show=True,
+                   save=False, save_path=None):
+        mx_val = mx_val
         if(isinstance(heatmap_data, list)):
             heatmap_data = np.mean(heatmap_data, axis=0)
-        ax = sns.heatmap(heatmap_data, 
-                         vmin=mn_val, vmax=mx_val, center=center, 
-                         cbar_kws={'label': labels[2]}, annot=annot,
-                         linewidth=linewidth,
-                         cmap=cmap,
-                         xticklabels=xticklabels, yticklabels=yticklabels,
-                         cbar=cbar
-                         )
+            # heatmap_data = np.std(heatmap_data, axis=0)
+            # mx_val = np.max(heatmap_data)
+
+        ax = None
+        if(x_axis is not None and y_axis is not None):
+            df = pd.DataFrame(heatmap_data, y_axis, columns=x_axis)
+            ax = sns.heatmap(df, 
+                            vmin=mn_val, vmax=mx_val, center=center, 
+                            cbar_kws={'label': labels[2]}, annot=annot,
+                            linewidth=linewidth,
+                            cmap=cmap,
+                            xticklabels=xticklabels, yticklabels=yticklabels,
+                            cbar=cbar
+                            )
+        else:
+            ax = sns.heatmap(heatmap_data, 
+                            vmin=mn_val, vmax=mx_val, center=center, 
+                            cbar_kws={'label': labels[2]}, annot=annot,
+                            linewidth=linewidth,
+                            cmap=cmap,
+                            xticklabels=xticklabels, yticklabels=yticklabels,
+                            cbar=cbar
+                            )
         ax.set_xlabel(labels[0])
         ax.set_ylabel(labels[1])
         ax.set_title(labels[3])
-        
+        if(save):
+            if(save_path is None):
+                print("Saved in the script place with name: test.png")
+                plt.savefig('test.png')
+            else:
+                print(f"Saved in the script place with name: {save_path}")
+                plt.savefig(save_path)
         if(show):
             plt.show()
+        
 
         return ax
     @staticmethod

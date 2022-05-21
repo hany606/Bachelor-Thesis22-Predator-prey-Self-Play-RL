@@ -1,0 +1,48 @@
+{
+    "__comment__": "TODO: Think about make it more general",
+    "__comment1__": "Here it is the names of the agents not the keys",
+    "render":false,
+
+    "repetition": 1,
+    "n_seeds": 3,
+    "crosstest":true,
+    "crosstest_methods_parent_path":{
+        "pop5": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/Evorobotpy2/pop5",
+        "random": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/Evorobotpy2/random"
+    },
+    "crosstest_methods_path":{
+        "pop5":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_14.56.06",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_08.33.00",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.28",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.20"
+
+        ],
+        "random":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_02.42.08",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_05.02.39",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_07.12.17",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_09.16.52"
+        ]
+    },       
+    
+    "pred":{
+        "dirname":"pred",
+        "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46",
+        "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
+        "mode": "gen",
+        "__comment2__": "Only gen mode care about the gens parameter in order to specify specific generation",
+        "gens": 49,
+        "freq": 1
+    },
+    "prey":{
+        "dirname":"prey",
+        "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46",
+        "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
+        "mode": "round",
+        "gens": 0,
+        "freq": 7
+    }
+}

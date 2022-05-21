@@ -1,6 +1,6 @@
 {
     "experiment":{
-        "population_size": 1
+        "population_size": 5
     },
     
     "agent0":{

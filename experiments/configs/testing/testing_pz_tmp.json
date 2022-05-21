@@ -6,21 +6,22 @@
     "render":true,
     "__comment2(old good model)__":"save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46",
     "__comment(old_model)__":"save-SelfPlay1v1-Pred_Prey-v0-05.04.2022_20.38.09",
+    "__comment(Good model from the old experiment)":"save-SelfPlay1v1-PZPred_Prey-05.13.2022_16.09.10",
     "pred":{
         "dirname":"pred",
-        "path": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-results/PettingZoo/save-SelfPlay1v1-Pred_Prey-v0-05.12.2022_21.06.43",
+        "path": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-results/PettingZoo/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_14.32.58",
         "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
         "mode": "round",
         "__comment2__": "Only gen mode care about the gens parameter in order to specify specific generation",
         "gens": 49,
-        "freq": 3
+        "freq": 1
     },
     "prey":{
         "dirname":"prey",
-        "path": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-results/PettingZoo/save-SelfPlay1v1-Pred_Prey-v0-05.12.2022_21.06.43",
+        "path": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-results/PettingZoo/save-SelfPlay1v1-PZPred_Prey-05.13.2022_16.09.10",
         "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
         "mode": "round",
         "gens": 30,
-        "freq": 3
+        "freq": 1
     }
 }

@@ -235,7 +235,7 @@ def evaluate_policy_simple(
     render_extra_info = None,
     render_callback = None,
     sleep_time=0.0001,
-    seed=None
+    seed_value=None
     ):
     """
     Runs policy for ``n_eval_episodes`` episodes and returns average reward.
@@ -284,8 +284,9 @@ def evaluate_policy_simple(
         # TODO: add functionality for the seed 
         # if(seed == "random"):
             
-        # if(seed is not None):
-        #     env.seed(seed)
+        if(seed_value is not None):
+            # env.seed(seed_value)
+            env.set_seed(seed_value)
 
         observations = env.reset()
         state = None

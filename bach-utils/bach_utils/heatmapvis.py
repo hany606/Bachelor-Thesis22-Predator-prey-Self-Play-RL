@@ -37,7 +37,8 @@ class HeatMapVisualizer:
                    y_axis=None,
                    cbar=True,
                    show=True,
-                   save=False, save_path=None):
+                   save=False, save_path=None,
+                   y_axis_reversed=False):
         mx_val = mx_val
         if(isinstance(heatmap_data, list)):
             heatmap_data = np.mean(heatmap_data, axis=0)
@@ -64,9 +65,18 @@ class HeatMapVisualizer:
                             xticklabels=xticklabels, yticklabels=yticklabels,
                             cbar=cbar
                             )
-        ax.set_xlabel(labels[0])
-        ax.set_ylabel(labels[1])
-        ax.set_title(labels[3])
+        ax.set_xlabel(labels[0], fontsize=15)
+        ax.set_ylabel(labels[1], fontsize=15)
+        ax.set_title(labels[3], fontsize=15)
+        ax.figure.axes[-1].yaxis.label.set_size(17)
+
+        if(y_axis_reversed):
+            ax.invert_yaxis()
+        
+        # ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize = 18)
+        # ax.set_yticklabels(ax.get_ymajorticklabels(), fontsize = 18)
+        # sns.set(font_scale=5)
+
         if(save):
             if(save_path is None):
                 print("Saved in the script place with name: test.png")

@@ -4,6 +4,6 @@
     "shared": "configs/shared/shared.json",
     "env_agents": "configs/env_agents/pz.json",
     "outer_opt": "configs/outer_opt/random.json",
-    "inner_opt": "configs/inner_opt/ppo2.json",
+    "inner_opt": "configs/inner_opt/sac1.json",
     "testing": "configs/testing/testing_pz_tmp.json"
 }

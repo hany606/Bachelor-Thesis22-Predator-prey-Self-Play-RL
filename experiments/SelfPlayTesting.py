@@ -67,8 +67,6 @@ class SelfPlayTesting(SelfPlayExp):
         self.render_sleep_time = render_sleep_time
         self._env_name = "Testing"
 
-        self.deterministic = False
-        self._env_name = "Evaluation"
 
     # This is made in case that the agents have different RL policies (inner optimization)
     def _import_original_configs(self):
@@ -93,6 +91,7 @@ class SelfPlayTesting(SelfPlayExp):
 
         self.render = self.testing_configs.get("render", True)
         self.crosstest_flag = self.testing_configs.get("crosstest", False)
+        self.best_flag = self.testing_configs.get("best", False)
         self.clilog.info(f"----- Load testing conditions")
         self._load_testing_conditions(experiment_filename)
         # print(f"----- Initialize environments")
@@ -153,7 +152,7 @@ class SelfPlayTesting(SelfPlayExp):
             elif(mode == "round"):  # The round of pred vs round of prey
                 # print(num_rounds)
                 # Test round by round (all the available rounds) (if we have n rounds then we have n rounds of evaluation)
-                self.testing_conditions[agent_name]["limits"] = [0, num_rounds-1, testing_config["freq"]]
+                self.testing_conditions[agent_name]["limits"] = [0, num_rounds-1, testing_config["freq"]]                
             self.clilog.debug(self.testing_conditions[agent_name]["limits"])
 
     def _get_opponent_algorithm_class(self, agent_configs):
@@ -359,6 +358,9 @@ class SelfPlayTesting(SelfPlayExp):
         return normalized_length
 
     def crosstest(self, n_eval_episodes, n_seeds):
+        self.deterministic = False
+        self._env_name = "Evaluation"
+
         self.clilog.info(f"---------------- Running Crosstest ----------------")
         # Get the experiments of the approaches
         # crosstest_methods_path: dict -> Method is the key of the dictionary and the value is list of experiments trained with the same method
@@ -436,6 +438,7 @@ class SelfPlayTesting(SelfPlayExp):
         render = self.testing_configs.get("render")
         num_methods = len(method_names)
         crosstest_mat = np.zeros((num_methods, num_methods))
+        crosstest_mat2 = np.zeros((num_methods, num_methods))
         for i in range(num_methods):
             method1 = best_agents_method[method_names[i]]
             for j in range(i, num_methods):
@@ -445,8 +448,12 @@ class SelfPlayTesting(SelfPlayExp):
                 
                 gain_score = scores[2][2]
                 crosstest_mat[i,j] = gain_score
+                crosstest_mat2[i,j] = scores[2][3]
+
         self.clilog.critical(method_names)
-        self.clilog.critical(crosstest_mat)
+        self.clilog.critical(f"Mat1: (g1+g2)\n{crosstest_mat}")
+        self.clilog.critical(f"Mat2: (g1-g2)\n{crosstest_mat2}")
+
         # best_method = {i: best_agents_method[method_names[0]][i] for i in agents_names}
         # for i in range(num_methods-1):
         #     other_method = best_agents_method[method_names[i+1]]
@@ -511,48 +518,83 @@ class SelfPlayTesting(SelfPlayExp):
         self.clilog.info(f"perf_agent: {perf_agent1+perf_agent2}\tperf_opponent: {perf_opponent1+perf_opponent2}\tgain(sum): {gain1+gain2}")
 
 
-        gain = [gain1, gain2, gain1+gain2]
+        gain = [gain1, gain2, gain1+gain2, gain1-gain2]
         perf_agent = [perf_agent1, perf_agent2, perf_agent1+perf_agent2]
         perf_opponent = [perf_opponent1, perf_opponent2, perf_opponent1+perf_opponent2]
         best_agents_idx = {}
         best_method_idx = None
         # for i in range(3):
         i = 2
-        self.clilog.info(f" ----- Part {i+1} ----- ")
+        self.clilog.critical(f"{approach1_path} vs {approach2_path}")
+        self.clilog.critical(f" ----- Part {i+1} ----- ")
         eps = 1e-3
         if(perf_agent[i] > 0):
-            self.clilog.info(f"Configuration 1 is better {1} to generate preys (path: {approach1_path})")
+            self.clilog.critical(f"Configuration 1 is better {1} to generate preys (path: {approach1_path})")
             best_agents_idx[agent_name] = 1
         elif(-eps <= perf_agent[i] <= eps):
-            self.clilog.info(f"Configuration 1 & 2 are close to each other to generate preys ({approach1_path}, {approach2_path})")
+            self.clilog.critical(f"Configuration 1 & 2 are close to each other to generate preys ({approach1_path}, {approach2_path})")
             best_agents_idx[agent_name] = 0
         else:
-            self.clilog.info(f"Configuration 2 is better {2} to generate preys (path: {approach2_path})")
+            self.clilog.critical(f"Configuration 2 is better {2} to generate preys (path: {approach2_path})")
             best_agents_idx[agent_name] = 2
 
 
         if(perf_opponent[i] > 0):
-            self.clilog.info(f"Configuration 1 is better {1} to generate predators (path: {approach1_path})")
+            self.clilog.critical(f"Configuration 1 is better {1} to generate predators (path: {approach1_path})")
             best_agents_idx[opponent_name] = 1
         elif(-eps <= perf_opponent[i] <= eps):
-            self.clilog.info(f"Configuration 1 & 2 are close to each other to generate predators ({approach1_path}, {approach2_path})")
+            self.clilog.critical(f"Configuration 1 & 2 are close to each other to generate predators ({approach1_path}, {approach2_path})")
             best_agents_idx[opponent_name] = 0
         else:
-            self.clilog.info(f"Configuration 2 is better {2} to generate predators (path: {approach2_path})")
+            self.clilog.critical(f"Configuration 2 is better {2} to generate predators (path: {approach2_path})")
             best_agents_idx[opponent_name] = 2
 
         if(gain[i] > 0):
-            self.clilog.info(f"Configuration 1 is better {1} (path: {approach1_path})")
+            self.clilog.critical(f"Configuration 1 is better {1} (path: {approach1_path})")
             best_method_idx = 1
         elif(-eps <= gain[i] <= eps):
-            self.clilog.info(f"Configuration 1 & 2 are close to each other ({approach1_path}, {approach2_path})")
+            self.clilog.critical(f"Configuration 1 & 2 are close to each other ({approach1_path}, {approach2_path})")
             best_method_idx = 0
         else:
-            self.clilog.info(f"Configuration 2 is better {2} (path: {approach2_path})")
+            self.clilog.critical(f"Configuration 2 is better {2} (path: {approach2_path})")
             best_method_idx = 2
 
         return best_agents_idx, best_method_idx, [perf_agent, perf_opponent, gain]
 
+    def best_testing(self, path, n_eval_episodes, n_seeds):
+        agents = []
+        agent_names = {}
+        for k in self.agents_configs.keys():
+            agent_configs = self.agents_configs[k]
+            agent_name = agent_configs["name"]
+            testing_config = self.testing_configs[agent_name]
+            testing_path = os.path.join(path, agent_name) if(testing_config["path"] is None) else testing_config["path"]
+            # # Load the experiment
+            experiment_path = os.path.join(testing_path, "experiment_config.json")
+            # Parse the experiment configuration with evaluation configuration
+            _evaluation_configs = None
+            try:
+                _, _, _evaluation_configs, _, _ = ExperimentParser.load(experiment_path)
+            except Exception as e:
+                self.clilog.error("This experiment is not finished and does not have experiment configuration as a result of finish the experiment")
+                self.clilog.error(e)
+                continue
+            # self.clilog.debug(_evaluation_configs)
+            best_agent_name = os.path.join(testing_path, agent_name, _evaluation_configs[agent_name]['best_agent_name'])
+            self.clilog.info(f"Best {agent_name}: {_evaluation_configs[agent_name]['best_agent_name']}\nPath: {best_agent_name}")
+            agents.append(best_agent_name)
+            agent_names[best_agent_name] = agent_name
+        for a in agents:
+            for b in (set(agents) - {a}):
+                sampled_opponents = [b]
+                sampled_agent = a
+                key = agent_names[a]
+                self.clilog.critical("------------------------------------------------")
+                self.clilog.info(f"Env: {key}")
+                self.clilog.info(f"{a} vs {b}")
+                self._run_one_evaluation(key, sampled_agent, sampled_opponents, n_eval_episodes, f"{a} vs {b}")
+                self.clilog.critical("------------------------------------------------")
+    
     def test(self, experiment_filename=None, logdir=False, wandb=False, n_eval_episodes=1):
         self._init_testing(experiment_filename=experiment_filename, logdir=logdir, wandb=wandb)
         self.render_sleep_time = self.render_sleep_time if self.args.rendersleep <= 0 else self.args.rendersleep
@@ -566,6 +608,9 @@ class SelfPlayTesting(SelfPlayExp):
             n_seeds = self.testing_configs.get("n_seeds", 1)
             self.crosstest(n_eval_episodes, n_seeds)
             # self._compute_gain_score(n_eval_episodes, n_seeds)
+        elif(self.best_flag):
+            n_seeds = self.testing_configs.get("n_seeds", 1)
+            self.best_testing(experiment_filename, n_eval_episodes, n_seeds)
         else:
             already_evaluated_agents = []
             # In order to extend it multipe agents, we can make it as a recursive function (list:[models....,, None]) and pass the next element in the list, the termination criteria if the argument is None

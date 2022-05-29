@@ -1,0 +1,37 @@
+{
+    "agent0":{
+        "num_eval_episodes": "~num_eval_episodes",  
+        "num_timesteps": "~num_timesteps",
+        "eval_freq": "~eval_freq",
+        "save_freq": "~save_freq",
+        "eval_metric": "lastreward",
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "eval_opponent_selection": "random",
+
+        "rl_algorithm": "SAC",
+        "policy": "MlpPolicy",
+        "batch_size":256,
+        "gamma":0.99,
+        "lr": 3e-4,
+        "buffer_size":1000000,
+        "policy_arch": "drone_sac"
+    },
+
+    "agent1":{
+        "num_eval_episodes": "~num_eval_episodes",  
+        "num_timesteps": "~num_timesteps",
+        "eval_freq": "~eval_freq",
+        "save_freq": "~save_freq",
+        "eval_metric": "lastreward",
+        "__comment1__": "It is possible to use winrate, random, latest, latest-set, highest, highest-set, lowest, lowest-set",
+        "eval_opponent_selection": "random",
+
+        "rl_algorithm": "SAC",
+        "policy": "MlpPolicy",
+        "batch_size":256,
+        "gamma":0.99,
+        "lr": 3e-4,
+        "buffer_size":1000000,
+        "policy_arch": "drone_sac"
+    }
+}

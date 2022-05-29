@@ -2,6 +2,8 @@
     "__comment__": "TODO: Think about make it more general",
     "__comment1__": "Here it is the names of the agents not the keys",
     "repetition":1,
+    "n_seeds": 1,
+    "best":true,
     "crosstest":false,
     "render":true,
     "__comment2(old good model)__":"save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46",
@@ -9,7 +11,7 @@
     "__comment(Good model from the old experiment)":"save-SelfPlay1v1-PZPred_Prey-05.13.2022_16.09.10",
     "pred":{
         "dirname":"pred",
-        "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-results-train/PettingZoo/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.05.09",
+        "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03",
         "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
         "mode": "round",
         "__comment2__": "Only gen mode care about the gens parameter in order to specify specific generation",
@@ -18,7 +20,7 @@
     },
     "prey":{
         "dirname":"prey",
-        "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-results-train/PettingZoo/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.05.09",
+        "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03",
         "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
         "mode": "round",
         "gens": 30,

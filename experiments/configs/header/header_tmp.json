@@ -12,7 +12,7 @@
         "wandb_enable":true,
         
         "num_workers": 1,
-        "num_rounds": 4,
+        "num_rounds": 50,
         "parallel_alternate_training": true,
         "seed_value": 10,
         "framework": "stable_baselines3",

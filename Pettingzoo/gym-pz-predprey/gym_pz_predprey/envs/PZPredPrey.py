@@ -357,9 +357,13 @@ class PZPredPrey(gym.Env):
         # --------------------------------------------------
 
         prey_reward, predator_reward = reward_dict["agent_0"], reward_dict["adversary_0"]
+        # prey_reward, predator_reward = 0, 0
+        # delta_pos = obs[self.num_obstacles*2+4:self.num_obstacles*2+6] #np.array(obs[2:4]) - np.array(obs[self.num_obstacles*2+4:self.num_obstacles*2+6])
+        # dist = np.sqrt(np.sum(np.square(delta_pos)))
+        dist = 0
         timestep_reward = 3*self.num_steps/self.max_num_steps
-        prey_reward += 1 + timestep_reward
-        predator_reward += -1 - timestep_reward
+        prey_reward += 1 + timestep_reward + dist
+        predator_reward += -1 - timestep_reward - dist
         if(self.caught):   # if the predator caught the prey before finishing the time
             prey_reward = -1000
             predator_reward = 1000    # predator it does not matter if go out of the boundary or not in case of catching

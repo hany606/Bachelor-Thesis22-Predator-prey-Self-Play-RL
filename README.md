@@ -1,4 +1,4 @@
-# Drones-PEG-Bachelor-Thesis-2022
+# Bachelor-Thesis22-Predator-prey-Self-Play-RL
 This repository is created for my thesis during the bachelor degree at Innopolis University. The topic for research is Learning 
 behavioral strategies for a multi-robot system in a predator-prey 
 environment using Reinforcement Learning.

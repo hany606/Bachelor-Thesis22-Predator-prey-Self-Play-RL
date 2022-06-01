@@ -6,14 +6,87 @@
     "repetition": 3,
     "n_seeds": 3,
     "crosstest":true,
+    "crosstest_save_name": "crosstest_mat_pz",
     "crosstest_methods_parent_path":{
+        "latest": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/latest",
+        "random": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/random",
+        "cyclic": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/cyclic",
+        "delta20": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/delta20",
+        "delta10": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/delta10",
+        "delta5": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/delta5",
+        "pop3": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/pop3",
         "pop5": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/pop5",
-        "random": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/random"
+        "pop8": "/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/pop8"
     },
     "crosstest_methods_path":{
-        "pop5":[
+        "latest":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54"
+            
         ],
         "random":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53"
+            
+        ],
+        "cyclic": [
+            "save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11"
+            
+        ],
+        "delta20":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37"
+            
+        ],
+        "delta10":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54"
+            
+        ],
+        "delta5":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50"
+            
+        ],
+        "pop3":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.24.2022_00.37.43"
+
+        ],
+        "pop5":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_00.13.39",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45"
+            
+        ],
+        "pop8":[
+            "save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15",
+            "save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17"
         ]
     },       
     

@@ -4,11 +4,13 @@
     "repetition":1,
     "crosstest":false,
     "render":true,
+    "trajectory_heatmap":true,
     "__comment2(old good model)__":"save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46",
     "__comment(old_model)__":"save-SelfPlay1v1-Pred_Prey-v0-05.04.2022_20.38.09",
     "__comment(Good model from the old experiment)":"save-SelfPlay1v1-PZPred_Prey-05.13.2022_16.09.10",
     "pred":{
         "dirname":"pred",
+        "__comment__":"The path to SAC based experiment",
         "path": "/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-results-train/PettingZoo/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.05.09",
         "__comment1__": ["gen", "all", "random", "limit_s", "limit", "limit_e", "round"],
         "mode": "round",

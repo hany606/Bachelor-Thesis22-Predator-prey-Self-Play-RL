@@ -8,6 +8,7 @@ from copy import deepcopy
 import warnings
 from time import sleep
 from bach_utils.sorting import population_key, round_key, checkpoint_key
+from bach_utils.heatmapvis import traj_vis
 
 
 def get_model_label(s):
@@ -235,7 +236,8 @@ def evaluate_policy_simple(
     render_extra_info = None,
     render_callback = None,
     sleep_time=0.0001,
-    seed_value=None
+    seed_value=None,
+    trajectory_heatmap=False,
     ):
     """
     Runs policy for ``n_eval_episodes`` episodes and returns average reward.
@@ -294,11 +296,22 @@ def evaluate_policy_simple(
         done = False
         episode_reward = 0.0
         episode_length = 0
+        # TODO: clean that part, it should be general, but it is a hot fix for now
+        positionsx = {"pred":[], "prey":[]}
+        positionsy = {"pred":[], "prey":[]}
         while not done:
             action, state = model.predict(observations, state=state, deterministic=deterministic)
             # action = env.action_space.sample()
             # print(action)
             observations, reward, done, info = env.step(action)
+            pred_pos = info["pred_pos"]
+            prey_pos = info["prey_pos"]
+
+            positionsx["pred"].append(pred_pos[0])
+            positionsy["pred"].append(pred_pos[1])
+
+            positionsx["prey"].append(prey_pos[0])
+            positionsy["prey"].append(prey_pos[1])
 
             episode_reward += reward
             episode_length += 1
@@ -334,7 +347,15 @@ def evaluate_policy_simple(
                         done = True
                     elif(render_ret == -1):
                         win_rates.append(0)
-                        done = True 
+                        done = True
+        # TODO: clean it later
+        if(trajectory_heatmap):
+            positionsx["pred"].extend(env._posx_lim)
+            positionsx["prey"].extend(env._posx_lim)
+            positionsy["pred"].extend(env._posy_lim)
+            positionsy["prey"].extend(env._posy_lim)
+            
+            traj_vis(positionsx, positionsy)
         episodes_reward.append(episode_reward)
         episodes_length.append(episode_length)
 

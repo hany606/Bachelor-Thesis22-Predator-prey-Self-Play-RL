@@ -262,7 +262,8 @@ class SelfPlayTesting(SelfPlayExp):
                                                                                                 render_extra_info=render_extra_info,
                                                                                                 render_callback=self.render_callback,
                                                                                                 sleep_time=self.render_sleep_time, #0.1,
-                                                                                                seed_value=eval_seed
+                                                                                                seed_value=eval_seed,
+                                                                                                trajectory_heatmap=self.testing_configs.get("trajectory_heatmap", False)
                                                                                             )
         mean_reward_, std_reward_, win_rate_, std_win_rate_ = mean_reward, std_reward, win_rate, std_win_rate
         if(return_episode_rewards):
@@ -411,6 +412,7 @@ class SelfPlayTesting(SelfPlayExp):
             self.clilog.info(f"=============== Method: {m} ===============")
             best_agents_method[m] = {i: methods_experiments_best_agents[m][filtered_methods_experiments_path[m][0]][i] for i in agents_names}
             for i in range(len(filtered_methods_experiments_path[m])-1):
+                break
                 self.clilog.info(f"Exp {i} vs {i+1}")
                 other_agents_method = methods_experiments_best_agents[m][filtered_methods_experiments_path[m][i+1]]
                 best_agents_idx, _, _ = self._crosstest(best_agents_method[m], other_agents_method, agents_names, n_eval_episodes, n_seeds, None, None, False)
@@ -453,7 +455,8 @@ class SelfPlayTesting(SelfPlayExp):
         self.clilog.critical(method_names)
         self.clilog.critical(f"Mat1: (g1+g2)\n{crosstest_mat}")
         self.clilog.critical(f"Mat2: (g1-g2)\n{crosstest_mat2}")
-
+        np.save(f"{self.testing_configs.get('crosstest_save_name', 'crosstest_res')}1.npy", crosstest_mat)
+        np.save(f"{self.testing_configs.get('crosstest_save_name', 'crosstest_res')}2.npy", crosstest_mat2)
         # best_method = {i: best_agents_method[method_names[0]][i] for i in agents_names}
         # for i in range(num_methods-1):
         #     other_method = best_agents_method[method_names[i+1]]

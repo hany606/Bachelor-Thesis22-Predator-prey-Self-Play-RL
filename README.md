@@ -160,3 +160,9 @@ To use nohup
 ```bash
 nohup <cmd> &
 ```
+
+
+8. To copy output of command directly to the clipboard:
+```bash
+<command> | xclip -selection clipboard 
+```

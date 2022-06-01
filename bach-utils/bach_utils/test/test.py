@@ -18,3 +18,12 @@ def testing():
     logger.warning("warning message")
     logger.error("error message")
     logger.critical("critical message")
+
+if __name__ == "__main__":
+    import numpy as np
+    from bach_utils.heatmapvis import traj_vis
+
+    x = {"pred":list(np.load("pred_x.npy")), "prey":    list(np.load("prey_x.npy"))}
+    y = {"pred":list(np.load("pred_y.npy")), "prey":    list(np.load("prey_y.npy"))}
+    
+    traj_vis(x, y)

@@ -3,7 +3,11 @@ message: "If you use this software or the information helped you in your work, I
 authors:
 - family-names: "Hamed"
   given-names: "Hany"
-  orcid: "https://orcid.org/0000-0002-6788-0917"
+- family-names: "Klimchik"
+  given-names: "Alexandr"
+- family-names: "Nolfi"
+  given-names: "Stefano"
+orcid: "https://orcid.org/0000-0002-6788-0917"
 title: "Learning behavioral strategies for a predator and prey using Self-play Reinforcement Learning"
 version: 1.0.0
 doi: 10.5281/zenodo.1234

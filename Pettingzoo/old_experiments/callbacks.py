@@ -119,6 +119,9 @@ class EvalSaveCallback(EvalCallback):
         self.seed_value = kwargs["seed_value"]
         self.enable_evaluation_matrix = kwargs["enable_evaluation_matrix"]
         self.randomly_reseed_sampling = kwargs["randomly_reseed_sampling"]
+        self.eval_matrix_method = kwargs.pop("eval_matrix_method")
+        self.max_checkpoint_num = 0
+
         self.name_prefix = None
         self.startswith_keyword = "history"
         self.OS = OS
@@ -435,7 +438,7 @@ class EvalSaveCallback(EvalCallback):
 
     # TODO: It would be better to fix aggregate evaluation and then use it within here
     # Evaluate the whole matrix
-    def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None, freq=1, population_size=1):
+    def compute_eval_matrix(self, prefix, num_rounds, opponents_path=None, agents_path=None, n_eval_rep=5, deterministic=None, algorithm_class=None, freq=1, population_size=1, negative_indicator=None):
         models_names = None
         deterministic = self.deterministic if deterministic is None else deterministic  # https://stackoverflow.com/questions/66455636/what-does-deterministic-true-in-stable-baselines3-library-means
         if(self.OS and (opponents_path is None or agents_path is None)):
@@ -458,6 +461,7 @@ class EvalSaveCallback(EvalCallback):
 
         # dim = num_rounds//freq+1
         agent_axis = [i for i in range(0, num_rounds, freq)]
+        agent_names = []
         opponent_axis = [i for i in range(0, num_rounds, freq)]
         population_axis = [i for i in range(0, population_size)]
         # Enforce doing evaluation for the last generation
@@ -489,7 +493,7 @@ class EvalSaveCallback(EvalCallback):
                 sampled_agent = utos.get_latest(sampled_agent_startswith, population_idx=self.population_idx)[0]
                 sampled_agent = os.path.join(agents_path, sampled_agent)  # Join it with the agent path
                 agent_model = algorithm_class.load(sampled_agent, env=self.eval_env)
-
+            agent_names.append(sampled_agent)
             for ej, j in enumerate(opponent_axis):
                 print("------------------------------")
                 print(f"Round: {i} vs {j}")
@@ -537,7 +541,7 @@ class EvalSaveCallback(EvalCallback):
                 self.evaluation_matrix[ei, ej] = mean_score
                 print(f"Mean score (reward): {mean_score}")
 
-        return [agent_axis, opponent_axis]
+        return [agent_axis, opponent_axis],agent_names
     # This last agent
     # Post evaluate the model against all the opponents from opponents_path
     # TODO: enable retrieving the agents from the archive
@@ -621,3 +625,22 @@ class EvalSaveCallback(EvalCallback):
         self.OS = True
 
         return res
+
+
+
+def get_best_agent_from_eval_mat(evaluation_matrix, agent_names, axis, maximize=False):
+    print(evaluation_matrix.shape)
+    score_vector = np.mean(evaluation_matrix.T, axis=axis)
+    return get_best_agent_from_vector(score_vector, agent_names, maximize)
+
+def get_best_agent_from_vector(score_vector, agent_names, maximize=False):
+    best_score_idx = None
+    # print(dict(zip(score_vector, agent_names)))
+    if(bool(maximize)):
+        best_score_idx = np.argmax(score_vector)
+    else:
+        best_score_idx = np.argmin(score_vector)
+    best_score_agent_name = agent_names[best_score_idx]
+    best_score = score_vector[best_score_idx]
+
+    return best_score_agent_name, best_score

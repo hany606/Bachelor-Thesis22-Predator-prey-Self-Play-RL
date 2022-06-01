@@ -13,10 +13,11 @@
         "num_rounds": 50,
         "population_size": 1,
         "parallel_alternate_training": false,
-        "seed_value": 3,
+        "seed_value": 10,
         "framework": "stable_baselines3",
 
         "hierarchy":"2D:pettingzoo:predprey:1v1",
+        "log_env_dir_name":"PettingZoo",
 
         "agents_order": {"0":"pred", "1":"prey"}
     },

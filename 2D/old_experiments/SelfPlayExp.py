@@ -86,7 +86,7 @@ class SelfPlayExp:
 
     def _load_configs(self, filename):        
         self.experiment_filename = self.args.exp if filename is None else filename
-        self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs = ExperimentParser.load(self.experiment_filename)
+        self.experiment_configs, self.agents_configs, self.evaluation_configs, self.testing_configs, _ = ExperimentParser.load(self.experiment_filename)
         self.seed_value = self.experiment_configs["seed_value"] if self.seed_value is None else self.seed_value
 
     def log_configs(self):
@@ -183,7 +183,7 @@ class SelfPlayExp:
         env_class_name = agent_configs["env_class"]
         # print(f"Create Env: {env_class_name}, Algorithm: {algorithm_class}, seed: {seed_value}")
         # Here e.g. SelfPlayPredEnv will use the archive only for load the opponent nothing more -> Pass the opponent archive
-        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
+        env = globals()[env_class_name](algorithm_class=algorithm_class, archive=opponent_archive, seed_val=seed_value, sample_after_reset=sample_after_reset, sampling_parameters=sampling_parameters, gui=None)#, opponent_selection=OPPONENT_SELECTION) #SelfPlayPredEnv()
         env._name = name+f"-({agent_name})"
         if(not ret_seed):
             return env

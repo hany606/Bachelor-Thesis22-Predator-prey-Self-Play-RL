@@ -1,8 +1,8 @@
 #!/bin/sh
 
-for Var in 10 22 50 101
+for Var in 3 10 22 50 101
 do
-    python3 train_new.py --exp configs/main/baseV4_evo_pop10_random_ppo.json --prefix "[Final exp, pop10] " --seed $Var
+    python3 train_new.py --exp configs/main/baseV4_evo_pop8_random_ppo.json --prefix "[Final exp, pop8] " --seed $Var
     # python3 train_new.py --exp experiments_configs/experiment_testing.json --seed $Var
 done
 

@@ -1,0 +1,22 @@
+{
+    "experiment":{
+        "experiment_id": "basev4",
+        "experiment_name": "-base4",
+        "experiment_log_prefix": "",
+
+        "wandb_project": "Behavioral-Learning",
+        "wandb_entity": "iu_mas",
+        "wandb_notes": "Base V4 -> +parallel + ppo2 params (default)",
+        "__comment1__": "wandb_enable flag -> not working for now",
+        "wandb_enable":true,
+
+        "num_workers": 1,
+        "num_rounds": 30,
+        "parallel_alternate_training": false,
+        "seed_value": 10,
+        "random_sampler_seed_value": 3,
+        "framework": "stable_baselines3",
+
+        "agents_order": {"0":"prey", "1":"pred"}
+    }
+}

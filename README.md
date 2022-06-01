@@ -1,6 +1,21 @@
 # Drones-PEG-Bachelor-Thesis-2022
-This repository is created for my thesis during the bachelor degree at Innopolis University. The topic for research is the realization of Pursuit and Evasion Games (PEG) using drones and learning the collective/cooperative behavior using RL and EA algorithms and trying to transfer from simulation to reality (Sim2Real)
+This repository is created for my thesis during the bachelor degree at Innopolis University. The topic for research is Learning 
+behavioral strategies for a multi-robot system in a predator-prey 
+environment using Reinforcement Learning.
 
+If you like this work and intend to use this software or the information inside has helped you in your work, I would be happy to cite it as below. (Hopefully a publication will be released later)
+
+```
+@software{Hamed_Learning_behavioral_strategies_2022,
+  author = {Hamed, Hany and Klimchik, Alexandr and Nolfi, Stefano},
+  doi = {10.5281/zenodo.1234},
+  month = {6},
+  title = {{Learning behavioral strategies for a predator and prey using Self-play Reinforcement Learning}},
+  url = {https://github.com/hany606/Bachelor-Thesis22-Predator-prey-Self-Play-RL},
+  version = {1.0.0},
+  year = {2022}
+}
+```
 
 ## Packages to install:
 

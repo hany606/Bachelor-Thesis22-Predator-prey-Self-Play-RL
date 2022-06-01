@@ -1,0 +1,909 @@
+❯ ./copy_gen_fig.py
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/latest -ep Evorobotpy2/latest
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/latest/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/latest/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_20.37.01/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_20.37.01-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_20.37.01/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_20.37.01-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.02.52/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.02.52-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.02.52/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.02.52-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_23.32.24/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_23.32.24-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_23.32.24/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_23.32.24-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.26.46/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.26.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.26.46/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.26.46-evaluation_matrix.npy
+################# Evorobotpy2/latest ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/latest --save --save_path Evorobotpy2_latest.png
+Evorobotpy2_latest.png
+Generate heatmap from #5 experiments
+(array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16,
+    17]), array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16,
+    17]))
+============================================================
+Diagonal sum: 11871.6, Off-diagonal sum: 187209.4
+Diagonals mean: 659.5333333333333, Off-diagonals mean: 611.7954248366013
+R_=0.0723813431164439
+============================================================
+Saved in the script place with name: Evorobotpy2_latest.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/random -ep Evorobotpy2/random
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/random/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/random/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_02.42.08/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_02.42.08-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_02.42.08/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_02.42.08-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_09.16.52/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_09.16.52-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_09.16.52/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_09.16.52-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_07.12.17/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_07.12.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_07.12.17/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_07.12.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_05.02.39/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_05.02.39-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_05.02.39/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_05.02.39-evaluation_matrix.npy
+################# Evorobotpy2/random ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/random --save --save_path Evorobotpy2_random.png
+Evorobotpy2_random.png
+Generate heatmap from #5 experiments
+(array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16,
+    17]), array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16,
+    17]))
+============================================================
+Diagonal sum: 10583.2, Off-diagonal sum: 170977.59999999998
+Diagonals mean: 587.9555555555556, Off-diagonals mean: 558.7503267973856
+R_=0.049672510927419006
+============================================================
+Saved in the script place with name: Evorobotpy2_random.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/cyclic -ep Evorobotpy2/cyclic
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/cyclic/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/cyclic/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.45.12/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.45.12-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.45.12/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.45.12-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.02.27/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.02.27-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.02.27/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.02.27-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.12.24/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.12.24-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.12.24/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.12.24-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.18.18/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.18.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.18.18/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.18.18-evaluation_matrix.npy
+################# Evorobotpy2/cyclic ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/cyclic --save --save_path Evorobotpy2_cyclic.png
+Evorobotpy2_cyclic.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 9544.4, Off-diagonal sum: 171492.19999999998
+Diagonals mean: 530.2444444444444, Off-diagonals mean: 560.4320261437908
+R_=-0.05693144363063531
+============================================================
+Saved in the script place with name: Evorobotpy2_cyclic.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/delta20 -ep Evorobotpy2/delta20
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/delta20/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/delta20/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.23.18/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.23.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.23.18/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.23.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.28.26/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.28.26-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.28.26/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.28.26-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.56/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.56/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.53.56/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.53.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.53.56/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.53.56-evaluation_matrix.npy
+################# Evorobotpy2/delta20 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/delta20 --save --save_path Evorobotpy2_delta20.png
+Evorobotpy2_delta20.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 9912.999999999998, Off-diagonal sum: 159287.2
+Diagonals mean: 550.7222222222222, Off-diagonals mean: 520.5464052287582
+R_=0.054793171177479214
+============================================================
+Saved in the script place with name: Evorobotpy2_delta20.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/delta10 -ep Evorobotpy2/delta10
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/delta10/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/delta10/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_22.35.10/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_22.35.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_22.35.10/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_22.35.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_13.57.32/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_13.57.32-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_13.57.32/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_13.57.32-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_19.46.10/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_19.46.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_19.46.10/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_19.46.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.46.58/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.46.58-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.46.58/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.46.58-evaluation_matrix.npy
+################# Evorobotpy2/delta10 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/delta10 --save --save_path Evorobotpy2_delta10.png
+Evorobotpy2_delta10.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 8153.4, Off-diagonal sum: 158630.4
+Diagonals mean: 452.96666666666664, Off-diagonals mean: 518.4
+R_=-0.1444550739568769
+============================================================
+Saved in the script place with name: Evorobotpy2_delta10.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/delta5 -ep Evorobotpy2/delta5
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/delta5/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/delta5/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_12.29.36/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_12.29.36-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_12.29.36/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_12.29.36-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.28.26/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.28.26-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.28.26/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.28.26-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_15.15.15/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_15.15.15-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_15.15.15/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_15.15.15-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.59.10/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.59.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.59.10/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.59.10-evaluation_matrix.npy
+################# Evorobotpy2/delta5 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/delta5 --save --save_path Evorobotpy2_delta5.png
+Evorobotpy2_delta5.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 6955.4000000000015, Off-diagonal sum: 149394.0
+Diagonals mean: 386.4111111111112, Off-diagonals mean: 488.2156862745098
+R_=-0.2634618214540032
+============================================================
+Saved in the script place with name: Evorobotpy2_delta5.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/pop3 -ep Evorobotpy2/pop3
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/pop3/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/pop3/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_16.52.34/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_16.52.34-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_16.52.34/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_16.52.34-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_07.57.25/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_07.57.25-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_07.57.25/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_07.57.25-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_22.54.27/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_22.54.27-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_22.54.27/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_22.54.27-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_02.27.59/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_02.27.59-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_02.27.59/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_02.27.59-evaluation_matrix.npy
+################# Evorobotpy2/pop3 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/pop3 --save --save_path Evorobotpy2_pop3.png
+Evorobotpy2_pop3.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 9560.222222222223, Off-diagonal sum: 152838.0222222222
+Diagonals mean: 531.1234567901234, Off-diagonals mean: 499.4706608569353
+R_=0.059595929211042044
+============================================================
+Saved in the script place with name: Evorobotpy2_pop3.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/pop5 -ep Evorobotpy2/pop5
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56/pred/evaluation_matrix.npy -> Evorobotpy2/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/pop5/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/pop5/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56/prey/evaluation_matrix.npy -> Evorobotpy2/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.28/pred/evaluation_matrix.npy -> Evorobotpy2/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.28-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.28/prey/evaluation_matrix.npy -> Evorobotpy2/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.28-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.20/pred/evaluation_matrix.npy -> Evorobotpy2/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.20-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.20/prey/evaluation_matrix.npy -> Evorobotpy2/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.20-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_14.56.06/pred/evaluation_matrix.npy -> Evorobotpy2/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_14.56.06-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_14.56.06/prey/evaluation_matrix.npy -> Evorobotpy2/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_14.56.06-evaluation_matrix.npy
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_08.33.00/pred/evaluation_matrix.npy'
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_08.33.00/prey/evaluation_matrix.npy'
+################# Evorobotpy2/pop5 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/pop5 --save --save_path Evorobotpy2_pop5.png
+Evorobotpy2_pop5.png
+Generate heatmap from #4 experiments
+============================================================
+Diagonal sum: 8844.383333333333, Off-diagonal sum: 143866.17
+Diagonals mean: 491.35462962962964, Off-diagonals mean: 470.1508823529412
+R_=0.04315365318257257
+============================================================
+Saved in the script place with name: Evorobotpy2_pop5.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/pop8 -ep Evorobotpy2/pop8
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46/pred/evaluation_matrix.npy -> Evorobotpy2/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/pop8/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/pop8/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46/prey/evaluation_matrix.npy -> Evorobotpy2/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_09.59.54/pred/evaluation_matrix.npy -> Evorobotpy2/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_09.59.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_09.59.54/prey/evaluation_matrix.npy -> Evorobotpy2/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_09.59.54-evaluation_matrix.npy
+################# Evorobotpy2/pop8 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/pop8 --save --save_path Evorobotpy2_pop8.png
+Evorobotpy2_pop8.png
+Generate heatmap from #2 experiments
+============================================================
+Diagonal sum: 9394.114583333334, Off-diagonal sum: 155302.125
+Diagonals mean: 521.8952546296297, Off-diagonals mean: 507.52328431372547
+R_=0.027538036010891647
+============================================================
+Saved in the script place with name: Evorobotpy2_pop8.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/latest -ep PZ/latest
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18/pred/evaluation_matrix_axis_x.npy -> PZ/latest/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18/pred/evaluation_matrix_axis_y.npy -> PZ/latest/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41-evaluation_matrix.npy
+################# PZ/latest ##################
+Execute: python3 heatmap_gen.py --path PZ/latest --save --save_path PZ_latest.png
+PZ_latest.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 9586.0, Off-diagonal sum: 80223.0
+Diagonals mean: 871.4545454545455, Off-diagonals mean: 729.3
+R_=0.16312330481952858
+============================================================
+Saved in the script place with name: PZ_latest.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/random -ep PZ/random
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53/pred/evaluation_matrix_axis_x.npy -> PZ/random/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53/pred/evaluation_matrix_axis_y.npy -> PZ/random/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19-evaluation_matrix.npy
+################# PZ/random ##################
+Execute: python3 heatmap_gen.py --path PZ/random --save --save_path PZ_random.png
+PZ_random.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 2863.7999999999997, Off-diagonal sum: 36247.799999999996
+Diagonals mean: 260.3454545454545, Off-diagonals mean: 329.5254545454545
+R_=-0.2657238633982821
+============================================================
+Saved in the script place with name: PZ_random.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/cyclic -ep PZ/cyclic
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01/pred/evaluation_matrix_axis_x.npy -> PZ/cyclic/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01/pred/evaluation_matrix_axis_y.npy -> PZ/cyclic/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38-evaluation_matrix.npy
+################# PZ/cyclic ##################
+Execute: python3 heatmap_gen.py --path PZ/cyclic --save --save_path PZ_cyclic.png
+PZ_cyclic.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 4464.400000000001, Off-diagonal sum: 47056.399999999994
+Diagonals mean: 405.85454545454553, Off-diagonals mean: 427.7854545454545
+R_=-0.054036376668757005
+============================================================
+Saved in the script place with name: PZ_cyclic.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/delta20 -ep PZ/delta20
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56/pred/evaluation_matrix_axis_x.npy -> PZ/delta20/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56/pred/evaluation_matrix_axis_y.npy -> PZ/delta20/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17-evaluation_matrix.npy
+################# PZ/delta20 ##################
+Execute: python3 heatmap_gen.py --path PZ/delta20 --save --save_path PZ_delta20.png
+PZ_delta20.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 2363.6, Off-diagonal sum: 31698.600000000006
+Diagonals mean: 214.87272727272727, Off-diagonals mean: 288.169090909091
+R_=-0.3411152479268915
+============================================================
+Saved in the script place with name: PZ_delta20.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/delta10 -ep PZ/delta10
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03/pred/evaluation_matrix_axis_x.npy -> PZ/delta10/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03/pred/evaluation_matrix_axis_y.npy -> PZ/delta10/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38-evaluation_matrix.npy
+################# PZ/delta10 ##################
+Execute: python3 heatmap_gen.py --path PZ/delta10 --save --save_path PZ_delta10.png
+PZ_delta10.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 3901.7999999999997, Off-diagonal sum: 52343.6
+Diagonals mean: 354.7090909090909, Off-diagonals mean: 475.85090909090906
+R_=-0.34152442462453225
+============================================================
+Saved in the script place with name: PZ_delta10.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/delta5 -ep PZ/delta5
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47/pred/evaluation_matrix_axis_x.npy -> PZ/delta5/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47/pred/evaluation_matrix_axis_y.npy -> PZ/delta5/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58-evaluation_matrix.npy
+################# PZ/delta5 ##################
+Execute: python3 heatmap_gen.py --path PZ/delta5 --save --save_path PZ_delta5.png
+PZ_delta5.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 4680.0, Off-diagonal sum: 59931.6
+Diagonals mean: 425.45454545454544, Off-diagonals mean: 544.8327272727273
+R_=-0.2805897435897437
+============================================================
+Saved in the script place with name: PZ_delta5.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/pop3 -ep PZ/pop3
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12/pred/evaluation_matrix.npy -> PZ/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12/pred/evaluation_matrix_axis_x.npy -> PZ/pop3/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12/pred/evaluation_matrix_axis_y.npy -> PZ/pop3/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12/prey/evaluation_matrix.npy -> PZ/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49/pred/evaluation_matrix.npy -> PZ/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49/prey/evaluation_matrix.npy -> PZ/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34/pred/evaluation_matrix.npy -> PZ/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34/prey/evaluation_matrix.npy -> PZ/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04/pred/evaluation_matrix.npy -> PZ/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04/prey/evaluation_matrix.npy -> PZ/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04-evaluation_matrix.npy
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.24.2022_00.37.43/pred/evaluation_matrix.npy'
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.24.2022_00.37.43/prey/evaluation_matrix.npy'
+################# PZ/pop3 ##################
+Execute: python3 heatmap_gen.py --path PZ/pop3 --save --save_path PZ_pop3.png
+PZ_pop3.png
+Generate heatmap from #4 experiments
+============================================================
+Diagonal sum: 2215.7777777777783, Off-diagonal sum: 27492.63888888889
+Diagonals mean: 201.43434343434348, Off-diagonals mean: 249.93308080808083
+R_=-0.2407669742252531
+============================================================
+Saved in the script place with name: PZ_pop3.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/pop5 -ep PZ/pop5
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16/pred/evaluation_matrix.npy -> PZ/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16/pred/evaluation_matrix_axis_x.npy -> PZ/pop5/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16/pred/evaluation_matrix_axis_y.npy -> PZ/pop5/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16/prey/evaluation_matrix.npy -> PZ/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16-evaluation_matrix.npy
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_00.13.39/pred/evaluation_matrix.npy'
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_00.13.39/prey/evaluation_matrix.npy'
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28/pred/evaluation_matrix.npy -> PZ/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28/prey/evaluation_matrix.npy -> PZ/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39/pred/evaluation_matrix.npy -> PZ/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39/prey/evaluation_matrix.npy -> PZ/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45/pred/evaluation_matrix.npy -> PZ/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45/prey/evaluation_matrix.npy -> PZ/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45-evaluation_matrix.npy
+################# PZ/pop5 ##################
+Execute: python3 heatmap_gen.py --path PZ/pop5 --save --save_path PZ_pop5.png
+PZ_pop5.png
+Generate heatmap from #4 experiments
+============================================================
+Diagonal sum: 2596.54, Off-diagonal sum: 29289.339999999997
+Diagonals mean: 236.0490909090909, Off-diagonals mean: 266.2667272727272
+R_=-0.12801420351698786
+============================================================
+Saved in the script place with name: PZ_pop5.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/pop8 -ep PZ/pop8
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15/pred/evaluation_matrix.npy -> PZ/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15/pred/evaluation_matrix_axis_x.npy -> PZ/pop8/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15/pred/evaluation_matrix_axis_y.npy -> PZ/pop8/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15/prey/evaluation_matrix.npy -> PZ/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17/pred/evaluation_matrix.npy -> PZ/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17/prey/evaluation_matrix.npy -> PZ/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22/pred/evaluation_matrix.npy -> PZ/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22/prey/evaluation_matrix.npy -> PZ/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22-evaluation_matrix.npy
+################# PZ/pop8 ##################
+Execute: python3 heatmap_gen.py --path PZ/pop8 --save --save_path PZ_pop8.png
+PZ_pop8.png
+Generate heatmap from #3 experiments
+============================================================
+Diagonal sum: 1794.1145833333333, Off-diagonal sum: 21539.82291666667
+Diagonals mean: 163.10132575757575, Off-diagonals mean: 195.816571969697
+R_=-0.20058234389061486
+============================================================
+Saved in the script place with name: PZ_pop8.png
+###########################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------
+
+Normalized
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/latest -ep Evorobotpy2/latest
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/latest/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/latest/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_17.53.32-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_20.37.01/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_20.37.01-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_20.37.01/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_20.37.01-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.02.52/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.02.52-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.02.52/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.02.52-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_23.32.24/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_23.32.24-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_23.32.24/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_23.32.24-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.26.46/pred/evaluation_matrix.npy -> Evorobotpy2/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.26.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.26.46/prey/evaluation_matrix.npy -> Evorobotpy2/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.26.46-evaluation_matrix.npy
+################# Evorobotpy2/latest ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/latest --save --save_path Evorobotpy2_latest.png
+Evorobotpy2_latest.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 5.7430666666666665, Off-diagonal sum: 68.41879999999999
+Diagonals mean: 0.31905925925925926, Off-diagonals mean: 0.22359084967320259
+R_=0.29921842672016463
+============================================================
+Saved in the script place with name: Evorobotpy2_latest.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/random -ep Evorobotpy2/random
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/random/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/random/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.16.2022_23.49.14-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_02.42.08/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_02.42.08-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_02.42.08/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_02.42.08-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_09.16.52/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_09.16.52-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_09.16.52/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_09.16.52-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_07.12.17/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_07.12.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_07.12.17/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_07.12.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_05.02.39/pred/evaluation_matrix.npy -> Evorobotpy2/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_05.02.39-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_05.02.39/prey/evaluation_matrix.npy -> Evorobotpy2/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_05.02.39-evaluation_matrix.npy
+################# Evorobotpy2/random ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/random --save --save_path Evorobotpy2_random.png
+Evorobotpy2_random.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 3.1664, Off-diagonal sum: 35.955199999999984
+Diagonals mean: 0.1759111111111111, Off-diagonals mean: 0.11750065359477119
+R_=0.3320452991707044
+============================================================
+Saved in the script place with name: Evorobotpy2_random.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/cyclic -ep Evorobotpy2/cyclic
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/cyclic/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/cyclic/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.36-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.45.12/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.45.12-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.45.12/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.45.12-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.02.27/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.02.27-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.02.27/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.02.27-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.12.24/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.12.24-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.12.24/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.12.24-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.18.18/pred/evaluation_matrix.npy -> Evorobotpy2/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.18.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.18.18/prey/evaluation_matrix.npy -> Evorobotpy2/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.18.18-evaluation_matrix.npy
+################# Evorobotpy2/cyclic ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/cyclic --save --save_path Evorobotpy2_cyclic.png
+Evorobotpy2_cyclic.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 1.0887333333333333, Off-diagonal sum: 36.9844
+Diagonals mean: 0.060485185185185183, Off-diagonals mean: 0.12086405228758171
+R_=-0.9982422458910699
+============================================================
+Saved in the script place with name: Evorobotpy2_cyclic.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/delta20 -ep Evorobotpy2/delta20
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/delta20/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/delta20/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.36.58-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.23.18/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.23.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.23.18/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.23.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.28.26/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.28.26-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.28.26/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.28.26-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.56/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.56/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.53.56/pred/evaluation_matrix.npy -> Evorobotpy2/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.53.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.53.56/prey/evaluation_matrix.npy -> Evorobotpy2/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.53.56-evaluation_matrix.npy
+################# Evorobotpy2/delta20 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/delta20 --save --save_path Evorobotpy2_delta20.png
+Evorobotpy2_delta20.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 1.8257999999999996, Off-diagonal sum: 12.574400000000006
+Diagonals mean: 0.10143333333333332, Off-diagonals mean: 0.04109281045751636
+R_=0.59487863498998
+============================================================
+Saved in the script place with name: Evorobotpy2_delta20.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/delta10 -ep Evorobotpy2/delta10
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/delta10/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/delta10/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.09.21-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_22.35.10/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_22.35.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_22.35.10/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_22.35.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_13.57.32/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_13.57.32-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_13.57.32/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_13.57.32-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_19.46.10/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_19.46.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_19.46.10/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_19.46.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.46.58/pred/evaluation_matrix.npy -> Evorobotpy2/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.46.58-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.46.58/prey/evaluation_matrix.npy -> Evorobotpy2/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_16.46.58-evaluation_matrix.npy
+################# Evorobotpy2/delta10 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/delta10 --save --save_path Evorobotpy2_delta10.png
+Evorobotpy2_delta10.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: -1.6931999999999998, Off-diagonal sum: 11.260799999999998
+Diagonals mean: -0.09406666666666666, Off-diagonals mean: 0.03679999999999999
+R_=1.3912119064493267
+============================================================
+Saved in the script place with name: Evorobotpy2_delta10.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/delta5 -ep Evorobotpy2/delta5
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/delta5/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/delta5/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_17.52.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_12.29.36/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_12.29.36-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_12.29.36/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_12.29.36-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.28.26/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.28.26-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.28.26/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.28.26-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_15.15.15/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_15.15.15-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_15.15.15/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_15.15.15-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.59.10/pred/evaluation_matrix.npy -> Evorobotpy2/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.59.10-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.59.10/prey/evaluation_matrix.npy -> Evorobotpy2/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.59.10-evaluation_matrix.npy
+################# Evorobotpy2/delta5 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/delta5 --save --save_path Evorobotpy2_delta5.png
+Evorobotpy2_delta5.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: -4.089200000000001, Off-diagonal sum: -7.212000000000004
+Diagonals mean: -0.2271777777777778, Off-diagonals mean: -0.023568627450980408
+R_=0.8962546967334326
+============================================================
+Saved in the script place with name: Evorobotpy2_delta5.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/pop3 -ep Evorobotpy2/pop3
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/pop3/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/pop3/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.49.19-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_16.52.34/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_16.52.34-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_16.52.34/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_16.52.34-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_07.57.25/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_07.57.25-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_07.57.25/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_07.57.25-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_22.54.27/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_22.54.27-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_22.54.27/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_22.54.27-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_02.27.59/pred/evaluation_matrix.npy -> Evorobotpy2/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_02.27.59-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_02.27.59/prey/evaluation_matrix.npy -> Evorobotpy2/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_02.27.59-evaluation_matrix.npy
+################# Evorobotpy2/pop3 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/pop3 --save --save_path Evorobotpy2_pop3.png
+Evorobotpy2_pop3.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 1.1204370370370367, Off-diagonal sum: -0.32395555555555444
+Diagonals mean: 0.062246502057613146, Off-diagonals mean: -0.0010586782861292628
+R_=1.0170078358001449
+============================================================
+Saved in the script place with name: Evorobotpy2_pop3.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/pop5 -ep Evorobotpy2/pop5
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56/pred/evaluation_matrix.npy -> Evorobotpy2/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/pop5/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/pop5/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56/prey/evaluation_matrix.npy -> Evorobotpy2/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.07.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.28/pred/evaluation_matrix.npy -> Evorobotpy2/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.28-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.28/prey/evaluation_matrix.npy -> Evorobotpy2/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.28-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.20/pred/evaluation_matrix.npy -> Evorobotpy2/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.20-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.20/prey/evaluation_matrix.npy -> Evorobotpy2/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.20-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_14.56.06/pred/evaluation_matrix.npy -> Evorobotpy2/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_14.56.06-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_14.56.06/prey/evaluation_matrix.npy -> Evorobotpy2/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_14.56.06-evaluation_matrix.npy
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_08.33.00/pred/evaluation_matrix.npy'
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/Evorobotpy2/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_08.33.00/prey/evaluation_matrix.npy'
+################# Evorobotpy2/pop5 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/pop5 --save --save_path Evorobotpy2_pop5.png
+Evorobotpy2_pop5.png
+Generate heatmap from #4 experiments
+============================================================
+Diagonal sum: -0.31124333333333387, Off-diagonal sum: -18.26766
+Diagonals mean: -0.017291296296296325, Off-diagonals mean: -0.05969823529411764
+R_=-2.452502014374977
+============================================================
+Saved in the script place with name: Evorobotpy2_pop5.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/Evorobotpy2/pop8 -ep Evorobotpy2/pop8
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46/pred/evaluation_matrix.npy -> Evorobotpy2/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46/pred/evaluation_matrix_axis_x.npy -> Evorobotpy2/pop8/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46/pred/evaluation_matrix_axis_y.npy -> Evorobotpy2/pop8/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46/prey/evaluation_matrix.npy -> Evorobotpy2/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.18.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_09.59.54/pred/evaluation_matrix.npy -> Evorobotpy2/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_09.59.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/Evorobotpy2/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_09.59.54/prey/evaluation_matrix.npy -> Evorobotpy2/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_09.59.54-evaluation_matrix.npy
+################# Evorobotpy2/pop8 ##################
+Execute: python3 heatmap_gen.py --path Evorobotpy2/pop8 --save --save_path Evorobotpy2_pop8.png
+Evorobotpy2_pop8.png
+Generate heatmap from #2 experiments
+============================================================
+Diagonal sum: 0.7882317708333333, Off-diagonal sum: 4.60425
+Diagonals mean: 0.043790653935185185, Off-diagonals mean: 0.015046568627450982
+R_=0.6563977178846997
+============================================================
+Saved in the script place with name: Evorobotpy2_pop8.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/latest -ep PZ/latest
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18/pred/evaluation_matrix_axis_x.npy -> PZ/latest/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18/pred/evaluation_matrix_axis_y.npy -> PZ/latest/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41/pred/evaluation_matrix.npy -> PZ/latest/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/latest/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41/prey/evaluation_matrix.npy -> PZ/latest/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41-evaluation_matrix.npy
+################# PZ/latest ##################
+Execute: python3 heatmap_gen.py --path PZ/latest --save --save_path PZ_latest.png
+PZ_latest.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: 8.171999999999999, Off-diagonal sum: 50.446000000000005
+Diagonals mean: 0.7429090909090909, Off-diagonals mean: 0.45860000000000006
+R_=0.38269701419481145
+============================================================
+Saved in the script place with name: PZ_latest.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/random -ep PZ/random
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53/pred/evaluation_matrix_axis_x.npy -> PZ/random/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53/pred/evaluation_matrix_axis_y.npy -> PZ/random/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19/pred/evaluation_matrix.npy -> PZ/random/pred/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/random/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19/prey/evaluation_matrix.npy -> PZ/random/prey/save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19-evaluation_matrix.npy
+################# PZ/random ##################
+Execute: python3 heatmap_gen.py --path PZ/random --save --save_path PZ_random.png
+PZ_random.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: -5.2724, Off-diagonal sum: -37.5044
+Diagonals mean: -0.4793090909090909, Off-diagonals mean: -0.34094909090909087
+R_=0.2886655033760717
+============================================================
+Saved in the script place with name: PZ_random.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/cyclic -ep PZ/cyclic
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01/pred/evaluation_matrix_axis_x.npy -> PZ/cyclic/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01/pred/evaluation_matrix_axis_y.npy -> PZ/cyclic/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38/pred/evaluation_matrix.npy -> PZ/cyclic/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/cyclic/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38/prey/evaluation_matrix.npy -> PZ/cyclic/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38-evaluation_matrix.npy
+################# PZ/cyclic ##################
+Execute: python3 heatmap_gen.py --path PZ/cyclic --save --save_path PZ_cyclic.png
+PZ_cyclic.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: -2.0711999999999997, Off-diagonal sum: -15.887199999999998
+Diagonals mean: -0.18829090909090906, Off-diagonals mean: -0.1444290909090909
+R_=0.23294708381614518
+============================================================
+Saved in the script place with name: PZ_cyclic.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/delta20 -ep PZ/delta20
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56/pred/evaluation_matrix_axis_x.npy -> PZ/delta20/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56/pred/evaluation_matrix_axis_y.npy -> PZ/delta20/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17/pred/evaluation_matrix.npy -> PZ/delta20/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta20/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17/prey/evaluation_matrix.npy -> PZ/delta20/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17-evaluation_matrix.npy
+################# PZ/delta20 ##################
+Execute: python3 heatmap_gen.py --path PZ/delta20 --save --save_path PZ_delta20.png
+PZ_delta20.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: -6.2728, Off-diagonal sum: -46.6028
+Diagonals mean: -0.5702545454545455, Off-diagonals mean: -0.4236618181818182
+R_=0.257065425328402
+============================================================
+Saved in the script place with name: PZ_delta20.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/delta10 -ep PZ/delta10
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03/pred/evaluation_matrix_axis_x.npy -> PZ/delta10/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03/pred/evaluation_matrix_axis_y.npy -> PZ/delta10/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38/pred/evaluation_matrix.npy -> PZ/delta10/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta10/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38/prey/evaluation_matrix.npy -> PZ/delta10/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38-evaluation_matrix.npy
+################# PZ/delta10 ##################
+Execute: python3 heatmap_gen.py --path PZ/delta10 --save --save_path PZ_delta10.png
+PZ_delta10.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: -3.1964, Off-diagonal sum: -5.3127999999999975
+Diagonals mean: -0.2905818181818182, Off-diagonals mean: -0.048298181818181796
+R_=0.8337880115129521
+============================================================
+Saved in the script place with name: PZ_delta10.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/delta5 -ep PZ/delta5
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47/pred/evaluation_matrix_axis_x.npy -> PZ/delta5/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47/pred/evaluation_matrix_axis_y.npy -> PZ/delta5/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58/pred/evaluation_matrix.npy -> PZ/delta5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/delta5/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58/prey/evaluation_matrix.npy -> PZ/delta5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58-evaluation_matrix.npy
+################# PZ/delta5 ##################
+Execute: python3 heatmap_gen.py --path PZ/delta5 --save --save_path PZ_delta5.png
+PZ_delta5.png
+Generate heatmap from #5 experiments
+============================================================
+Diagonal sum: -1.6400000000000001, Off-diagonal sum: 9.863200000000003
+Diagonals mean: -0.1490909090909091, Off-diagonals mean: 0.08966545454545458
+R_=1.6014146341463416
+============================================================
+Saved in the script place with name: PZ_delta5.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/pop3 -ep PZ/pop3
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12/pred/evaluation_matrix.npy -> PZ/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12/pred/evaluation_matrix_axis_x.npy -> PZ/pop3/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12/pred/evaluation_matrix_axis_y.npy -> PZ/pop3/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12/prey/evaluation_matrix.npy -> PZ/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49/pred/evaluation_matrix.npy -> PZ/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49/prey/evaluation_matrix.npy -> PZ/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34/pred/evaluation_matrix.npy -> PZ/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34/prey/evaluation_matrix.npy -> PZ/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04/pred/evaluation_matrix.npy -> PZ/pop3/pred/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04/prey/evaluation_matrix.npy -> PZ/pop3/prey/save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04-evaluation_matrix.npy
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.24.2022_00.37.43/pred/evaluation_matrix.npy'
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.24.2022_00.37.43/prey/evaluation_matrix.npy'
+################# PZ/pop3 ##################
+Execute: python3 heatmap_gen.py --path PZ/pop3 --save --save_path PZ_pop3.png
+PZ_pop3.png
+Generate heatmap from #4 experiments
+============================================================
+Diagonal sum: -6.568444444444444, Off-diagonal sum: -55.01472222222222
+Diagonals mean: -0.5971313131313131, Off-diagonals mean: -0.5001338383838384
+R_=0.16243910278097287
+============================================================
+Saved in the script place with name: PZ_pop3.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/pop5 -ep PZ/pop5
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16/pred/evaluation_matrix.npy -> PZ/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16/pred/evaluation_matrix_axis_x.npy -> PZ/pop5/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16/pred/evaluation_matrix_axis_y.npy -> PZ/pop5/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16/prey/evaluation_matrix.npy -> PZ/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16-evaluation_matrix.npy
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_00.13.39/pred/evaluation_matrix.npy'
+[Errno 2] No such file or directory: '../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_00.13.39/prey/evaluation_matrix.npy'
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28/pred/evaluation_matrix.npy -> PZ/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28/prey/evaluation_matrix.npy -> PZ/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39/pred/evaluation_matrix.npy -> PZ/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39/prey/evaluation_matrix.npy -> PZ/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45/pred/evaluation_matrix.npy -> PZ/pop5/pred/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45/prey/evaluation_matrix.npy -> PZ/pop5/prey/save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45-evaluation_matrix.npy
+################# PZ/pop5 ##################
+Execute: python3 heatmap_gen.py --path PZ/pop5 --save --save_path PZ_pop5.png
+PZ_pop5.png
+Generate heatmap from #4 experiments
+============================================================
+Diagonal sum: -5.80692, Off-diagonal sum: -51.42132000000001
+Diagonals mean: -0.5279018181818181, Off-diagonals mean: -0.4674665454545455
+R_=0.11448203178276932
+============================================================
+Saved in the script place with name: PZ_pop5.png
+###########################################################
+###########################################################
+Execute: python3 get_eval_mat.py --p ../experiments/selfplay-final-results/PZ/pop8 -ep PZ/pop8
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15/pred/evaluation_matrix.npy -> PZ/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15/pred/evaluation_matrix_axis_x.npy -> PZ/pop8/pred/axis/evaluation_matrix_axis_x.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15/pred/evaluation_matrix_axis_y.npy -> PZ/pop8/pred/axis/evaluation_matrix_axis_y.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15/prey/evaluation_matrix.npy -> PZ/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17/pred/evaluation_matrix.npy -> PZ/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17/prey/evaluation_matrix.npy -> PZ/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22/pred/evaluation_matrix.npy -> PZ/pop8/pred/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22-evaluation_matrix.npy
+Copy from ../experiments/selfplay-final-results/PZ/pop8/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22/prey/evaluation_matrix.npy -> PZ/pop8/prey/save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22-evaluation_matrix.npy
+################# PZ/pop8 ##################
+Execute: python3 heatmap_gen.py --path PZ/pop8 --save --save_path PZ_pop8.png
+PZ_pop8.png
+Generate heatmap from #3 experiments
+============================================================
+Diagonal sum: -7.411770833333333, Off-diagonal sum: -66.92035416666668
+Diagonals mean: -0.6737973484848484, Off-diagonals mean: -0.6083668560606063
+R_=0.09710707911121065
+============================================================
+Saved in the script place with name: PZ_pop8.png
+###########################################################

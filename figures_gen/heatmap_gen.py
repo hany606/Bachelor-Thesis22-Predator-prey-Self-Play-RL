@@ -42,11 +42,18 @@ for a in agents:
         heatmaps[a].append(heatmap)
 merged_heatmaps = []
 for i in range(len(heatmaps_path_agent[agents[0]])):
-    if(y_axis_reversed):
-        merged_heatmaps.append(np.flip(-heatmaps["pred"][i] + heatmaps["prey"][i],0))
-    else:
-        merged_heatmaps.append(-heatmaps["pred"][i] + heatmaps["prey"][i])
-    
+    # if(y_axis_reversed):
+    #     merged_heatmaps.append(np.flip(-heatmaps["pred"][i] + heatmaps["prey"][i],0))
+    # else:
+    # merged_heatmaps.append(heatmaps["prey"][i])
+
+    merged_heatmaps.append((heatmaps["prey"][i] - heatmaps["pred"][i])/1000)
+
+    # merged_heatmaps.append(-heatmaps["pred"][i] + heatmaps["prey"][i])
+
+
+# print (off_dia_sum)
+
 
 x_axis = np.load(os.path.join(path,"pred", "axis", "evaluation_matrix_axis_x.npy"))
 y_axis = np.load(os.path.join(path,"pred", "axis", "evaluation_matrix_axis_y.npy"))
@@ -54,17 +61,33 @@ y_axis = np.load(os.path.join(path,"pred", "axis", "evaluation_matrix_axis_y.npy
 # print(x_axis)
 x_axis = [int("0" if "00." in e else e.strip("0").strip(".")) for e in x_axis]
 y_axis = [int("0" if "00." in e else e.strip("0").strip(".")) for e in y_axis]
-if(y_axis_reversed):
-    y_axis = reversed(y_axis)
+# if(y_axis_reversed):
+#     y_axis = reversed(y_axis)
 # x_axis = [e.replace(".", ",") for e in x_axis]
 # y_axis = [e.replace(".", ",") for e in y_axis]
 # print(x_axis)
+# HeatMapVisualizer.visSeaborn(   heatmaps["pred"],
+#                             mn_val=0,mx_val=1000, center=500,
+#                             x_axis=x_axis, y_axis=y_axis,
+#                             save=args.save, save_path=save_path,
+#                             labels=["prey", "predator", "Episode length mean", ""],
+#                             y_axis_reversed=y_axis_reversed)#,cmap="YlGnBu")
+# HeatMapVisualizer.visSeaborn(   heatmaps["prey"],
+#                             mn_val=0,mx_val=1000, center=500,
+#                             x_axis=x_axis, y_axis=y_axis,
+#                             save=args.save, save_path=save_path,
+#                             labels=["prey", "predator", "Episode length mean", ""],
+#                             y_axis_reversed=y_axis_reversed)#,cmap="YlGnBu")
+
 
 
 HeatMapVisualizer.visSeaborn(   merged_heatmaps,
-                                mn_val=-1000,mx_val=1000, center=0,
+                                mn_val=-1,mx_val=1, center=0,
+                                # mn_val=0,mx_val=1000, center=500,
                                 x_axis=x_axis, y_axis=y_axis,
-                                save=args.save, save_path=save_path)#,cmap="YlGnBu")
+                                save=args.save, save_path=save_path,
+                                labels=["prey", "predator", "Episode length mean", ""],
+                                y_axis_reversed=y_axis_reversed)#,cmap="YlGnBu")
 
 # for a in agents:
 #     HeatMapVisualizer.visSeaborn(old_heatmaps[a],
@@ -72,6 +95,4 @@ HeatMapVisualizer.visSeaborn(   merged_heatmaps,
 
 
 
-# for i in range(len(heatmaps)):
-#     HeatMapVisualizer.visSeaborn(heatmaps[i])
 

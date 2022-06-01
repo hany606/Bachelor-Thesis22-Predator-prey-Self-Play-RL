@@ -1,8 +1,10 @@
+#!/usr/bin/python3
+
 import subprocess
 import os
 
 envs = ["Evorobotpy2", "PZ"]
-methods = ["random", "pop5"]
+methods = ["latest", "random","cyclic", "delta20", "delta10", "delta5", "pop3", "pop5", "pop8"]
 parent_path = "../experiments/selfplay-final-results"
 
 get_eval_mat_cmd = lambda s,d: f"python3 get_eval_mat.py --p {s} -ep {d}"

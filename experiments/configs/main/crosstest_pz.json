@@ -1,0 +1,10 @@
+{
+    "__comment__": "Paths are relative to the python script runner",
+    "header": "configs/header/baseV4.json",
+    "shared": "configs/shared/shared.json",
+    "env_agents": "configs/env_agents/pz.json",
+    "__comment1__": "Not necessary for the crosstest",
+    "outer_opt": "configs/outer_opt/random.json",
+    "inner_opt": "configs/inner_opt/inner_opt_ppo_tmp.json",
+    "testing": "configs/testing/crosstest_pz.json"
+}

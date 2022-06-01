@@ -145,6 +145,9 @@ class PZPredPrey(gym.Env):
         self.caught = False
         self.steps_done = False
         self.observation = None
+        self._posx_lim = [-1.8,1.8]
+        self._posy_lim = [-1.8,1.8]
+
 
 
     def _set_env_parameters(self):
@@ -357,9 +360,13 @@ class PZPredPrey(gym.Env):
         # --------------------------------------------------
 
         prey_reward, predator_reward = reward_dict["agent_0"], reward_dict["adversary_0"]
+        # prey_reward, predator_reward = 0, 0
+        # delta_pos = obs[self.num_obstacles*2+4:self.num_obstacles*2+6] #np.array(obs[2:4]) - np.array(obs[self.num_obstacles*2+4:self.num_obstacles*2+6])
+        # dist = np.sqrt(np.sum(np.square(delta_pos)))
+        dist = 0
         timestep_reward = 3*self.num_steps/self.max_num_steps
-        prey_reward += 1 + timestep_reward
-        predator_reward += -1 - timestep_reward
+        prey_reward += 1 + timestep_reward + dist
+        predator_reward += -1 - timestep_reward - dist
         if(self.caught):   # if the predator caught the prey before finishing the time
             prey_reward = -1000
             predator_reward = 1000    # predator it does not matter if go out of the boundary or not in case of catching
@@ -411,8 +418,12 @@ class PZPredPrey(gym.Env):
             return "prey"
         return ""
     
-    def _process_info(self):
-        return {"win":self.who_won(), "reward": (self._pred_reward, self._prey_reward), "num_steps": self.num_steps}
+    def _process_info(self, obs_dict):
+        # TODO: clean that part later
+        self.pred_pos = obs_dict[self.agent_keys[0]][2:4]
+        self.prey_pos = obs_dict[self.agent_keys[1]][2:4]
+
+        return {"win":self.who_won(), "reward": (self._pred_reward, self._prey_reward), "num_steps": self.num_steps, "pred_pos":self.pred_pos, "prey_pos":self.prey_pos}
 
     def step(self, action):
         self.num_steps += 1
@@ -424,7 +435,7 @@ class PZPredPrey(gym.Env):
 
         done = self._process_done(whole_obs, done_dict, reward_dict)
         reward = self._process_reward(obs, action, reward_dict)
-        info = self._process_info()
+        info = self._process_info(obs_dict)
         if(done):
             # self.render()
             # input("Input!!!!")
@@ -615,7 +626,7 @@ if __name__ == '__main__':
             # print(action)
             # pos, rel, .., .., ..
             # action = observation[10:12]   # P controller
-            action = [0,0.5]
+            action = [-0.5,0]
             # print_obs(observation)
             # action = [-0,+0.1]#[0,0,-0.3,0,0]
             # action = [0,0,1]
@@ -626,7 +637,8 @@ if __name__ == '__main__':
             # action[2] = 1
             # action[3] = 1
             observation, reward, done, info = env.step(action)
-            print_obs(observation, 3)
+            # print_obs(observation, 3)
+            print(env.prey_pos)
             rewards.append(info["reward"][1])
             # print(observation.shape)
             # print(info)

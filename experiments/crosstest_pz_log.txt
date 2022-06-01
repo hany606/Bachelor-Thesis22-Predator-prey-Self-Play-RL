@@ -1,0 +1,697 @@
+{   'agents_order': {'0': 'pred', '1': 'prey'},
+    'env': 'SelfPlay1v1-Pred_Prey-v0',
+    'experiment_id': 'basev4',
+    'experiment_log_prefix': '',
+    'experiment_name': '-base4',
+    'framework': 'stable_baselines3',
+    'hierarchy': '2D:pettingzoo:predprey:1v1',
+    'log_env_dir_name': 'PettingZoo',
+    'num_rounds': 50,
+    'num_workers': 1,
+    'parallel_alternate_training': False,
+    'population_size': 1,
+    'random_sampler_seed_value': 3,
+    'seed_value': 10,
+    'wandb_enable': True,
+    'wandb_entity': 'iu_mas',
+    'wandb_group': 'self-play-2D-PettingZoo',
+    'wandb_notes': 'Base V4 -> +parallel + ppo2 params (default)',
+    'wandb_project': 'Behavioral-Learning'}
+{   'agents_order': {'0': 'pred', '1': 'prey'},
+    'env': 'SelfPlay1v1-Pred_Prey-v0',
+    'experiment_id': 'basev4',
+    'experiment_log_prefix': '',
+    'experiment_name': '-base4',
+    'framework': 'stable_baselines3',
+    'hierarchy': '2D:pettingzoo:predprey:1v1',
+    'log_env_dir_name': 'PettingZoo',
+    'num_rounds': 50,
+    'num_workers': 1,
+    'parallel_alternate_training': False,
+    'population_size': 1,
+    'random_sampler_seed_value': 3,
+    'seed_value': 10,
+    'wandb_enable': True,
+    'wandb_entity': 'iu_mas',
+    'wandb_group': 'self-play-2D-PettingZoo',
+    'wandb_notes': 'Base V4 -> +parallel + ppo2 params (default)',
+    'wandb_project': 'Behavioral-Learning'}
+{   'pred': {   'act': 'vel',
+                'aggregate_eval_matrix': False,
+                'batch_size': 64,
+                'best_agent_search_radius': 5,
+                'clip_range': 0.2,
+                'delta_latest': 0,
+                'ent_coef': 0.0,
+                'env_class': 'SelfPlayPZPredEnv',
+                'eval_freq': 0,
+                'eval_matrix_method': 'length',
+                'eval_matrix_testing_freq': 3,
+                'eval_metric': 'length',
+                'eval_opponent_selection': 'random',
+                'final_save_freq': 5,
+                'gamma': 0.99,
+                'heatmap_log_freq': 5,
+                'id': 0,
+                'lr': 0.0003,
+                'n_epochs': 10,
+                'n_steps': 2048,
+                'name': 'pred',
+                'num_eval_episodes': 2,
+                'num_heatmap_eval_episodes': 5,
+                'num_sampled_opponent_per_round': 10,
+                'num_timesteps': 2000.0,
+                'obs': 'full',
+                'opponent_name': 'prey',
+                'opponent_selection': 'random',
+                'policy': 'MlpPolicy',
+                'randomly_reseed_sampling': True,
+                'rl_algorithm': 'PPO',
+                'sample_after_reset': True,
+                'sample_after_rollout': False,
+                'save_freq': 0,
+                'training_agent_selection': 'latest'},
+    'prey': {   'act': 'vel',
+                'aggregate_eval_matrix': False,
+                'batch_size': 64,
+                'best_agent_search_radius': 5,
+                'clip_range': 0.2,
+                'delta_latest': 0,
+                'ent_coef': 0.0,
+                'env_class': 'SelfPlayPZPreyEnv',
+                'eval_freq': 0,
+                'eval_matrix_method': 'length',
+                'eval_matrix_testing_freq': 3,
+                'eval_metric': 'length',
+                'eval_opponent_selection': 'random',
+                'final_save_freq': 5,
+                'gamma': 0.99,
+                'heatmap_log_freq': 5,
+                'id': 1,
+                'lr': 0.0003,
+                'n_epochs': 10,
+                'n_steps': 2048,
+                'name': 'prey',
+                'num_eval_episodes': 2,
+                'num_heatmap_eval_episodes': 5,
+                'num_sampled_opponent_per_round': 10,
+                'num_timesteps': 2000.0,
+                'obs': 'full',
+                'opponent_name': 'pred',
+                'opponent_selection': 'random',
+                'policy': 'MlpPolicy',
+                'randomly_reseed_sampling': True,
+                'rl_algorithm': 'PPO',
+                'sample_after_reset': True,
+                'sample_after_rollout': False,
+                'save_freq': 0,
+                'training_agent_selection': 'latest'}}
+{   'pred': {   'act': 'vel',
+                'aggregate_eval_matrix': False,
+                'batch_size': 64,
+                'best_agent_search_radius': 5,
+                'clip_range': 0.2,
+                'delta_latest': 0,
+                'ent_coef': 0.0,
+                'env_class': 'SelfPlayPZPredEnv',
+                'eval_freq': 0,
+                'eval_matrix_method': 'length',
+                'eval_matrix_testing_freq': 3,
+                'eval_metric': 'length',
+                'eval_opponent_selection': 'random',
+                'final_save_freq': 5,
+                'gamma': 0.99,
+                'heatmap_log_freq': 5,
+                'id': 0,
+                'lr': 0.0003,
+                'n_epochs': 10,
+                'n_steps': 2048,
+                'name': 'pred',
+                'num_eval_episodes': 2,
+                'num_heatmap_eval_episodes': 5,
+                'num_sampled_opponent_per_round': 10,
+                'num_timesteps': 2000.0,
+                'obs': 'full',
+                'opponent_name': 'prey',
+                'opponent_selection': 'random',
+                'policy': 'MlpPolicy',
+                'randomly_reseed_sampling': True,
+                'rl_algorithm': 'PPO',
+                'sample_after_reset': True,
+                'sample_after_rollout': False,
+                'save_freq': 0,
+                'training_agent_selection': 'latest'},
+    'prey': {   'act': 'vel',
+                'aggregate_eval_matrix': False,
+                'batch_size': 64,
+                'best_agent_search_radius': 5,
+                'clip_range': 0.2,
+                'delta_latest': 0,
+                'ent_coef': 0.0,
+                'env_class': 'SelfPlayPZPreyEnv',
+                'eval_freq': 0,
+                'eval_matrix_method': 'length',
+                'eval_matrix_testing_freq': 3,
+                'eval_metric': 'length',
+                'eval_opponent_selection': 'random',
+                'final_save_freq': 5,
+                'gamma': 0.99,
+                'heatmap_log_freq': 5,
+                'id': 1,
+                'lr': 0.0003,
+                'n_epochs': 10,
+                'n_steps': 2048,
+                'name': 'prey',
+                'num_eval_episodes': 2,
+                'num_heatmap_eval_episodes': 5,
+                'num_sampled_opponent_per_round': 10,
+                'num_timesteps': 2000.0,
+                'obs': 'full',
+                'opponent_name': 'pred',
+                'opponent_selection': 'random',
+                'policy': 'MlpPolicy',
+                'randomly_reseed_sampling': True,
+                'rl_algorithm': 'PPO',
+                'sample_after_reset': True,
+                'sample_after_rollout': False,
+                'save_freq': 0,
+                'training_agent_selection': 'latest'}}
+{   'crosstest': True,
+    'crosstest_methods_parent_path': {   'cyclic': '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/cyclic',
+                                         'delta10': '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/delta10',
+                                         'delta20': '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/delta20',
+                                         'delta5': '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/delta5',
+                                         'latest': '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/latest',
+                                         'pop3': '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/pop3',
+                                         'pop5': '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/pop5',
+                                         'pop8': '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/pop8',
+                                         'random': '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/random'},
+    'crosstest_methods_path': {   'cyclic': [   'save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_09.41.20',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_13.06.38',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_16.53.46',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_20.53.01',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.31.2022_00.23.11'],
+                                  'delta10': [   'save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_11.10.38',
+                                                 'save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_14.27.44',
+                                                 'save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_17.50.41',
+                                                 'save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_21.12.03',
+                                                 'save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_00.31.54'],
+                                  'delta20': [   'save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_10.54.11',
+                                                 'save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_14.30.56',
+                                                 'save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_17.59.17',
+                                                 'save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_21.35.59',
+                                                 'save-SelfPlay1v1-Pred_Prey-v0-05.30.2022_01.06.37'],
+                                  'delta5': [   'save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_09.58.58',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_13.15.11',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_16.40.47',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_20.00.54',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_23.20.50'],
+                                  'latest': [   'save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_15.10.18',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_18.43.18',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_22.16.41',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_02.00.31',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.27.2022_05.28.54'],
+                                  'pop3': [   'save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_11.29.04',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.22.2022_20.42.34',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_05.39.12',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.23.2022_15.28.49',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.24.2022_00.37.43'],
+                                  'pop5': [   'save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_00.13.39',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_13.08.39',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.19.2022_10.07.16',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.20.2022_16.19.28',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.21.2022_14.48.45'],
+                                  'pop8': [   'save-SelfPlay1v1-Pred_Prey-v0-05.26.2022_12.20.22',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.28.2022_00.42.15',
+                                              'save-SelfPlay1v1-Pred_Prey-v0-05.29.2022_09.58.17'],
+                                  'random': [   'save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_13.18.03',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_15.53.19',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_18.35.05',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_21.15.08',
+                                                'save-SelfPlay1v1-Pred_Prey-v0-05.17.2022_23.50.53']},
+    'crosstest_save_name': 'crosstest_mat_pz',
+    'n_seeds': 3,
+    'pred': {   'dirname': 'pred',
+                'freq': 1,
+                'gens': 49,
+                'mode': 'gen',
+                'path': '/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46'},
+    'prey': {   'dirname': 'prey',
+                'freq': 7,
+                'gens': 0,
+                'mode': 'round',
+                'path': '/home/hany606/University/Thesis/Drones-PEG-Bachelor-Thesis-2022/2D/experiments/selfplay-results/save-SelfPlay1v1-Pred_Prey-v0-10.31.2021_21.48.46'},
+    'render': False,
+    'repetition': 3}
+pybullet build time: Dec  1 2021 18:33:04
+ERROR - This experiment is not finished and does not have experiment configuration as a result of finish the experiment (SelfPlayTesting.py:394)
+ERROR - [Errno 2] No such file or directory: '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/pop3/save-SelfPlay1v1-Pred_Prey-v0-05.24.2022_00.37.43/experiment_config.json' (SelfPlayTesting.py:395)
+ERROR - This experiment is not finished and does not have experiment configuration as a result of finish the experiment (SelfPlayTesting.py:394)
+ERROR - [Errno 2] No such file or directory: '/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/experiments/selfplay-final-results/PZ/pop5/save-SelfPlay1v1-Pred_Prey-v0-05.18.2022_00.13.39/experiment_config.json' (SelfPlayTesting.py:395)
+/home/hany606/.local/lib/python3.7/site-packages/gym/spaces/box.py:84: UserWarning: WARN: Box bound precision lowered by casting to float32
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+/home/hany606/repos/research/Drones-PEG-Bachelor-Thesis-2022/Pettingzoo/PettingZoo/pettingzoo/mpe/_mpe_utils/core.py:215: RuntimeWarning: invalid value encountered in true_divide
+  force = self.contact_force * delta_pos / dist * penetration
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: None) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (None, None) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: None) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: None) (SelfPlayTesting.py:561)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - None vs None (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: None) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: None) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: None) (SelfPlayTesting.py:555)
+CRITICAL - latest vs latest (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (latest, latest) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (latest, latest) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 1 & 2 are close to each other (latest, latest) (SelfPlayTesting.py:558)
+CRITICAL - latest vs random (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: random) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: random) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: random) (SelfPlayTesting.py:561)
+CRITICAL - latest vs cyclic (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: latest) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: cyclic) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: cyclic) (SelfPlayTesting.py:561)
+CRITICAL - latest vs delta20 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: delta20) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: delta20) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: delta20) (SelfPlayTesting.py:561)
+CRITICAL - latest vs delta10 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: latest) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: delta10) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: delta10) (SelfPlayTesting.py:561)
+CRITICAL - latest vs delta5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: delta5) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: delta5) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: delta5) (SelfPlayTesting.py:561)
+CRITICAL - latest vs pop3 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop3) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop3) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop3) (SelfPlayTesting.py:561)
+CRITICAL - latest vs pop5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop5) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop5) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop5) (SelfPlayTesting.py:561)
+CRITICAL - latest vs pop8 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop8) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop8) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop8) (SelfPlayTesting.py:561)
+CRITICAL - random vs random (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (random, random) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (random, random) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 1 & 2 are close to each other (random, random) (SelfPlayTesting.py:558)
+CRITICAL - random vs cyclic (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: cyclic) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: random) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: random) (SelfPlayTesting.py:555)
+CRITICAL - random vs delta20 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: delta20) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: delta20) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: delta20) (SelfPlayTesting.py:561)
+CRITICAL - random vs delta10 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: random) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: random) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: random) (SelfPlayTesting.py:555)
+CRITICAL - random vs delta5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: random) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: random) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: random) (SelfPlayTesting.py:555)
+CRITICAL - random vs pop3 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (random, pop3) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop3) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop3) (SelfPlayTesting.py:561)
+CRITICAL - random vs pop5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: random) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: random) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: random) (SelfPlayTesting.py:555)
+CRITICAL - random vs pop8 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: random) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: random) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: random) (SelfPlayTesting.py:555)
+CRITICAL - cyclic vs cyclic (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (cyclic, cyclic) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (cyclic, cyclic) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 1 & 2 are close to each other (cyclic, cyclic) (SelfPlayTesting.py:558)
+CRITICAL - cyclic vs delta20 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: cyclic) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: delta20) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: delta20) (SelfPlayTesting.py:561)
+CRITICAL - cyclic vs delta10 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: delta10) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: delta10) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: delta10) (SelfPlayTesting.py:561)
+CRITICAL - cyclic vs delta5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: delta5) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: delta5) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: delta5) (SelfPlayTesting.py:561)
+CRITICAL - cyclic vs pop3 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop3) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop3) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop3) (SelfPlayTesting.py:561)
+CRITICAL - cyclic vs pop5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: cyclic) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: cyclic) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: cyclic) (SelfPlayTesting.py:555)
+CRITICAL - cyclic vs pop8 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop8) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop8) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop8) (SelfPlayTesting.py:561)
+CRITICAL - delta20 vs delta20 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (delta20, delta20) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (delta20, delta20) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 1 & 2 are close to each other (delta20, delta20) (SelfPlayTesting.py:558)
+CRITICAL - delta20 vs delta10 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: delta20) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: delta20) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: delta20) (SelfPlayTesting.py:555)
+CRITICAL - delta20 vs delta5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: delta20) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: delta20) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: delta20) (SelfPlayTesting.py:555)
+CRITICAL - delta20 vs pop3 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop3) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop3) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop3) (SelfPlayTesting.py:561)
+CRITICAL - delta20 vs pop5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop5) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: delta20) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: delta20) (SelfPlayTesting.py:555)
+CRITICAL - delta20 vs pop8 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: delta20) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: delta20) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: delta20) (SelfPlayTesting.py:555)
+CRITICAL - delta10 vs delta10 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (delta10, delta10) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (delta10, delta10) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 1 & 2 are close to each other (delta10, delta10) (SelfPlayTesting.py:558)
+CRITICAL - delta10 vs delta5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: delta10) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: delta10) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: delta10) (SelfPlayTesting.py:555)
+CRITICAL - delta10 vs pop3 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop3) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop3) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop3) (SelfPlayTesting.py:561)
+CRITICAL - delta10 vs pop5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop5) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: delta10) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: delta10) (SelfPlayTesting.py:555)
+CRITICAL - delta10 vs pop8 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop8) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop8) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop8) (SelfPlayTesting.py:561)
+CRITICAL - delta5 vs delta5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (delta5, delta5) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (delta5, delta5) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 1 & 2 are close to each other (delta5, delta5) (SelfPlayTesting.py:558)
+CRITICAL - delta5 vs pop3 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop3) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop3) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop3) (SelfPlayTesting.py:561)
+CRITICAL - delta5 vs pop5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: delta5) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: delta5) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: delta5) (SelfPlayTesting.py:555)
+CRITICAL - delta5 vs pop8 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop8) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop8) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop8) (SelfPlayTesting.py:561)
+CRITICAL - pop3 vs pop3 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (pop3, pop3) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (pop3, pop3) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 1 & 2 are close to each other (pop3, pop3) (SelfPlayTesting.py:558)
+CRITICAL - pop3 vs pop5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 is better 1 to generate preys (path: pop3) (SelfPlayTesting.py:534)
+CRITICAL - Configuration 1 is better 1 to generate predators (path: pop3) (SelfPlayTesting.py:545)
+CRITICAL - Configuration 1 is better 1 (path: pop3) (SelfPlayTesting.py:555)
+CRITICAL - pop3 vs pop8 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (pop3, pop8) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop8) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop8) (SelfPlayTesting.py:561)
+CRITICAL - pop5 vs pop5 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (pop5, pop5) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (pop5, pop5) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 1 & 2 are close to each other (pop5, pop5) (SelfPlayTesting.py:558)
+CRITICAL - pop5 vs pop8 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 2 is better 2 to generate preys (path: pop8) (SelfPlayTesting.py:540)
+CRITICAL - Configuration 2 is better 2 to generate predators (path: pop8) (SelfPlayTesting.py:551)
+CRITICAL - Configuration 2 is better 2 (path: pop8) (SelfPlayTesting.py:561)
+CRITICAL - pop8 vs pop8 (SelfPlayTesting.py:530)
+CRITICAL -  ----- Part 3 -----  (SelfPlayTesting.py:531)
+CRITICAL - Configuration 1 & 2 are close to each other to generate preys (pop8, pop8) (SelfPlayTesting.py:537)
+CRITICAL - Configuration 1 & 2 are close to each other to generate predators (pop8, pop8) (SelfPlayTesting.py:548)
+CRITICAL - Configuration 1 & 2 are close to each other (pop8, pop8) (SelfPlayTesting.py:558)
+CRITICAL - ['latest', 'random', 'cyclic', 'delta20', 'delta10', 'delta5', 'pop3', 'pop5', 'pop8'] (SelfPlayTesting.py:454)
+CRITICAL - Mat1: (g1+g2)
+[[ 0.00000000e+00 -1.66166667e+00 -3.16666667e-02 -1.92600000e+00
+  -5.61000000e-01 -2.01733333e+00 -1.89000000e+00 -1.57933333e+00
+  -1.91966667e+00]
+ [ 0.00000000e+00  0.00000000e+00  1.62666667e-01 -2.33333333e-02
+   1.58333333e-01  1.76800000e+00 -1.23333333e-02  3.28666667e-01
+   5.00000000e-03]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00 -1.33333333e-03
+  -1.19100000e+00 -1.86400000e+00 -5.67333333e-01  2.25000000e-01
+  -2.14000000e-01]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   9.33333333e-02  1.23933333e+00 -1.48666667e-01  3.16666667e-01
+   3.19000000e-01]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00  8.16000000e-01 -5.66666667e-02  2.84666667e-01
+  -3.14666667e-01]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00  0.00000000e+00 -1.25866667e+00  2.88000000e-01
+  -1.45300000e+00]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00  0.00000000e+00  0.00000000e+00  2.26500000e+00
+  -6.66666667e-03]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+  -3.07000000e-01]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00]] (SelfPlayTesting.py:455)
+CRITICAL - Mat2: (g1-g2)
+[[ 0.00000000e+00  6.23333333e-02 -2.05000000e-01  3.53333333e-02
+   2.53666667e-01  1.26666667e-01  9.33333333e-03 -2.91333333e-01
+   3.23333333e-02]
+ [ 0.00000000e+00  0.00000000e+00  2.33333333e-02 -2.66666667e-03
+   8.90000000e-02  3.60000000e-02 -7.66666667e-03 -3.24000000e-01
+   3.33333333e-04]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00 -8.66666667e-03
+  -7.03333333e-02  1.93333333e-02 -1.10000000e-01 -3.28333333e-01
+   1.40000000e-02]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   1.73333333e-02 -5.37333333e-01 -1.20000000e-02 -3.26666667e-01
+  -3.25666667e-01]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00 -1.69333333e-01  3.33333333e-03 -3.23333333e-01
+   2.67333333e-01]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00  0.00000000e+00 -5.16666667e-01 -2.55333333e-01
+  -1.67666667e-01]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00  0.00000000e+00  0.00000000e+00 -3.25000000e-01
+   8.00000000e-03]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+  -3.02333333e-01]
+ [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00]] (SelfPlayTesting.py:456)
+

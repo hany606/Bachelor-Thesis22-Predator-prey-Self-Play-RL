@@ -5,6 +5,8 @@ environment using Reinforcement Learning.
 
 If you like this work and intend to use this software or the information inside has helped you in your work, I would be happy to cite it as below. (Hopefully a publication will be released later)
 
+• Links: [Preprint in English](https://drive.google.com/file/d/1J1bmWlP1J9skfXmwQXqdyMFVNwNfsgto/view) & [presentation](https://drive.google.com/file/d/1mgLtZNa14XSOrtyRj58-buWwY9n79iME/view)
+
 ```
 @software{Hamed_Learning_behavioral_strategies_2022,
   author = {Hamed, Hany and Klimchik, Alexandr and Nolfi, Stefano},
